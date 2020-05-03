@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from handleData.prepare import prepare
+# from handleData.prepare import prepare
 # Create your views here.
 wxb_name = "./handleData/data/wang.xlsx"
 world_name = "./handleData/data/owd.csv"
