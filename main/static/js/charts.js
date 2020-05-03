@@ -215,7 +215,7 @@ function pieChart(data, name, div_id) {
     myChart.setOption(option);
 }
 
-function barchart(data, name, div_id) {
+function barchart(data, name, div_id, x_max) {
     data = data.map((x)=> [x["国家"],x[name]]);
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
@@ -266,11 +266,12 @@ function barchart(data, name, div_id) {
             type: 'value',
                 position: 'top',
                 axisLabel: {
-                fontSize: CSS_STYLE.fontSize.median,
-                    formatter: function(param) {
-                    return param * 100 + "%"
-                }
-            }
+                    fontSize: CSS_STYLE.fontSize.median,
+                        formatter: function(param) {
+                        return param * 100 + "%"
+                    }
+                },
+                max: x_max
         },
         series: [{
             name: name,
@@ -290,7 +291,7 @@ function barchart(data, name, div_id) {
                 color: 'black',
                 fontSize: CSS_STYLE.fontSize.small
             },
-            data: data.map((x) => x[1])
+            data: data.map((x) =>  x[1])
         }]
     };
     myChart.setOption(option);
