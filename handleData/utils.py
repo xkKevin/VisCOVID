@@ -15,8 +15,17 @@ def load_config(config_path = "./handleData/config.json" ):
     fp = open(config_path)
     config_data = json.load(fp)
     return config_data
+class ConfigEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.isoformat()
+        else:
+            return obj
+def save_config(config, config_path="./config.json"):
+    fp = open(config_path, 'w', encoding='utf-8')
+    json.dump(config, fp, cls=ConfigEncoder, ensure_ascii=False)
 
-
+    
 def save_data(path, data):
     fp = open(path, 'w', encoding='utf-8')
     json.dump(data, fp,cls=BsonEncoder,  ensure_ascii=False)   

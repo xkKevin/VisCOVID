@@ -19,8 +19,8 @@ RUN mkdir /data/db
 # RUN apt-get update
 # RUN apt-get install -y mongodb-org
 RUN echo '[Unit]' >> /etc/systemd/system/mongo.service
-RUN echo 'Description=Mongodb service' >> /etc/systemd/system/mongo.service
-RUN echo 'After=network.target' >> /etc/systemd/system/mongo.service
+RUN echo 'Description=Mongodb service' >> /lib/systemd/system/mongo.service
+RUN echo 'After=network.target' >> /lib/systemd/system/mongo.service
 RUN echo 'StartLimitIntervalSec=0' >> /etc/systemd/system/mongo.service
 RUN echo '' >> /etc/systemd/system/mongo.service
 RUN echo '[Service]' >> /etc/systemd/system/mongo.service
@@ -33,5 +33,12 @@ RUN echo '' >> /etc/systemd/system/mongo.service
 RUN echo '[Install]' >> /etc/systemd/system/mongo.service
 RUN echo 'WantedBy=multi-user.target' >> /etc/systemd/system/mongo.service
 
+RUN chmod 777 /etc/systemd/system/mongo.service
+
+RUN echo "/usr/bin/mongod &" >> /start.sh
+RUN echo 'python ./manage.py runserver 0.0.0.0:80' >> /start.sh
+RUN chmod 777 /start.sh
 RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple django==3.0.2 pandas numpy pymongo xlrd
-CMD [ "/usr/bin/mongod", "&", "&&","python", "./VisCOVID/manage.py", "runserver", "0.0.0.0:80"]
+
+CMD ["bash", "/start.sh"]
+# CMD [ "/usr/bin/mongod", "&", "&&","python", "./manage.py", "runserver", "0.0.0.0:80"]

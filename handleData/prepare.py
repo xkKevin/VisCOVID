@@ -2,11 +2,11 @@ import json
 import pandas as pd
 import numpy as np
 from pymongo import MongoClient
-from handleData.utils import load_config
+from handleData.utils import load_config, save_config
 import datetime
 import dateutil.parser
 import urllib.request
-
+from functools import reduce
 
 
 def extract_sheet(fp, check_date, sheet_name=None):
@@ -49,6 +49,31 @@ def store_excel_data(db, config):
     fp = open(config['path']['excel'], "rb")
     excel_df = pd.read_excel(fp, None)
     
+    def extract_end_date(fp):
+        df = pd.read_excel(fp, "全球")
+        df = df.replace(pd.NaT, np.nan)
+        records = []
+        for index, row in df.iterrows():
+            obj = dict(row)
+            records.append(obj)
+        t = filter(lambda x: x['日期'] > datetime.datetime(2020,5,2), records)
+
+        # reduce(lambda x: )
+        def f(acc, c):
+            all_fields = list(filter(lambda x:not np.isnan(x), list(c.values())[2:]))
+            if len(all_fields) == 0:
+                return acc
+            else:
+                return c
+        t = reduce(f, t, {})
+        return t['日期']
+    
+    end_date = extract_end_date(fp)
+    end_date += datetime.timedelta(days=1)
+    start_date = end_date - datetime.timedelta(days=7)
+    config['time']['end'] = end_date.isoformat()
+    config['time']['start'] = start_date.isoformat()
+    save_config(config)
     for sheet_name in excel_df.keys():
         if sheet_name == "Sheet1":
             continue
@@ -124,14 +149,12 @@ def check_populations(db, config):
     v = pd.DataFrame(v)
     v = v.T
     v.columns = country_names
-    print(data.shape)
     a = list(data.mean())
 
     a.insert(0, 'Avg')
     a = pd.DataFrame(a)
     a = a.T
     a.columns = country_names
-    print(a.shape)
     data = pd.concat([data, v, a], axis=0)
 
 
@@ -148,14 +171,10 @@ def store_population(db, config, check=False):
     # countries = db.selected_countries.find()
     # lastest_records = map(lambda x: db.country_records.find_one({"国家地区": x['chinese'], '日期': datetime.datetime(2020, 4, 2)}), countries)
     def f(record):
-        print(record)
         population = 1000000. * record['累计确诊']/record['百万确诊率']
-        print(population)
     # list(map(f, lastest_records))
     for index, row in csv.iterrows():
-        print(row)
         obj = dict(row)
-        print(obj)
         db.populations.insert_one(obj)
     float_population(db, config)
 # 
@@ -201,14 +220,14 @@ def prepare():
     db = client['coronavirus_analysis']
     # fetch_owd_data(db, config)
     
-    # store_excel_data(db, config)
-    # prepare_owd_data(db, config)
-    # store_selected_countries(db, config)
+    store_excel_data(db, config)
+    prepare_owd_data(db, config)
+    store_selected_countries(db, config)
     
     
     
-    # store_country_info(db, config)
-    # store_population(db, config)
+    store_country_info(db, config)
+    store_population(db, config)
     prepare_country_chinese_conversion(db, config)
     # check_populations(db, config)
     # prepare_dxy_data(db, config)

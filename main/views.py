@@ -1,11 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-<<<<<<< HEAD
 from handleData.prepare import prepare
 from handleData.analyze import analyze
-=======
-# from handleData.prepare import prepare
->>>>>>> 803a2802b9deb847f5c42f037b34ea819b568383
 # Create your views here.
 wxb_name = "./handleData/data/wang.xlsx"
 world_name = "./handleData/data/owd.csv"
