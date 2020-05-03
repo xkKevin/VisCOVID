@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <h1>File Upload</h1>
+    <h2>File Upload</h2>
     <form method="post" action="{% url 'report' %}" enctype="multipart/form-data" style="padding-left: 20px;">
         {% csrf_token %}
         Wang Chu Data to upload: <br><br>
@@ -21,8 +21,17 @@
         <input type="file" name="ourworldindata" />
         <br><hr>
         <input type="submit" value="submit"/>
+        <br><br><br>
+        <hr>
     </form>
-    <script>
-        var error = {{ error |safe }};
-    </script>
+
+    <h2>Folder upload</h2>
+    If you have processed the raw data, you can upload the processed files directly.
+    <form method="post" action="{% url 'report' %}" enctype="multipart/form-data" style="padding-left: 20px;">
+        {% csrf_token %}
+        <input type="file" name="folder" webkitdirectory/>
+        <input type="submit" value="submit"/>
+        <br><br><br>
+        <hr>
+    </form>
 </body> 
