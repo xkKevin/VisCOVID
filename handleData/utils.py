@@ -11,7 +11,7 @@ class BsonEncoder(json.JSONEncoder):
             return obj.strftime("%m/%d")
         else:
             return obj
-def load_config(config_path = "./config.json" ):
+def load_config(config_path = "./handleData/config.json" ):
     fp = open(config_path)
     config_data = json.load(fp)
     return config_data

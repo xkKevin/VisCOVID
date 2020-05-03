@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from handleData.prepare import prepare
+from handleData.analyze import analyze
 # Create your views here.
 wxb_name = "./handleData/data/wang.xlsx"
 world_name = "./handleData/data/owd.csv"
@@ -25,10 +26,11 @@ def report(request):
                     f1.write(i)
                 for i in ourworldindata.chunks():
                     f2.write(i)
-            '''
-    
-            '''
+            
+            prepare()
+            analyze()
         except Exception as e:
+            print(e)
             return JsonResponse({"error": "Please upload those two files correctly!"})
         return render(request, "report.html")
     else:

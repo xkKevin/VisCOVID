@@ -1,1 +1,5 @@
 .idea
+*.csv
+handleData/data/*
+__py
+__pycache__/

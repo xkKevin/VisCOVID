@@ -169,22 +169,22 @@ def prepare_dxy_data(db ,config):
     dxy = json.load(fp)
     db.dxy.insert_many(dxy['results'])
 def prepare_owd_data(db, config):
-    cases = pd.read_csv(config['path']['owd_cases'])
-    death = pd.read_csv(config['path']['owd_death'])
+    # cases = pd.read_csv(config['path']['owd_cases'])
+    # death = pd.read_csv(config['path']['owd_death'])
     owd_all = pd.read_csv(config['path']['owd_all'])
     db.owd_confirmed.remove({})
     db.owd_death.remove({})
     db.owd_all.remove({})
-    for index, row in cases.iterrows():
-        obj = dict(row)
-        t = dateutil.parser.parse(obj['Date'])
-        obj['Date'] = t
-        db.owd_confirmed.insert_one(obj)
-    for index, row in death.iterrows():
-        obj = dict(row)
-        t = dateutil.parser.parse(obj['Date'])
-        obj['Date'] = t
-        db.owd_death.insert_one(obj)
+    # for index, row in cases.iterrows():
+    #     obj = dict(row)
+    #     t = dateutil.parser.parse(obj['Date'])
+    #     obj['Date'] = t
+    #     db.owd_confirmed.insert_one(obj)
+    # for index, row in death.iterrows():
+    #     obj = dict(row)
+    #     t = dateutil.parser.parse(obj['Date'])
+    #     obj['Date'] = t
+    #     db.owd_death.insert_one(obj)
     for index, row in owd_all.iterrows():
         obj = dict(row)
         t = dateutil.parser.parse(obj['date'])
@@ -201,15 +201,15 @@ def prepare():
     db = client['coronavirus_analysis']
     # fetch_owd_data(db, config)
     
-    store_excel_data(db, config)
-    prepare_owd_data(db, config)
-    store_selected_countries(db, config)
+    # store_excel_data(db, config)
+    # prepare_owd_data(db, config)
+    # store_selected_countries(db, config)
     
     
     
-    store_country_info(db, config)
-    store_population(db, config)
-    # prepare_country_chinese_conversion(db, config)
+    # store_country_info(db, config)
+    # store_population(db, config)
+    prepare_country_chinese_conversion(db, config)
     # check_populations(db, config)
     # prepare_dxy_data(db, config)
 
