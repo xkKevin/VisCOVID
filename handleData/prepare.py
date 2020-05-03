@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import numpy as np
 from pymongo import MongoClient
-from utils import load_config
+from handleData.utils import load_config
 import datetime
 import dateutil.parser
 import urllib.request

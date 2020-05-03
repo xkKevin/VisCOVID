@@ -1,5 +1,5 @@
 import hashlib
-from utils import load_config
+from handleData.utils import load_config
 import os
 
 

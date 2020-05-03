@@ -3,12 +3,12 @@ import pandas as pd
 from pymongo import MongoClient
 from functools import reduce
 import numpy as np
-from utils import save_data, load_config, find_population_by_chinese_name, save_world_map, build_time_range
+from handleData.utils import save_data, load_config, find_population_by_chinese_name, save_world_map, build_time_range
 from datetime import datetime, timedelta
 import dateutil.parser
-from format import format_data
+from handleData.format import format_data
 import csv
-from report import build_report
+from handleData.report import build_report
 import re
 client = MongoClient()
 db = client['coronavirus_analysis']
