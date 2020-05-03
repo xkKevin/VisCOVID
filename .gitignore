@@ -1,5 +1,5 @@
 .idea
-*.csv
+# *.csv
 # handleData/data/*
 __py
 __pycache__/
