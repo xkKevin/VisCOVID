@@ -48,8 +48,8 @@ metadata:
   namespace: $KUBE_NAMESPACE
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "0"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "6000000"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "0600000"
     kubernetes.io/ingress.class: nginx
     certmanager.k8s.io/cluster-issuer: letsencrypt
     certmanager.k8s.io/acme-challenge-type: http01
