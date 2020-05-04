@@ -114,11 +114,16 @@ def build_insert_average(average, f=None):
         global_record = context['global_record']
         if average == "counted":
             counted_obj = {}
+            
             for key, value in records[0].items():
                 if isinstance(value, float) or isinstance(value, int) :
                     counted_obj[key] = 0.
+            counted_obj['人口'] = 0
             def f_count(acc, x):
+                acc['人口'] += find_population_by_chinese_name(db, x['国家地区'])
                 for key in acc.keys():
+                    if key == "人口":
+                        continue
                     acc[key] += x[key]
                 return acc
             counted_obj = reduce(f_count, records, counted_obj)
@@ -349,7 +354,7 @@ def extract_conutry_data(db, config):
             "postprocess": [
                 # build_topk(),
                 build_sort(),
-                build_insert_average("population")
+                build_insert_average("counted", lambda x: [x['总检测数']/ x['人口']])
             ]
         },
         {
