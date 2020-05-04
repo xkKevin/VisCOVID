@@ -44,6 +44,10 @@ build:
 # deploy the built image to K8s
 deploy:
   stage: deploy
+  only:
+  - tags
+  except:
+  - branches
   image: lachlanevenson/k8s-kubectl
   # the environment setting is required
   environment:

@@ -148,7 +148,36 @@ function pieChart(data, name, div_id) {
         height: CSS_STYLE.pieChart.height,
         toolbox: {
             feature: {
-                dataView: {readOnly: false},
+                dataView: {
+                    readOnly: false,
+                    optionToContent: function(opt) {
+                        console.log(opt);
+                        let data_len = opt.series[0].data.length;
+                        var table = `<h3>表格数据</h3>
+                        <textarea rows='${data_len+1}' style="width: 100%">国家,${opt.series[0].name}`;
+                        for (let i =0;i<data_len;i++){
+                            table += "\n" + opt.series[0].data[i].name + "," + opt.series[0].data[i].value;
+                        }
+                        table += "</textarea>";
+                        return table
+                    },
+                    contentToOption: function(html, opt) {
+                        let content = $(html).children("textarea").val().split("\n");
+                        let handle_data = [];
+                        content.slice(1).forEach(function(x, index){
+                            let data = x.split(',');
+                            handle_data.push({
+                                name: data[0],
+                                value: data[1]
+                            })
+                         });
+                         opt.series[0].data = handle_data;
+                        console.log(handle_data);
+                        console.log(opt);
+                        myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
+                        return opt;
+                    }
+                },
                 restore: {},
                 saveAsImage: {
                     name: div_id + name
@@ -543,7 +572,66 @@ function bi_directional_barchart(data, name, div_id) {
         // height: CSS_STYLE.bigChart.heightLong,
         toolbox: {
             feature: {
-                dataView: {readOnly: false},
+                dataView: {
+                    readOnly: false,
+                    optionToContent: function(opt) {
+                        var axisData = opt.xAxis[0].data;
+                        var series = opt.series;
+                        let data_len = opt.yAxis[0].data.length;
+                        console.log(opt);
+                        var table = `<h3>表格数据</h3>
+                        <textarea rows='${data_len+1}' style="width: 100%">国家,${opt.series[0].name}`;
+                        for (let i =0;i<data_len;i++){
+                            table += "\n" + opt.yAxis[0].data[i] + "," + opt.series[0].data[i].value;
+                        }
+                        table += "</textarea>";
+                        return table
+                    },
+                    contentToOption: function(html, opt) {
+                        let content = $(html).children("textarea").val().split("\n");
+                        let handle_data = [];
+                        let countries = [];
+                        content.slice(1).forEach(function(x, index){
+                            let country = x.split(',')[0];
+                            let value = parseFloat(x.split(',')[1]);
+                            if (index === 0){
+                                countries.push(country);
+                                if (value >= 0){
+                                    handle_data.push({
+                                        'label': {'position': 'left'},
+                                        value,
+                                        'itemStyle': {'color': CSS_STYLE.color3[0]},
+                                     });
+                                }else{
+                                    handle_data.push({
+                                        'label': {'position': 'right'},
+                                        value,
+                                        'itemStyle': {'color': CSS_STYLE.color3[1]},
+                                     });
+                                }
+                            }else if (value >= 0.2){
+                                 handle_data.push({
+                                    'label': {'position': 'left'},
+                                    value,
+                                    'itemStyle': {'color': CSS_STYLE.color3[0]},
+                                 });
+                                 countries.push(country);
+                             }else if (value <= -0.2){
+                                 handle_data.push({
+                                    'label': {'position': 'right'},
+                                    value,
+                                    'itemStyle': {'color': CSS_STYLE.color3[1]},
+                                 });
+                                 countries.push(country);
+                             }
+                         });
+                         opt.series[0].data = handle_data;
+                         opt.yAxis[0].data = countries;
+                        console.log(opt);
+                        myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
+                        return opt;
+                    }
+                },
                 restore: {},
                 saveAsImage: {
                     name: name
