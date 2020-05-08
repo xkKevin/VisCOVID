@@ -1,21 +1,21 @@
 from docx import Document
 from docx.shared import Inches, Cm
 # from docxtpl import DocxTemplate
-import win32com.client
-import inspect, os
-import pythoncom
+# import win32com.client
+# import inspect, os
+# import pythoncom
 
 report_data_path = "./main/static/report/"
 
 
-def update_toc(docx_file):
-    pythoncom.CoInitialize()
-    word = win32com.client.DispatchEx("Word.Application")
-    pythoncom.CoInitialize()
-    doc = word.Documents.Open(docx_file)
-    doc.TablesOfContents(1).Update()
-    doc.Close(SaveChanges=True)
-    word.Quit()
+# def update_toc(docx_file):
+#     pythoncom.CoInitialize()
+#     word = win32com.client.DispatchEx("Word.Application")
+#     pythoncom.CoInitialize()
+#     doc = word.Documents.Open(docx_file)
+#     doc.TablesOfContents(1).Update()
+#     doc.Close(SaveChanges=True)
+#     word.Quit()
 
 def renew_text(p,text):
     p.clear()
@@ -158,14 +158,14 @@ def createReport():
     replace_pic(paragraphs[83],pic_2_17,width=Cm(10.2))
     replace_pic(paragraphs[93],pic_2_18,width=Cm(10.2))
 
-    file_name = 'static/report/report.docx'
+    file_name = report_data_path + 'report.docx'
 
-    script_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-    file_path = os.path.join(script_dir, file_name)
+    # script_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    # file_path = os.path.join(script_dir, file_name)
 
     # print(file_path)
-    document.save(file_path)  # 保存文档
-    update_toc(file_path)
+    document.save(file_name)  # 保存文档
+    # update_toc(file_path)
 
 
 if __name__ == "__main__":
