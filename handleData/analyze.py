@@ -886,6 +886,8 @@ def build_not_world(db, config):
     # list(map(f, key_countries))
 
 def analyze():
+    if not os.path.exists("./main/static/export"):
+        os.mkdir("./main/static/export")
     config = load_config()
     build_not_world(db, config)
     # check_unmapped_countries(db, config)
