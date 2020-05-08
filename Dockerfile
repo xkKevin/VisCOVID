@@ -38,7 +38,7 @@ RUN chmod 777 /etc/systemd/system/mongo.service
 RUN echo "/usr/bin/mongod &" >> /start.sh
 RUN echo 'python ./manage.py runserver 0.0.0.0:80' >> /start.sh
 RUN chmod 777 /start.sh
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple django==3.0.2 pandas numpy pymongo xlrd
+RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple django==3.0.2 pandas numpy pymongo xlrd pypiwin32 python-docx
 
 CMD ["bash", "/start.sh"]
 # CMD [ "/usr/bin/mongod", "&", "&&","python", "./manage.py", "runserver", "0.0.0.0:80"]

@@ -32,7 +32,7 @@ var CSS_STYLE = {
         width: "800px",
         height: "600px",
         radius: '51%',
-        center: ['50%', '35%'],
+        center: ['49%', '35%'],
         fontSizeText: 18,
         fontSizeNum: 20
     }
@@ -140,7 +140,6 @@ function worldMap(data, name, div_id, num_max) {
     myChart.setOption(option);
     imagesInfo[div_id] = myChart.getDataURL({
         pixelRatio: 2,
-        backgroundColor: '#fff',
         excludeComponents: ['toolbox'],
     });
     // $.post('/saveImage/',{'baseimg': picInfo,'name': div_id},function (result, statue) {
@@ -253,7 +252,6 @@ function pieChart(data, name, div_id) {
     myChart.setOption(option);
     imagesInfo[div_id] = myChart.getDataURL({
         pixelRatio: 2,
-        backgroundColor: '#fff',
         excludeComponents: ['toolbox'],
     });
 }
@@ -377,7 +375,6 @@ function barchart(data, name, div_id) {
     myChart.setOption(option);
     imagesInfo[div_id] = myChart.getDataURL({
         pixelRatio: 2,
-        backgroundColor: '#fff',
         excludeComponents: ['toolbox'],
     });
 }
@@ -503,7 +500,6 @@ function barchart_num(data, name, div_id) {
     myChart.setOption(option);
     imagesInfo[div_id] = myChart.getDataURL({
         pixelRatio: 2,
-        backgroundColor: '#fff',
         excludeComponents: ['toolbox'],
     });
 }
@@ -534,11 +530,13 @@ function linechart(data, div_id) {
         // height: CSS_STYLE.bigChart.height,
         toolbox: {
             feature: {
+                dataView: {readOnly: false},
                 saveAsImage: {
                     name: div_id
                 }
             }
         },
+        tooltip:{},
         legend: {
             textStyle: {
                 fontSize: CSS_STYLE.fontSize.median,
@@ -621,7 +619,6 @@ function linechart(data, div_id) {
     myChart.setOption(option);
     imagesInfo[div_id] = myChart.getDataURL({
         pixelRatio: 2,
-        backgroundColor: '#fff',
         excludeComponents: ['toolbox'],
     });
 }
@@ -811,7 +808,6 @@ function bi_directional_barchart(data, name, div_id) {
     myChart.setOption(option);
     imagesInfo[div_id] = myChart.getDataURL({
         pixelRatio: 2,
-        backgroundColor: '#fff',
         excludeComponents: ['toolbox'],
     });
 }
@@ -871,6 +867,7 @@ function linechart_num(data, div_id) {
             left: 15+7*precision_len,
             right: 65
         },
+        tooltip:{ trigger: 'axis'},
         yAxis: {
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.small-6,
@@ -905,7 +902,6 @@ function linechart_num(data, div_id) {
     myChart.setOption(option);
     imagesInfo[div_id] = myChart.getDataURL({
         pixelRatio: 2,
-        backgroundColor: '#fff',
         excludeComponents: ['toolbox'],
     });
 }
@@ -938,6 +934,7 @@ function linechart_rate(data, div_id) {
                 }
             }
         },
+        tooltip:{ trigger: 'axis'},
         xAxis: {
             type: 'category',
             data: handle_data.date,
@@ -1000,7 +997,6 @@ function linechart_rate(data, div_id) {
     myChart.setOption(option);
     imagesInfo[div_id] = myChart.getDataURL({
         pixelRatio: 2,
-        backgroundColor: '#fff',
         excludeComponents: ['toolbox'],
     });
 }

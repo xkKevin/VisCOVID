@@ -12,6 +12,11 @@
     <script src="{% static 'js/charts.js' %}"></script>
     <script src="{% static 'js/handle_data.js' %}"></script>
     <script src="{% static 'js/d3.v4.min.js' %}"></script>
+
+    <link href="{% static 'css/ladda-themeless.min.css' %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static 'js/spin.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/ladda.min.js' %}"></script>
+
     <style>
         h3 {
             margin-top: 25px;
@@ -28,7 +33,8 @@
 </head>
 <body>
 <div class="container fixed-top" style="text-align: right; margin-top: 20px;">
-    <button class="btn btn-info" onclick="createReport()">生成周报</button>
+    <a id="download" href="{% static 'report/report.docx' %}"></a>
+    <button id="create_btn" class="btn btn-info ladda-button" data-style="zoom-out" onclick="createReport()">生成周报</button>
 </div>
 <div class="container">
     <div>
@@ -55,6 +61,7 @@
             <br>
             2020年<span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日
         </div>
+        <h3>2. 全球疫情现况</h3>
         <h3>2.1 全球累计确诊：<span class="2"><font>&nbsp;Null&nbsp;</font></span>例，死亡：<span class="3"><font>&nbsp;Null&nbsp;</font></span>例</h3>
         主要分布在<span class="2_1_countries"><font>&nbsp;Null&nbsp;</font></span>。
         <div id="2_1" style="width: 800px;height:470px;"></div>
@@ -93,7 +100,7 @@
         <div id="2_10" style="width: 800px;height:880px;"></div>
         <div>图2-10&nbsp;各国阳性率（阳性率为累计确诊人数占总检测数的百分比，仅显示累计确诊人数超过2000的国家中阳性率前20个国家，部分国家数据更新不及时）</div>
 
-        <h3>2.3 全球本周新增确诊<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，死亡：<span class="16"><font>&nbsp;Null&nbsp;</font></span>例</h3>
+        <h3>2.3 全球本周新增确诊：<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，死亡：<span class="16"><font>&nbsp;Null&nbsp;</font></span>例</h3>
         <div id="2_11" style="width: 800px;height:500px;"></div>
         <div>图2-11&nbsp;本周全球每日新增确诊人数和新增死亡人数</div>
 
@@ -131,6 +138,8 @@
 </div>
 
 <script>
+    var imagesInfo = {};
+    var text = "";
     var cases_3 = [];
     d3.csv("{% static 'export/basic_info.csv' %}", function (error, csvdata) {
         if(error){
@@ -177,6 +186,7 @@
                 }
                 $("."+index).text(data);
             });
+
             d3.csv("{% static 'export/2-1.csv' %}", function (error, csvdata) {
                 if(error){
                     console.log(error);
@@ -191,6 +201,7 @@
                     console.log(error);
                 }else{
                     worldMap(csvdata, '累计死亡人数', '2_2', $(".11").text().replace(/,/g,""));
+                    text = $(".text_to_save").text();
                 }
             });
         }
@@ -343,21 +354,23 @@
             barchart_num(csvdata.slice(0,20), "总检测数", '2_16');
         }
     });
-    var imagesInfo = {};
-    var modify_images = true;
+    var flag = true;
+    var loading = Ladda.create($("#create_btn")[0]);
     function createReport() {
-        if (modify_images){
-            modify_images = false;
-            console.log(imagesInfo);
-            $.post('{% url "saveImage" %}',{'baseimg': JSON.stringify(imagesInfo), 'text': $(".text_to_save").text() },function (result, statue) {  //JSON.stringify({'2_5':imagesInfo['2_5']})
+        if (flag){
+            loading.start();
+            $.post('{% url "saveImage" %}',{'baseimg': JSON.stringify(imagesInfo), 'text': text },function (result, statue) {  //JSON.stringify({'2_5':imagesInfo['2_5']})
                 if (!result.result){
-                    alert(result.error)
-                }else{
-                    alert("已自动下载所有图片及文本至服务端")
+                    alert(result.error);
+                }else {
+                    // alert("周报生成成功！");
+                    $("#download")[0].click();
+                    flag = false;
                 }
+                loading.stop();
             });
         }else{
-            alert("You didn't make any changes!")
+            $("#download")[0].click();
         }
     }
 </script>
