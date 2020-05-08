@@ -1,3 +1,5 @@
+import os
+
 from django.shortcuts import render
 from django.http import JsonResponse
 from handleData.prepare import prepare
@@ -42,14 +44,23 @@ def report(request):
 def saveImage(request):
     if request.method == "POST":
         try:
-            # baseimg = json.loads(request.POST.get("baseimg"))
-            baseimg = request.POST.get("baseimg")
-            print(baseimg)
-            with open("%s/%s.png" % (report_path, '2'), 'wb') as f:
-                f.write(base64.b64decode(baseimg[21:]))
+            baseimg = json.loads(request.POST.get("baseimg"))
+            text = request.POST.get("text")
+            print(text)
+            # with open("%s/%s.png" % (report_path, '2'), 'wb') as f:
+            #     f.write(base64.b64decode(baseimg[21:]))
             # for key, value in baseimg.items():
             #     with open("%s/%s.png" % (report_path, key),'wb') as f:
             #         f.write(base64.b64decode(value[21:]))
+            path = "%s/text.txt" % (report_path)
+            if (os.path.exists(path)):
+                os.remove(path)
+            for line in text.split('\n'):
+                line = line.strip()
+                if len(line) > 3:
+                    with open(path, 'a', encoding='utf-8') as f:
+                        f.write(line+"\n")
+
         except Exception as e:
             return JsonResponse({"error": "Error!\n"+repr(e)})
         return JsonResponse({"result": True})

@@ -212,6 +212,7 @@ function pieChart(data, name, div_id) {
             type: 'pie',
             radius: CSS_STYLE.pieChart.radius,
             center: CSS_STYLE.pieChart.center,
+            animation: false,
             data: data.map(function (x) {
                 return {"name": x["国家"], "value": x[name]}
             }),
@@ -369,7 +370,8 @@ function barchart(data, name, div_id) {
                 color: 'black',
                 fontSize: CSS_STYLE.fontSize.small
             },
-            data: data.map((x) =>  x[1])
+            data: data.map((x) =>  x[1]),
+            animation: false,
         }]
     };
     myChart.setOption(option);
@@ -494,7 +496,8 @@ function barchart_num(data, name, div_id) {
                 color: 'black',
                 fontSize: CSS_STYLE.fontSize.small
             },
-            data: data.map((x) => x[1])
+            data: data.map((x) => x[1]),
+            animation: false,
         }]
     };
     myChart.setOption(option);
@@ -518,7 +521,7 @@ function linechart(data, div_id) {
         handle_data.cases.push(x["新增确诊人数"]);
         handle_data.deaths.push(x["新增死亡人数"]);
     });
- 
+
     let name = {
         "save": "全球过去一周每日新增确诊人数和死亡人数",
         "yAxis": "人数"
@@ -601,6 +604,7 @@ function linechart(data, div_id) {
             symbolSize: CSS_STYLE.symbolSize,
             lineStyle: CSS_STYLE.lineStyle,
             smooth: true,
+            animation: false,
             color: CSS_STYLE.color3[2],
         }, {
             name: "新增死亡人数",
@@ -610,6 +614,7 @@ function linechart(data, div_id) {
             lineStyle: CSS_STYLE.lineStyle,
             type: 'line',
             smooth: true,
+            animation: false,
             color: CSS_STYLE.color3[0],
         }]
     };
@@ -800,6 +805,7 @@ function bi_directional_barchart(data, name, div_id) {
             },
             barWidth: 23,
             data: handle_data,
+            animation: false,
         }]
     };
     myChart.setOption(option);
@@ -893,6 +899,7 @@ function linechart_num(data, div_id) {
             symbolSize: CSS_STYLE.symbolSize,
             smooth: true,
             color: CSS_STYLE.color3[0],
+            animation: false,
         }]
     };
     myChart.setOption(option);
@@ -987,6 +994,7 @@ function linechart_rate(data, div_id) {
             symbolSize: CSS_STYLE.symbolSize,
             smooth: true,
             color: CSS_STYLE.color3[0],
+            animation: false,
         }]
     };
     myChart.setOption(option);
