@@ -39,7 +39,7 @@ var CSS_STYLE = {
 };
 
 function worldMap(data, name, div_id, num_max) {
-    var myChart1 = echarts.init(document.getElementById(div_id));
+    var myChart = echarts.init(document.getElementById(div_id));
     // console.log(d3.max(data.map((x)=>parseInt(x[name]))));
     let data_max = Math.pow(10, num_max.length - 1);
     if (num_max[0] >= '5'){
@@ -57,7 +57,7 @@ function worldMap(data, name, div_id, num_max) {
             label: String(label_min)
         })
     }
-    var option1 = {
+    var option = {
         backgroundColor: CSS_STYLE.backgroundColor,
         width: CSS_STYLE.bigChart.width,
         // height: CSS_STYLE.bigChart.height,
@@ -66,7 +66,7 @@ function worldMap(data, name, div_id, num_max) {
                 dataView: {readOnly: false},
                 restore: {},
                 saveAsImage: {
-                    name: div_id + name
+                    name: div_id
                 }
             }
         },
@@ -137,7 +137,15 @@ function worldMap(data, name, div_id, num_max) {
             })
         }]
     };
-    myChart1.setOption(option1);
+    myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+        excludeComponents: ['toolbox'],
+    });
+    // $.post('/saveImage/',{'baseimg': picInfo,'name': div_id},function (result, statue) {
+    //    console.log(result);
+    // });
 }
 
 function pieChart(data, name, div_id) {
@@ -151,9 +159,9 @@ function pieChart(data, name, div_id) {
                 dataView: {
                     readOnly: false,
                     optionToContent: function(opt) {
-                        console.log(opt);
+                        // console.log(opt);
                         let data_len = opt.series[0].data.length;
-                        var table = `<h3>表格数据</h3>
+                        var table = `<h4>表格数据</h4>
                         <textarea rows='${data_len+1}' style="width: 100%">国家,${opt.series[0].name}`;
                         for (let i =0;i<data_len;i++){
                             table += "\n" + opt.series[0].data[i].name + "," + opt.series[0].data[i].value;
@@ -172,15 +180,15 @@ function pieChart(data, name, div_id) {
                             })
                          });
                          opt.series[0].data = handle_data;
-                        console.log(handle_data);
-                        console.log(opt);
+                        // console.log(handle_data);
+                        // console.log(opt);
                         myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
                         return opt;
                     }
                 },
-                restore: {},
+                // restore: {},
                 saveAsImage: {
-                    name: div_id + name
+                    name: div_id
                 }
             }
         },
@@ -204,6 +212,7 @@ function pieChart(data, name, div_id) {
             type: 'pie',
             radius: CSS_STYLE.pieChart.radius,
             center: CSS_STYLE.pieChart.center,
+            animation: false,
             data: data.map(function (x) {
                 return {"name": x["国家"], "value": x[name]}
             }),
@@ -242,9 +251,14 @@ function pieChart(data, name, div_id) {
         }]
     };
     myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+        excludeComponents: ['toolbox'],
+    });
 }
 
-function barchart(data, name, div_id, x_max) {
+function barchart(data, name, div_id) {
     data = data.map((x)=> [x["国家"],x[name]]);
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
@@ -254,10 +268,47 @@ function barchart(data, name, div_id, x_max) {
         height: CSS_STYLE.bigChart.width,
         toolbox: {
             feature: {
-                dataView: {readOnly: false},
-                restore: {},
+                dataView: {
+                    readOnly: false,
+                    optionToContent: function(opt) {
+                        console.log(opt);
+                        let xAxis_max = opt.xAxis[0].max ? opt.xAxis[0].max : "";
+                        let xAxis_interval = opt.xAxis[0].interval ? opt.xAxis[0].interval : "";
+                        let data_len = opt.series[0].data.length;
+                        var table = `<h5>表格数据</h5>
+                        <textarea rows='${data_len+1}' style="width: 100%">国家,${opt.series[0].name}`;
+                        for (let i =0;i<data_len;i++){
+                            table += "\n" + opt.yAxis[0].data[i] + "," + opt.series[0].data[i];
+                        }
+                        table += `</textarea><h5>系统配置</h5>
+                                max: <input type="text" value="${xAxis_max}"><br>
+                                interval: <input type="text" value="${xAxis_interval}" disabled>`;
+                        return table
+                    },
+                    contentToOption: function(html, opt) {
+                        let content = $(html).children("textarea").val().split("\n");
+                        let handle_data = {data:[],yAxis:[]};
+                        content.slice(1).forEach(function(x, index){
+                            let data = x.split(',');
+                            handle_data.yAxis.push(data[0]);
+                            handle_data.data.push(data[1]);
+                         });
+                         opt.series[0].data = handle_data.data;
+                         opt.yAxis[0].data = handle_data.yAxis;
+                        let inputs = $(html).children("input");
+                        if (inputs.eq(0).val()){
+                            opt.xAxis[0].max = inputs.eq(0).val();
+                        }
+                        if (inputs.eq(1).val()){
+                            opt.xAxis[0].interval = inputs.eq(1).val();
+                        }
+                        myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
+                        return opt;
+                    }
+                },
+                // restore: {},
                 saveAsImage: {
-                    name: name
+                    name: div_id
                 }
             }
         },
@@ -293,14 +344,13 @@ function barchart(data, name, div_id, x_max) {
         },
         xAxis: {
             type: 'value',
-                position: 'top',
-                axisLabel: {
-                    fontSize: CSS_STYLE.fontSize.median,
-                        formatter: function(param) {
-                        return param * 100 + "%"
-                    }
-                },
-                max: x_max
+            position: 'top',
+            axisLabel: {
+                fontSize: CSS_STYLE.fontSize.median,
+                    formatter: function(param) {
+                        return param * 100000 / 1000 + "%"
+                }
+            }
         },
         series: [{
             name: name,
@@ -320,10 +370,16 @@ function barchart(data, name, div_id, x_max) {
                 color: 'black',
                 fontSize: CSS_STYLE.fontSize.small
             },
-            data: data.map((x) =>  x[1])
+            data: data.map((x) =>  x[1]),
+            animation: false,
         }]
     };
     myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+        excludeComponents: ['toolbox'],
+    });
 }
 
 function barchart_num(data, name, div_id) {
@@ -336,10 +392,47 @@ function barchart_num(data, name, div_id) {
         height: CSS_STYLE.bigChart.width,
         toolbox: {
             feature: {
-                dataView: {readOnly: false},
-                restore: {},
+                dataView: {
+                    readOnly: false,
+                    optionToContent: function(opt) {
+                        console.log(opt);
+                        let xAxis_max = opt.xAxis[0].max ? opt.xAxis[0].max : "";
+                        let xAxis_interval = opt.xAxis[0].interval ? opt.xAxis[0].interval : "";
+                        let data_len = opt.series[0].data.length;
+                        var table = `<h5>表格数据</h5>
+                        <textarea rows='${data_len+1}' style="width: 100%">国家,${opt.series[0].name}`;
+                        for (let i =0;i<data_len;i++){
+                            table += "\n" + opt.yAxis[0].data[i] + "," + opt.series[0].data[i];
+                        }
+                        table += `</textarea><h5>系统配置</h5>
+                                max: <input type="text" value="${xAxis_max}"><br>
+                                interval: <input type="text" value="${xAxis_interval}" disabled>`;
+                        return table
+                    },
+                    contentToOption: function(html, opt) {
+                        let content = $(html).children("textarea").val().split("\n");
+                        let handle_data = {data:[],yAxis:[]};
+                        content.slice(1).forEach(function(x, index){
+                            let data = x.split(',');
+                            handle_data.yAxis.push(data[0]);
+                            handle_data.data.push(data[1]);
+                         });
+                         opt.series[0].data = handle_data.data;
+                         opt.yAxis[0].data = handle_data.yAxis;
+                        let inputs = $(html).children("input");
+                        if (inputs.eq(0).val()){
+                            opt.xAxis[0].max = inputs.eq(0).val();
+                        }
+                        if (inputs.eq(1).val()){
+                            opt.xAxis[0].interval = inputs.eq(1).val();
+                        }
+                        myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
+                        return opt;
+                    }
+                },
+                // restore: {},
                 saveAsImage: {
-                    name: name
+                    name: div_id
                 }
             }
         },
@@ -376,7 +469,7 @@ function barchart_num(data, name, div_id) {
         xAxis: {
             type: 'value',
             position: 'top',
-            interval: 2000000,
+            // interval: 2000000,
             max: 8000000,
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.median,
@@ -403,10 +496,16 @@ function barchart_num(data, name, div_id) {
                 color: 'black',
                 fontSize: CSS_STYLE.fontSize.small
             },
-            data: data.map((x) => x[1])
+            data: data.map((x) => x[1]),
+            animation: false,
         }]
     };
     myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+        excludeComponents: ['toolbox'],
+    });
 }
 
 function linechart(data, div_id) {
@@ -435,10 +534,8 @@ function linechart(data, div_id) {
         // height: CSS_STYLE.bigChart.height,
         toolbox: {
             feature: {
-                dataView: {readOnly: false},
-                restore: {},
                 saveAsImage: {
-                    name: name.save
+                    name: div_id
                 }
             }
         },
@@ -507,6 +604,7 @@ function linechart(data, div_id) {
             symbolSize: CSS_STYLE.symbolSize,
             lineStyle: CSS_STYLE.lineStyle,
             smooth: true,
+            animation: false,
             color: CSS_STYLE.color3[2],
         }, {
             name: "新增死亡人数",
@@ -516,10 +614,16 @@ function linechart(data, div_id) {
             lineStyle: CSS_STYLE.lineStyle,
             type: 'line',
             smooth: true,
+            animation: false,
             color: CSS_STYLE.color3[0],
         }]
     };
     myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+        excludeComponents: ['toolbox'],
+    });
 }
 
 function bi_directional_barchart(data, name, div_id) {
@@ -579,7 +683,7 @@ function bi_directional_barchart(data, name, div_id) {
                         var series = opt.series;
                         let data_len = opt.yAxis[0].data.length;
                         console.log(opt);
-                        var table = `<h3>表格数据</h3>
+                        var table = `<h5>表格数据</h5>
                         <textarea rows='${data_len+1}' style="width: 100%">国家,${opt.series[0].name}`;
                         for (let i =0;i<data_len;i++){
                             table += "\n" + opt.yAxis[0].data[i] + "," + opt.series[0].data[i].value;
@@ -632,9 +736,9 @@ function bi_directional_barchart(data, name, div_id) {
                         return opt;
                     }
                 },
-                restore: {},
+                // restore: {},
                 saveAsImage: {
-                    name: name
+                    name: div_id
                 }
             }
         },
@@ -701,9 +805,15 @@ function bi_directional_barchart(data, name, div_id) {
             },
             barWidth: 23,
             data: handle_data,
+            animation: false,
         }]
     };
     myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+        excludeComponents: ['toolbox'],
+    });
 }
 
 function linechart_num(data, div_id) {
@@ -729,7 +839,7 @@ function linechart_num(data, div_id) {
                 dataView: {readOnly: false},
                 restore: {},
                 saveAsImage: {
-                    name: data.columns[1]
+                    name: div_id
                 }
             }
         },
@@ -789,9 +899,15 @@ function linechart_num(data, div_id) {
             symbolSize: CSS_STYLE.symbolSize,
             smooth: true,
             color: CSS_STYLE.color3[0],
+            animation: false,
         }]
     };
     myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+        excludeComponents: ['toolbox'],
+    });
 }
 
 function linechart_rate(data, div_id) {
@@ -818,7 +934,7 @@ function linechart_rate(data, div_id) {
                 dataView: {readOnly: false},
                 restore: {},
                 saveAsImage: {
-                    name: data.columns[1]
+                    name: div_id
                 }
             }
         },
@@ -878,7 +994,13 @@ function linechart_rate(data, div_id) {
             symbolSize: CSS_STYLE.symbolSize,
             smooth: true,
             color: CSS_STYLE.color3[0],
+            animation: false,
         }]
     };
     myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+        excludeComponents: ['toolbox'],
+    });
 }
