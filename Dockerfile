@@ -18,22 +18,8 @@ RUN mkdir /data/db
 # RUN echo 'deb http://mirrors.tuna.tsinghua.edu.cn/mongodb/apt/debian stretch/mongodb-org/stable main' >> /etc/apt/sources.list.d/mongodb.list
 # RUN apt-get update
 # RUN apt-get install -y mongodb-org
-RUN echo '[Unit]' >> /etc/systemd/system/mongo.service
-RUN echo 'Description=Mongodb service' >> /lib/systemd/system/mongo.service
-RUN echo 'After=network.target' >> /lib/systemd/system/mongo.service
-RUN echo 'StartLimitIntervalSec=0' >> /etc/systemd/system/mongo.service
-RUN echo '' >> /etc/systemd/system/mongo.service
-RUN echo '[Service]' >> /etc/systemd/system/mongo.service
-RUN echo 'Type=simple' >> /etc/systemd/system/mongo.service
-RUN echo 'Restart=always' >> /etc/systemd/system/mongo.service
-RUN echo 'RestartSec=1' >> /etc/systemd/system/mongo.service
-RUN echo 'User=root' >> /etc/systemd/system/mongo.service
-RUN echo 'ExecStart=/usr/bin/mongod' >> /etc/systemd/system/mongo.service
-RUN echo '' >> /etc/systemd/system/mongo.service
-RUN echo '[Install]' >> /etc/systemd/system/mongo.service
-RUN echo 'WantedBy=multi-user.target' >> /etc/systemd/system/mongo.service
 
-RUN chmod 777 /etc/systemd/system/mongo.service
+# RUN chmod 777 /etc/systemd/system/mongo.service
 
 RUN echo "/usr/bin/mongod &" >> /start.sh
 RUN echo 'python ./manage.py runserver 0.0.0.0:80' >> /start.sh

@@ -55,8 +55,8 @@ def store_excel_data(db, config):
     fp = open(config['path']['excel'], "rb")
     excel_df = pd.read_excel(fp, None)
     
-    def extract_end_date(fp):
-        df = pd.read_excel(fp, "全球")
+    def extract_end_date(excel):
+        df = excel["全球"]
         df = df.replace(pd.NaT, np.nan)
         records = []
         for index, row in df.iterrows():
@@ -74,7 +74,7 @@ def store_excel_data(db, config):
         t = reduce(f, t, {})
         return t['日期']
     
-    end_date = extract_end_date(fp)
+    end_date = extract_end_date(excel_df)
     end_date += datetime.timedelta(days=1)
     start_date = end_date - datetime.timedelta(days=7)
     config['time']['end'] = end_date.isoformat()
