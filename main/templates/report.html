@@ -141,7 +141,7 @@
     var imagesInfo = {};
     var text = "";
     var cases_3 = [];
-    d3.csv("{% static 'export/basic_info.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'basic_info.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -187,7 +187,7 @@
                 $("."+index).text(data);
             });
 
-            d3.csv("{% static 'export/2-1.csv' %}", function (error, csvdata) {
+            d3.csv("{% static export_dir|add:'2-1.csv' %}", function (error, csvdata) {
                 if(error){
                     console.log(error);
                 }else{
@@ -196,7 +196,7 @@
                 }
             });
 
-            d3.csv("{% static 'export/2-2.csv' %}", function (error, csvdata) {
+            d3.csv("{% static export_dir|add:'2-2.csv' %}", function (error, csvdata) {
                 if(error){
                     console.log(error);
                 }else{
@@ -207,7 +207,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-3-a.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-3-a.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -215,7 +215,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-3-b.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-3-b.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -223,7 +223,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-4-a.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-4-a.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -231,7 +231,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-4-b.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-4-b.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -239,7 +239,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-5.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-5.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -248,7 +248,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-6.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-6.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -257,7 +257,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-12.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-12.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -266,7 +266,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-13.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-13.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -275,7 +275,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-7.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-7.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -283,7 +283,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-8.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-8.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -291,7 +291,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-9.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-9.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -299,7 +299,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-10.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-10.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -307,7 +307,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-11.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-11.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -315,7 +315,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-14.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-14.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -323,7 +323,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-15.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-15.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -331,7 +331,7 @@
         }
     });
 
-    d3.csv("{% static 'export/appendix-1.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'appendix-1.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -339,7 +339,7 @@
         }
     });
 
-    d3.csv("{% static 'export/appendix-2.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'appendix-2.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -347,7 +347,7 @@
         }
     });
 
-    d3.csv("{% static 'export/appendix-3.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'appendix-3.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{

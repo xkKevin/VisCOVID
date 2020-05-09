@@ -745,8 +745,9 @@ def extract_world_map_from_owd(db, config):
     }
 
 
-def build_world_map(db, config):
+def build_world_map(db, config, export_dir):
     export_path = config['export']['root']
+    export_path = export_dir
     r = extract_world_map_from_owd(db, config)
     def get_export_path(name):
         return os.path.join(export_path, name )
@@ -856,8 +857,9 @@ def merge_objs(objs):
     
 
 
-def build_not_world(db, config):
+def build_not_world(db, config, export_dir):
     export_path = config['export']['root']
+    export_path = export_dir
     def get_export_path( name, ext='.json'):
         return os.path.join(export_path, name + ext)
     # build_world_map(db, config)
@@ -885,13 +887,13 @@ def build_not_world(db, config):
         save_data(path, s)
     # list(map(f, key_countries))
 
-def analyze():
+def analyze(export_dir=None):
     if not os.path.exists("./main/static/export"):
         os.mkdir("./main/static/export")
     config = load_config()
-    build_not_world(db, config)
+    build_not_world(db, config, export_dir)
     # check_unmapped_countries(db, config)
-    build_world_map(db, config)
+    build_world_map(db, config, export_dir)
 
 if __name__ == "__main__":
     analyze() 

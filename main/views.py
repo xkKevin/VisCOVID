@@ -6,27 +6,45 @@ from handleData.prepare import prepare
 from handleData.analyze import analyze
 import base64, json
 from main.createReport import createReport
+from pymongo import MongoClient, DESCENDING
+import random
+import string
+import os
 # Create your views here.
 wxb_name = "./handleData/data/wang.xlsx"
 world_name = "./handleData/data/owd.csv"
 export_path = "./main/static/export"
 report_path = "./main/static/report"
 
+def random_string(stringLength=8):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
 
 def index(request):
     return render(request, "index.html")
 
 
 def report(request):
+    client = MongoClient()
+    db = client['coronavirus_analysis']
     if request.method == "POST":
         try:
+            # -----------------------------------------------
+            # Generate a random dir name
+            dir_name = random_string()
+            export_dir = os.path.join(export_path, dir_name)
+            os.mkdir(export_dir)
+            # -----------------------------------------------
             folder = request.FILES.getlist("folder")
+            method = None
             if folder:
+                method = "folder"
                 for fi in folder:
-                    with open("%s/%s" % (export_path,fi.name), "wb") as f:
+                    with open("%s/%s" % (export_dir,fi.name), "wb") as f:
                         for i in fi.chunks():
                             f.write(i)
             else:
+                method = "excel"
                 wxb_file = request.FILES.get("wxb_file")
                 ourworldindata = request.FILES.get("ourworldindata")
                 with open(wxb_name, "wb") as f1, open(world_name, "wb") as f2:
@@ -35,13 +53,25 @@ def report(request):
                     for i in ourworldindata.chunks():
                         f2.write(i)
                 prepare()
-                analyze()
-
+                analyze(export_dir=export_dir)
+            db.csv.insert({
+                "name": dir_name,
+                "method": method,
+            })
         except Exception as e:
             return JsonResponse({"error": "Error!\n"+repr(e)})
-        return render(request, "report.html")
+        # return render(request, "report.html")
     else:
-        return render(request, "report.html")
+        pass
+    print(db.csv.count())
+    last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
+    print(last_version)
+    t = os.listdir(os.path.join("./main/static/export/" , last_version['name']))
+    print(t)
+    context = {
+        "export_dir": "export/" + last_version['name'] + "/"
+    }
+    return render(request, "report.html", context)
 
 
 def saveImage(request):
