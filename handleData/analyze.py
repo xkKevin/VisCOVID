@@ -33,7 +33,6 @@ def process_global_seq(operator, preprocess, postprocess):
         data = reduce(process, preprocess, found)
         data = reduce(operator, data, generate_default_seq())
         data = reduce(process, postprocess, data)
-        print(data)
         return data
     return build_final_seq
 
@@ -163,7 +162,6 @@ def build_sort(compare=lambda x: x['values'][0]):
 
 def build_append_others_func(f, global_record):
     def append_others(data, context):
-        print(data)
 
         acc = [0.] * len(data[0]['values'])
         def add_to_sum(acc, c):
@@ -210,7 +208,6 @@ def build_insert_average(average, f=None):
                 global_record['国家地区'] = "全球"
             else: 
                 print(len(global_record))
-            print("++++++++++++++++++++++++++++")
             average_values = f(global_record)
             data.insert(0, {"name": "全球平均", "values": average_values})
         if average == "global_custom":
@@ -244,8 +241,20 @@ def build_filter_nan():
 def build_filter_weekly(period_start=-7, period_end=0):
     def filter_weekly(records, context):
         length = len(records)
+
         return list(map(lambda x: x[ len(x) + period_start: len(x) + period_end], records)), context
     return filter_weekly
+
+def build_filter_records(f):
+    def filter_records(records, context):
+        # print(records)
+        # for record in records:
+            # if record['国家地区'] == "冰岛":
+                # print(record)
+        context_records = context['records']
+        context['records'] = list(filter(f, context_records))
+        return list(filter(f, records)), context
+    return filter_records
 
 
 def build_confirmed_condition(condition=10000):
@@ -259,6 +268,14 @@ def process_country_record_last_day(f, args=dict() , preprocess=[], postprocess=
     # Query the MongoDB
     
         # Build the dataset table
+    def filter_2000(x):
+        # if x ['国家地区'] == "冰岛":
+            # print(x)
+        if x['累计确诊'] >= 2000.:
+            return True
+        else:
+            return False
+    preprocess.insert(0,build_filter_records(filter_2000) )
     postprocess.insert(0, build_filter_nan())
     def build_final_data(db, config, with_others = True, top = -1, with_average=False, average=None, filter_country= lambda x: True, sorted=True, average_func=None):
         countries = db.selected_countries.find({})
@@ -273,10 +290,10 @@ def process_country_record_last_day(f, args=dict() , preprocess=[], postprocess=
         }
         def process(acc, c):
             return c(acc, context)[0]
-        mfound = reduce(process, preprocess, found)
         
+        found = reduce(process, preprocess, found)
         mfound = list(filter(filter_country, found))
-
+        print(mfound)
         # Process on the records
         values = list(map(lambda x: {"name": x['国家地区'], "values": f(x)}, mfound))
         
@@ -535,7 +552,7 @@ def process_country_seq( operator, preprocess=[], postprocess=[]):
         }
         def process(acc, c):
             return c(acc, context)[0]
-        
+        preprocess.insert(0,build_filter_records(lambda x: x[-1]['累计确诊']>=2000) )
         mfound = reduce(process, preprocess, found)
         # mfound = list(filter(filter_country, mfound))
         # Process on the records
@@ -612,7 +629,8 @@ def extract_conutry_seq(db, config):
             "process": "seq",
             "operator": lambda x : [calculate_rate(sum(y['新增确诊'] for y in x[len(x)-7:]), sum(y['新增确诊'] for y in x[-14:-7])) - 1],
             "preprocess": [
-                build_filter_weekly(-14,0)
+                build_filter_weekly(-14,0),
+                build_filter_records(lambda x: x[-1]['累计死亡']>100)
             ],
             "postprocess": [
                 build_sort(),
@@ -625,7 +643,8 @@ def extract_conutry_seq(db, config):
             "process": "seq",
             "operator": lambda x : [calculate_growth(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7]))],
             "preprocess": [
-                build_filter_weekly(-14,0)
+                build_filter_weekly(-14,0),
+                build_filter_records(lambda x: x[-1]['累计死亡']>100)
             ],
             "postprocess": [
                 build_sort(),
@@ -824,7 +843,6 @@ def check_unmapped_countries(db, config):
     unmapped = list(filter(lambda x: x['value']==0, map_result))
     
     unmapped_output_names = list(filter(lambda x: x not in mapped_names, output_names))
-    print(unmapped_output_names)
     def search_name_in_outputs(sample):
         
         def check(acc, c):

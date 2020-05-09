@@ -10,6 +10,8 @@ from pymongo import MongoClient, DESCENDING
 import random
 import string
 import os
+import traceback
+
 # Create your views here.
 wxb_name = "./handleData/data/wang.xlsx"
 world_name = "./handleData/data/owd.csv"
@@ -59,7 +61,7 @@ def report(request):
                 "method": method,
             })
         except Exception as e:
-            return JsonResponse({"error": "Error!\n"+repr(e)})
+            return JsonResponse({"error": "Error!\n"+traceback.format_exc()})
         # return render(request, "report.html")
     else:
         pass
