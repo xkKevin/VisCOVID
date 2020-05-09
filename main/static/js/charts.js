@@ -160,12 +160,14 @@ function pieChart(data, name, div_id) {
                     optionToContent: function(opt) {
                         // console.log(opt);
                         let data_len = opt.series[0].data.length;
-                        var table = `<h4>表格数据</h4>
+                        var table = `<h5>表格数据</h5>
                         <textarea rows='${data_len+1}' style="width: 100%">国家,${opt.series[0].name}`;
                         for (let i =0;i<data_len;i++){
                             table += "\n" + opt.series[0].data[i].name + "," + opt.series[0].data[i].value;
                         }
-                        table += "</textarea>";
+                        table += `</textarea><h5>系统配置</h5>
+                                radius: <input type="text" value="${opt.series[0].radius}">（圆半径相对于整个图的大小）<br>
+                                center: <input type="text" value="${opt.series[0].center}">（圆心在图中的位置(x,y)）`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -178,9 +180,10 @@ function pieChart(data, name, div_id) {
                                 value: data[1]
                             })
                          });
-                         opt.series[0].data = handle_data;
-                        // console.log(handle_data);
-                        // console.log(opt);
+                        opt.series[0].data = handle_data;
+                        let inputs = $(html).children("input");
+                        opt.series[0].radius = inputs.eq(0).val();
+                        opt.series[0].center = inputs.eq(1).val().split(",");
                         myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
                         return opt;
                     }
@@ -467,7 +470,7 @@ function barchart_num(data, name, div_id) {
             type: 'value',
             position: 'top',
             // interval: 2000000,
-            max: 8000000,
+            max: 10000000,
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.median,
                 // formatter: function(param) {
