@@ -1,7 +1,7 @@
 import os
 
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from handleData.prepare import prepare
 from handleData.analyze import analyze
 import base64, json
@@ -87,7 +87,7 @@ def csvFile(request, file_name):
            file_data = f.read()
 
         # sending response 
-        response = HttpResponse(file_data, content_type='application/vnd.ms-excel')
+        response = HttpResponse(file_data, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=' + '"' + file_name + '"'
 
     except IOError:

@@ -41,9 +41,15 @@ def extract_sheet(excel, check_date, sheet_name=None):
         # print(type(row['重症病例']))
         for column in columns:
             if column not in obj.keys():
-                obj[column] = 0.
+                if sheet_name == "全球":
+                    obj['column'] = np.nan
+                else:
+                    obj[column] = 0.
             if np.isnan(obj[column]):
-                obj[column] = 0.
+                if sheet_name == "全球":
+                    obj['column'] = np.nan
+                else:
+                    obj[column] = 0.
         objs.append(obj)
     return objs
 
