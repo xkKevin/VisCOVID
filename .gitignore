@@ -1,5 +1,7 @@
+# You should 'git rm' folders or files after modifying .gitignore
 .idea
 main/static/export/*.csv
+main/static/export/**/*.csv
 main/static/report/*.png
 main/static/report/*.txt
 __py
