@@ -66,14 +66,35 @@ def report(request):
     else:
         pass
     print(db.csv.count())
-    last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
-    print(last_version)
-    if not last_version:
+    if db.csv.count() == 0:
         return render(request, "report.html", {"export_dir": ""})
+    last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
+    
     context = {
         "export_dir": "export/" + last_version['name'] + "/"
     }
     return render(request, "report.html", context)
+
+
+def csvFile(request, file_name):
+    file_data = None
+    client = MongoClient()
+    db = client['coronavirus_analysis']
+    last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
+    try:    
+        file_location = "./main/static/export/" + last_version['name'] + "/" + file_name
+        with open(file_location, 'r') as f:
+           file_data = f.read()
+
+        # sending response 
+        response = HttpResponse(file_data, content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename=' + '"' + file_name + '"'
+
+    except IOError:
+        # handle file not exist case here
+        response = HttpResponseNotFound('<h1>File not exist</h1>')
+    
+    return response
 
 
 def saveImage(request):
