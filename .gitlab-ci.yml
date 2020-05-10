@@ -59,6 +59,8 @@ deploy:
   only:
     - master
     - tags
+  except:
+    - branches
 
 deploy-dev:
   stage: deploy
