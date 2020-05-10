@@ -630,7 +630,7 @@ def extract_conutry_seq(db, config):
             "operator": lambda x : [calculate_rate(sum(y['新增确诊'] for y in x[len(x)-7:]), sum(y['新增确诊'] for y in x[-14:-7])) - 1],
             "preprocess": [
                 build_filter_weekly(-14,0),
-                build_filter_records(lambda x: x[-1]['累计死亡']>100)
+                # build_filter_records(lambda x: x[-1]['累计死亡']>100)
             ],
             "postprocess": [
                 build_sort(),
@@ -735,10 +735,19 @@ def extract_world_map_from_owd(db, config):
     regions = ['Africa', 'Asia', 'Asia excl. China', 'Europe', 'European Union', 'High income', 'Low income', 'Lower middle income', 'North America', 'Oceania', 'South America', 'Taiwan',  'Upper middle income', 'World']
     exclude_entities = ['International','World excl. China', 'World excl. China and South Korea', 'World excl. China, South Korea, Japan and Singapore']
     exclude_entities.extend(regions)
-    
-    confirmed_records = list(db.owd_all.find({"date": check_date, "location": {"$nin": exclude_entities}}))
-    death_records = list(db.owd_all.find({"date": check_date, "location": {"$nin": exclude_entities}}))
-    
+    # confirmed_records = list(db.owd_all.find({"date": check_date, "location": {"$nin": exclude_entities}}))
+    confirmed_records = list(db.owd_all.aggregate([{"$group": {
+        "_id": "$location",
+        "location": {"$last": "$location"},
+        "total_cases": {"$last": "$total_cases"}
+    }}]))
+    confirmed_records = list(db.owd_all.aggregate([{"$group": {
+        "_id": "$location",
+        "location": {"$last": "$location"},
+        "total_cases": {"$last": "$total_cases"},
+        "total_deaths": {"$last": "$total_deaths"}
+    }}]))
+    # death_records = list(db.owd_all.find({"date": check_date, "location": {"$nin": exclude_entities}}))
     get_map_name = build_name_conversion()
     
     conversion = {
@@ -770,7 +779,7 @@ def extract_world_map_from_owd(db, config):
             return name
 
     confirmed_data = list(map(lambda x: {"name": convert_name(get_map_name(x["location"])), "value": x["total_cases"]}, confirmed_records))
-    death_data = list(map(lambda x: {"name": convert_name(get_map_name(x["location"])), "value": x["total_deaths"]}, death_records))
+    death_data = list(map(lambda x: {"name": convert_name(get_map_name(x["location"])), "value": x["total_deaths"]}, confirmed_records))
     unfound_samples = ['Aland', 'American Samoa', 'Br. Indian Ocean Ter.', 'Dem. Rep. Korea', 'Fr. S. Antarctic Lands', 'Heard I. and McDonald Is.', 'Kiribati', 'Lesotho', 'Micronesia', 'N. Cyprus', 'Niue', 'Palau', 'S. Geo. and S. Sandw. Is.', 'Saint Helena', 'Samoa', 'Siachen Glacier', 'Solomon Is.', 'St. Pierre and Miquelon', 'Timor-Leste', 'Tonga', 'Turkmenistan', 'Vanuatu']
     
     sample_zeros = list(map(lambda x: {'name': x, 'value':0 }, unfound_samples))
@@ -932,3 +941,4 @@ def analyze(export_dir):
 if __name__ == "__main__":
     analyze() 
     
+    # docker  run  -v `pwd`:`pwd` -w `pwd` -t -p 8000:80 2a5f319370cb  
