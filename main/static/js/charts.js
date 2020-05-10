@@ -31,8 +31,8 @@ var CSS_STYLE = {
     'pieChart':{
         width: "800px",
         height: "600px",
-        radius: '51%',
-        center: ['49%', '35%'],
+        radius: '50%',
+        center: ['48%', '35%'],
         fontSizeText: 18,
         fontSizeNum: 20
     }
@@ -534,6 +534,7 @@ function linechart(data, div_id) {
         toolbox: {
             feature: {
                 dataView: {readOnly: false},
+                restore: {},
                 saveAsImage: {
                     name: div_id
                 }

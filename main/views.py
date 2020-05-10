@@ -68,8 +68,8 @@ def report(request):
     print(db.csv.count())
     last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
     print(last_version)
-    t = os.listdir(os.path.join("./main/static/export/" , last_version['name']))
-    print(t)
+    if not last_version:
+        return render(request, "report.html", {"export_dir": ""})
     context = {
         "export_dir": "export/" + last_version['name'] + "/"
     }
