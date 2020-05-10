@@ -11,7 +11,7 @@ import random
 import string
 import os
 import traceback
-
+from shutil import copyfile
 # Create your views here.
 wxb_name = "./handleData/data/wang.xlsx"
 world_name = "./handleData/data/owd.csv"
@@ -40,7 +40,16 @@ def report(request):
             folder = request.FILES.getlist("folder")
             method = None
             if folder:
+                if db.csv.count() == 0:
+                    pass
+                else:
+                    last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
+                    last_export_dir = os.path.join(export_path, last_version['name'])
+                    dir_name = last_version['name']
+                    export_dir = os.path.join(export_path, dir_name)
+
                 method = "folder"
+                
                 for fi in folder:
                     with open("%s/%s" % (export_dir,fi.name), "wb") as f:
                         for i in fi.chunks():
