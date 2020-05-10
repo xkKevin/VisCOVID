@@ -3,7 +3,7 @@
 {% load static %}
 <head>
     <meta charset="UTF-8">
-    <title>Vis for COVID</title>
+    <title>疫情周报</title>
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
@@ -12,6 +12,11 @@
     <script src="{% static 'js/charts.js' %}"></script>
     <script src="{% static 'js/handle_data.js' %}"></script>
     <script src="{% static 'js/d3.v4.min.js' %}"></script>
+
+    <link href="{% static 'css/ladda-themeless.min.css' %}" rel="stylesheet">
+    <script type="text/javascript" src="{% static 'js/spin.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/ladda.min.js' %}"></script>
+
     <style>
         h3 {
             margin-top: 25px;
@@ -27,6 +32,10 @@
     </style>
 </head>
 <body>
+<div class="container fixed-top" style="text-align: right; margin-top: 20px;">
+    <a id="download" href="{% static 'report/report.docx' %}"></a>
+    <button id="create_btn" class="btn btn-info ladda-button" data-style="zoom-out" onclick="createReport()">生成周报</button>
+</div>
 <div class="container">
     <div>
         <h3>一周疫情关键数据（<span class="start_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="start_date_day"><font>&nbsp;Null&nbsp;</font></span>日
@@ -45,75 +54,94 @@
         ——上周确诊增速最快国家：<span class="26"><font>&nbsp;Null&nbsp;</font></span>（<span class="27"><font>&nbsp;Null&nbsp;</font></span>）、<span class="28"><font>&nbsp;Null&nbsp;</font></span>（<span class="29"><font>&nbsp;Null&nbsp;</font></span>） <br>
         ——上周死亡增速最快国家：<span class="30"><font>&nbsp;Null&nbsp;</font></span>（<span class="31"><font>&nbsp;Null&nbsp;</font></span>）、<span class="32"><font>&nbsp;Null&nbsp;</font></span>（<span class="33"><font>&nbsp;Null&nbsp;</font></span>） <br>
     </div>
+    <div class="text_to_save">
+        <div>
+            <h3>全球疫情发展大数据分析周报</h3>
+            （<span class="start_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="start_date_day"><font>&nbsp;Null&nbsp;</font></span>日—<span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日）
+            <br>
+            2020年<span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日
+        </div>
+        <h3>2. 全球疫情现况</h3>
+        <h3>2.1 全球累计确诊：<span class="2"><font>&nbsp;Null&nbsp;</font></span>例，死亡：<span class="3"><font>&nbsp;Null&nbsp;</font></span>例</h3>
+        主要分布在<span class="2_1_countries"><font>&nbsp;Null&nbsp;</font></span>。
+        <div id="2_1" style="width: 800px;height:470px;"></div>
+        <div>图 2-1&nbsp;全球累计确诊分布图</div>
+        <div id="2_2" style="width: 800px;height:470px;"></div>
+        <div>图 2-2&nbsp;全球累计死亡分布图</div>
+        <hr>
+        <div class="row" style="width: 800px;">
+            <div id="2_3_a" class="col-6" style="margin: 0; padding: 0; height: 230px;"></div>
+            <div id="2_3_b" class="col-6" style="margin: 0; padding: 0; height: 230px;"></div>
+            <div class="col-6" style="text-align: center;">(a)</div>
+            <div class="col-6" style="text-align: center;">(b)</div>
+            <div>图2-3&nbsp;全球累计确诊人数增长曲线（a）、累计死亡人数增长曲线（b）</div>
+        </div>
+        <div class="row" style="width: 800px;">
+            <div id="2_4_a" class="col-6" style="margin: 0; padding: 0; height: 230px;"></div>
+            <div id="2_4_b" class="col-6" style="margin: 0; padding: 0; height: 230px;"></div>
+            <div class="col-6" style="text-align: center;">(a)</div>
+            <div class="col-6" style="text-align: center;">(b)</div>
+            <div>图2-4&nbsp;全球确诊率增长曲线（a）、病死率增长曲线（b）</div>
+            <div>注：确诊率为累计确诊人数占总人口的百分比，病死率为累计死亡人数占累计确诊人数的百分比。</div>
+        </div>
+        <div id="2_5" style="width: 800px;height:430px;"></div>
+        <div>图 2-5&nbsp;全球累计确诊人数来源构成（显示前 15 个国家，包含法国养老院数据）</div>
+        <div id="2_6" style="width: 800px;height:430px;"></div>
+        <div>图 2-6&nbsp;全球累计死亡人数来源构成（显示前 15 个国家，包含法国养老院数据）</div>
 
-    <h3>2.1 全球累计确诊：<span class="2"><font>&nbsp;Null&nbsp;</font></span>例，死亡：<span class="3"><font>&nbsp;Null&nbsp;</font></span>例</h3>
-    主要分布在 <span class="2_1_countries"><font>&nbsp;Null&nbsp;</font></span>。
-    <div id="2_1" style="width: 800px;height:470px;"></div>
-    <div>图 2-1&nbsp;全球累计确诊分布图（截至 <span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月 <span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日）</div>
-    <div id="2_2" style="width: 800px;height:470px;"></div>
-    <div>图 2-2&nbsp;全球累计死亡分布图（截至 <span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月 <span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日）</div>
-    <hr>
-    <div class="row" style="width: 800px;">
-        <div id="2_3_a" class="col-6" style="margin: 0; padding: 0; height: 230px;"></div>
-        <div id="2_3_b" class="col-6" style="margin: 0; padding: 0; height: 230px;"></div>
-        <div class="col-6" style="text-align: center;">(a)</div>
-        <div class="col-6" style="text-align: center;">(b)</div>
-        <div>图2-3&nbsp;全球累计确诊人数增长曲线（a）、累计死亡人数增长曲线（b）</div>
+        <!--<h3>2.2 全球本周新增确诊<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，死亡：<span class="16"><font>&nbsp;Null&nbsp;</font></span>例</h3>-->
+        <h3>2.2 全球确诊率：<span class="4"><font>&nbsp;Null&nbsp;</font></span>，病死率：<span class="5"><font>&nbsp;Null&nbsp;</font></span></h3>
+        <div id="2_7" style="width: 800px;height:880px;"></div>
+        <div>图2-7&nbsp;各国确诊率（确诊率为累计确诊人数占总人口的百分比，仅显示累计确诊人数超过2000的国家中确诊率前20个国家）</div>
+        <div id="2_8" style="width: 800px;height:880px;"></div>
+        <div>图2-8&nbsp;各国病死率（病死率为累计死亡人数占累计确诊人数的百分比，仅显示累计确诊人数超过2000的国家中病死率前20个国家）</div>
+        <div id="2_9" style="width: 800px;height:880px;"></div>
+        <div>图2-9&nbsp;各国检测率（检测率为总检测数占总人口的百分比，仅显示累计确诊人数超过2000的国家中检测率前20个国家，部分国家检测数据更新不及时）</div>
+        <div id="2_10" style="width: 800px;height:880px;"></div>
+        <div>图2-10&nbsp;各国阳性率（阳性率为累计确诊人数占总检测数的百分比，仅显示累计确诊人数超过2000的国家中阳性率前20个国家，部分国家数据更新不及时）</div>
+
+        <h3>2.3 全球本周新增确诊：<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，死亡：<span class="16"><font>&nbsp;Null&nbsp;</font></span>例</h3>
+        <div id="2_11" style="width: 800px;height:500px;"></div>
+        <div>图2-11&nbsp;本周全球每日新增确诊人数和新增死亡人数</div>
+
+        <h3>2.4&nbsp;本周新增确诊主要来源：<span class="18"><font>&nbsp;Null&nbsp;</font></span>、<span class="20"><font>&nbsp;Null&nbsp;</font></span></h3>
+        <div id="2_12" style="width: 800px;height:430px;"></div>
+        <div>图2-12&nbsp;本周全球新增确诊人数来源构成（显示前15个国家，包含法国养老院数据）</div>
+
+        <h3>2.5&nbsp;本周新增死亡主要来源：<span class="22"><font>&nbsp;Null&nbsp;</font></span>、<span class="24"><font>&nbsp;Null&nbsp;</font></span></h3>
+        <div id="2_13" style="width: 800px;height:430px;"></div>
+        <div>图2-13&nbsp;本周全球新增死亡人数来源构成（显示前15个国家，包含法国养老院数据）</div>
+
+        <h3>2.6&nbsp;本周新增确诊增长最快：<span class="26"><font>&nbsp;Null&nbsp;</font></span>，新增死亡增长最快：<span class="30"><font>&nbsp;Null&nbsp;</font></span></h3>
+        <div id="2_14" style="width: 800px;"></div>
+        <div>图2-14&nbsp;本周较上周新增确诊人数增速（仅显示增速绝对值大于等于20%的国家）</div>
+        <div>注：本周较上周新增确诊人数增速=（本周新增确诊人数-上周新增确诊人数）/上周新增确诊人数</div>
+
+        <div id="2_15" style="width: 800px;"></div>
+        <div>图2-15&nbsp;本周较上周新增死亡人数增速（仅显示累计死亡人数超过100的国家中增速绝对值大于等于20%的国家）</div>
+        <div>注：本周较上周新增死亡人数增速=（本周新增死亡人数-上周新增死亡人数）/上周新增死亡人数</div>
+
+        <h3>附录</h3>
+        <div id="2_16" style="width: 800px;height:850px;"></div>
+        <div>图2-16&nbsp;各国总检测数（截止至<span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日，仅显示累计确诊人数超过2000的国家中总检测数前20个国家，部分国家检测数据更新不及时）</div>
+        <div id="2_17" style="width: 800px;"></div>
+        <div>
+            图2-17&nbsp;本周较上周新增确诊人数增速（仅显示累计确诊人数超过1万的国家中增速绝对值大于等于20%的国家）<br>
+            注：本周较上周新增确诊人数增速=（本周新增确诊人数-上周新增确诊人数）/上周新增确诊人数
+        </div>
+        <div id="2_18" style="width: 800px;"></div>
+        <div>
+            图2-18&nbsp;本周较上周新增死亡人数增速（仅显示累计确诊人数超过1万的国家中增速绝对值大于等于20%的国家）<br>
+            注：本周较上周新增死亡人数增速=（本周新增死亡人数-上周新增死亡人数）/上周新增死亡人数
+        </div>
     </div>
-    <div class="row" style="width: 800px;">
-        <div id="2_4_a" class="col-6" style="margin: 0; padding: 0; height: 230px;"></div>
-        <div id="2_4_b" class="col-6" style="margin: 0; padding: 0; height: 230px;"></div>
-        <div class="col-6" style="text-align: center;">(a)</div>
-        <div class="col-6" style="text-align: center;">(b)</div>
-        <div>图2-4&nbsp;全球确诊率增长曲线（a）、病死率增长曲线（b）</div>
-        <div>注：确诊率为累计确诊人数占总人口的百分比，病死率为累计死亡人数占累计确诊人数的百分比。</div>
-    </div>
-    <div id="2_5" style="width: 800px;height:430px;"></div>
-    <div>图 2-5&nbsp;全球累计确诊人数来源构成（显示前 15 个国家，包含法国养老院数据，截至 <span class= "end_date_month"><font>&nbsp;Null&nbsp;</font></span>月 <span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日）</div>
-    <div id="2_6" style="width: 800px;height:430px;"></div>
-    <div>图 2-6&nbsp;全球累计死亡人数来源构成（显示前 15 个国家，包含法国养老院数据，截至 <span class= "end_date_month"><font>&nbsp;Null&nbsp;</font></span>月 <span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日）</div>
-
-    <!--<h3>2.2 全球本周新增确诊<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，死亡：<span class="16"><font>&nbsp;Null&nbsp;</font></span>例</h3>-->
-    <h3>2.2 全球确诊率：<span class="4"><font>&nbsp;Null&nbsp;</font></span>，病死率：<span class="5"><font>&nbsp;Null&nbsp;</font></span></h3>
-    <div id="2_7" style="width: 800px;height:880px;"></div>
-    <div>图2-7&nbsp;各国确诊率（确诊率为累计确诊人数占总人口的百分比，仅显示累计确诊人数超过2000的国家中确诊率前20个国家）</div>
-    <div id="2_8" style="width: 800px;height:880px;"></div>
-    <div>图2-8&nbsp;各国病死率（病死率为累计死亡人数占累计确诊人数的百分比，仅显示累计确诊人数超过2000的国家中病死率前20个国家）</div>
-    <div id="2_9" style="width: 800px;height:880px;"></div>
-    <div>图2-9&nbsp;各国检测率（检测率为总检测数占总人口的百分比，仅显示累计确诊人数超过2000的国家中检测率前20个国家，部分国家检测数据更新不及时）</div>
-    <div id="2_10" style="width: 800px;height:880px;"></div>
-    <div>图2-10&nbsp;各国阳性率（阳性率为累计确诊人数占总检测数的百分比，仅显示累计确诊人数超过2000的国家中阳性率前20个国家，部分国家数据更新不及时）</div>
-
-    <h3>2.3 全球本周新增确诊<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，死亡：<span class="16"><font>&nbsp;Null&nbsp;</font></span>例</h3>
-    <div id="2_11" style="width: 800px;height:500px;"></div>
-    <div>图2-11&nbsp;本周全球每日新增确诊人数和新增死亡人数</div>
-
-    <h3>2.4&nbsp;本周新增确诊主要来源：<span class="18"><font>&nbsp;Null&nbsp;</font></span>、<span class="20"><font>&nbsp;Null&nbsp;</font></span></h3>
-    <div id="2_12" style="width: 800px;height:430px;"></div>
-    <div>图2-12&nbsp;本周全球新增确诊人数来源构成（显示前15个国家，包含法国养老院数据）</div>
-
-    <h3>2.5&nbsp;本周新增死亡主要来源：<span class="22"><font>&nbsp;Null&nbsp;</font></span>、<span class="24"><font>&nbsp;Null&nbsp;</font></span></h3>
-    <div id="2_13" style="width: 800px;height:430px;"></div>
-    <div>图2-13&nbsp;本周全球新增死亡人数来源构成（显示前15个国家，包含法国养老院数据）</div>
-
-    <h3>2.6&nbsp;本周新增确诊增长最快：<span class="26"><font>&nbsp;Null&nbsp;</font></span>，新增死亡增长最快：<span class="30"><font>&nbsp;Null&nbsp;</font></span></h3>
-    <div id="2_14" style="width: 800px;"></div>
-    <div>图2-14&nbsp;本周较上周新增确诊人数增速（仅显示增速绝对值大于等于20%的国家）</div>
-    <div>注：本周较上周新增确诊人数增速=（本周新增确诊人数-上周新增确诊人数）/上周新增确诊人数</div>
-
-    <div id="2_15" style="width: 800px;"></div>
-    <div>图2-15&nbsp;本周较上周新增死亡人数增速（仅显示增速绝对值大于等于20%的国家）</div>
-    <div>注：本周较上周新增死亡人数增速=（本周新增死亡人数-上周新增死亡人数）/上周新增死亡人数</div>
-
-    <h3>附录</h3>
-    <div id="2_16" style="width: 800px;height:850px;"></div>
-    <div id="2_17" style="width: 800px;"></div>
-    <div id="2_18" style="width: 800px;"></div>
 </div>
 
 <script>
+    var imagesInfo = {};
+    var text = "";
     var cases_3 = [];
-    d3.csv("{% static 'export/basic_info.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'basic_info.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -158,7 +186,8 @@
                 }
                 $("."+index).text(data);
             });
-            d3.csv("{% static 'export/2-1.csv' %}", function (error, csvdata) {
+
+            d3.csv("{% static export_dir|add:'2-1.csv' %}", function (error, csvdata) {
                 if(error){
                     console.log(error);
                 }else{
@@ -167,17 +196,18 @@
                 }
             });
 
-            d3.csv("{% static 'export/2-2.csv' %}", function (error, csvdata) {
+            d3.csv("{% static export_dir|add:'2-2.csv' %}", function (error, csvdata) {
                 if(error){
                     console.log(error);
                 }else{
                     worldMap(csvdata, '累计死亡人数', '2_2', $(".11").text().replace(/,/g,""));
+                    text = $(".text_to_save").text();
                 }
             });
         }
     });
 
-    d3.csv("{% static 'export/2-3-a.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-3-a.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -185,7 +215,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-3-b.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-3-b.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -193,7 +223,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-4-a.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-4-a.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -201,7 +231,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-4-b.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-4-b.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -209,7 +239,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-5.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-5.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -218,7 +248,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-6.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-6.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -227,7 +257,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-12.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-12.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -236,7 +266,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-13.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-13.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -245,15 +275,15 @@
         }
     });
 
-    d3.csv("{% static 'export/2-7.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-7.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
-            barchart(csvdata.slice(0,21), "确诊率", '2_7', 0.007);
+            barchart(csvdata.slice(0,21), "确诊率", '2_7');
         }
     });
 
-    d3.csv("{% static 'export/2-8.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-8.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -261,23 +291,23 @@
         }
     });
 
-    d3.csv("{% static 'export/2-9.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-9.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
-            barchart(csvdata.slice(0,21), "检测率", '2_9', 0.18);
+            barchart(csvdata.slice(0,21), "检测率", '2_9');
         }
     });
 
-    d3.csv("{% static 'export/2-10.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-10.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
-            barchart(csvdata.slice(0,21), "阳性率", '2_10', 0.80);
+            barchart(csvdata.slice(0,21), "阳性率", '2_10');
         }
     });
 
-    d3.csv("{% static 'export/2-11.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-11.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -285,7 +315,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-14.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-14.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -293,7 +323,7 @@
         }
     });
 
-    d3.csv("{% static 'export/2-15.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-15.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -301,7 +331,7 @@
         }
     });
 
-    d3.csv("{% static 'export/appendix-1.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'appendix-1.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -309,7 +339,7 @@
         }
     });
 
-    d3.csv("{% static 'export/appendix-2.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'appendix-2.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -317,95 +347,32 @@
         }
     });
 
-    d3.csv("{% static 'export/appendix-3.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'appendix-3.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
             barchart_num(csvdata.slice(0,20), "总检测数", '2_16');
         }
     });
-
-
-    // var word_data = [{'name': 'Israel', 'value': 15398}, {'name': 'Kazakhstan', 'value': 2652}, {'name': 'Dem. Rep. Congo', 'value': 442}, {'name': 'Singapore', 'value': 13624}, {'name': 'Japan', 'value': 13231}, {'name': 'Burkina Faso', 'value': 629}, {'name': 'Palestine', 'value': 441}, {'name': 'Bahrain', 'value': 2588}, {'name': 'Greece', 'value': 2506}, {'name': 'Chile', 'value': 12858}, {'name': 'Pakistan', 'value': 12723}, {'name': 'United States', 'value': 939235}, {'name': 'Peru', 'value': 25331}, {'name': 'Sweden', 'value': 18234}, {'name': 'India', 'value': 26496}, {'name': 'Ireland', 'value': 18561}, {'name': 'Moldova', 'value': 3110}, {'name': 'Chad', 'value': 40}, {'name': 'Sint Maarten', 'value': 38}, {'name': 'Cuba', 'value': 1285}, {'name': 'Djibouti', 'value': 1008}, {'name': 'Nigeria', 'value': 1095}, {'name': 'Antigua and Barbuda', 'value': 24}, {'name': 'Netherlands', 'value': 37190}, {'name': 'Cameroon', 'value': 1518}, {'name': 'Uganda', 'value': 75}, {'name': 'Central African Rep.', 'value': 19}, {'name': 'Benin', 'value': 58}, {'name': 'Jordan', 'value': 444}, {'name': 'Guyana', 'value': 73}, {'name': 'Canada', 'value': 45354}, {'name': 'United Arab Emirates', 'value': 9813}, {'name': 'Qatar', 'value': 9358}, {'name': 'Zambia', 'value': 84}, {'name': 'Guinea', 'value': 996}, {'name': 'The Republic of Equatorial Guinea', 'value': 258}, {'name': 'Luxembourg', 'value': 3711}, {'name': 'Niger', 'value': 681}, {'name': 'Albania', 'value': 712}, {'name': 'Diamond Princess Cruise Ship', 'value': 712}, {'name': 'Uruguay', 'value': 563}, {'name': 'Azerbaijan', 'value': 1687}, {'name': 'Somalia', 'value': 390}, {'name': 'Spain', 'value': 223759}, {'name': 'Sierra Leone', 'value': 86}, {'name': 'Latvia', 'value': 804}, {'name': 'Poland', 'value': 11273}, {'name': 'Sudan', 'value': 213}, {'name': 'Honduras', 'value': 562}, {'name': 'Dominican Rep.', 'value': 5749}, {'name': 'Kenya', 'value': 343}, {'name': 'Germany', 'value': 154175}, {'name': 'Guam', 'value': 136}, {'name': 'El Salvador', 'value': 261}, {'name': 'Faroe', 'value': 187}, {'name': 'Saudi Arabia', 'value': 16299}, {'name': 'New Zealand', 'value': 1142}, {'name': 'Ghana', 'value': 1279}, {'name': 'Belgium', 'value': 45325}, {'name': 'Bosnia and Herzegovina', 'value': 1458}, {'name': 'Madagascar', 'value': 123}, {'name': 'Malta', 'value': 447}, {'name': 'Brazil', 'value': 59324}, {'name': 'Oman', 'value': 1905}, {'name': 'Switzerland', 'value': 28619}, {'name': 'Tunisia', 'value': 939}, {'name': 'Argentina', 'value': 3780}, {'name': 'Slovakia', 'value': 1373}, {'name': 'Philippines', 'value': 7294}, {'name': 'Saint Vincent and the Grenadines', 'value': 14}, {'name': 'Mongolia', 'value': 38}, {'name': 'Lithuania', 'value': 1426}, {'name': 'Cyprus', 'value': 810}, {'name': 'Haiti', 'value': 72}, {'name': 'China', 'value': 84338}, {'name': 'Botswana', 'value': 22}, {'name': 'Angola', 'value': 25}, {'name': 'Myanmar', 'value': 146}, {'name': 'Finland', 'value': 4475}, {'name': 'Mozambique', 'value': 70}, {'name': 'Maldives', 'value': 141}, {'name': 'Australia', 'value': 6695}, {'name': 'Zimbabwe', 'value': 31}, {'name': 'Puerto Rico', 'value': 1416}, {'name': 'Nicaragua', 'value': 11}, {'name': 'Egypt', 'value': 4319}, {'name': 'Republic of Serbia', 'value': 8482}, {'name': 'Vietnam', 'value': 270}, {'name': 'Senegal', 'value': 614}, {'name': 'Gabon', 'value': 176}, {'name': 'Colombia', 'value': 5142}, {'name': 'Iceland', 'value': 1789}, {'name': 'Indonesia', 'value': 8607}, {'name': 'Ethiopia', 'value': 122}, {'name': 'Sao Tome and Principe', 'value': 8}, {'name': 'Barbados', 'value': 76}, {'name': 'Afghanistan', 'value': 1463}, {'name': 'Turkey', 'value': 107773}, {'name': 'Bailiwick of Jersey', 'value': 276}, {'name': 'Slovenia', 'value': 1388}, {'name': 'Bulgaria', 'value': 1234}, {'name': 'Bolivia', 'value': 703}, {'name': 'Andorra', 'value': 738}, {'name': 'Swaziland', 'value': 56}, {'name': 'Russia', 'value': 74588}, {'name': 'Nepal', 'value': 49}, {'name': 'Mexico', 'value': 13842}, {'name': 'Uzbekistan', 'value': 1836}, {'name': 'Bahamas', 'value': 72}, {'name': 'Brunei', 'value': 138}, {'name': 'S. Sudan', 'value': 6}, {'name': 'Morocco', 'value': 3897}, {'name': 'Liberia', 'value': 120}, {'name': 'Guatemala', 'value': 384}, {'name': 'Norway', 'value': 7493}, {'name': 'Togo', 'value': 90}, {'name': 'United Kingdom', 'value': 148377}, {'name': 'Malaysia', 'value': 5742}, {'name': 'Mauritius', 'value': 331}, {'name': 'Mali', 'value': 370}, {'name': 'Martinique', 'value': 170}, {'name': 'Ecuador', 'value': 22719}, {'name': 'Italy', 'value': 195351}, {'name': 'Kampuchea (Cambodia )', 'value': 122}, {'name': 'Congo', 'value': 200}, {'name': 'Belarus', 'value': 9590}, {'name': 'Algeria', 'value': 3256}, {'name': 'Paraguay', 'value': 223}, {'name': 'Libya', 'value': 61}, {'name': 'Reunion', 'value': 412}, {'name': 'Denmark', 'value': 8445}, {'name': 'Papua New Guinea', 'value': 8}, {'name': 'Czech Republic', 'value': 7333}, {'name': 'France', 'value': 124114}, {'name': 'Bangladesh', 'value': 4998}, {'name': 'Isle of Man', 'value': 308}, {'name': 'Costa Rica', 'value': 686}, {'name': 'Trinidad and Tobago', 'value': 115}, {'name': 'Romania', 'value': 10635}, {'name': 'Hungary', 'value': 2443}, {'name': 'Estonia', 'value': 1635}, {'name': 'Korea', 'value': 10728}, {'name': 'Ukraine', 'value': 8125}, {'name': 'North Macedonia', 'value': 1367}, {'name': 'Ivory Coast', 'value': 1111}, {'name': 'Republic of Rwanda', 'value': 176}, {'name': 'Thailand', 'value': 2922}, {'name': 'Austria', 'value': 15128}, {'name': 'Lebanon', 'value': 704}, {'name': 'Gibraltar', 'value': 133}, {'name': 'Guernsey', 'value': 245}, {'name': 'SriLanka', 'value': 460}, {'name': 'San Marino', 'value': 513}, {'name': 'Venezuela', 'value': 318}, {'name': 'Iran', 'value': 89328}, {'name': 'French Guiana', 'value': 109}, {'name': 'Jamaica', 'value': 257}, {'name': 'Kuwait', 'value': 2892}, {'name': 'South Africa', 'value': 4361}, {'name': 'Croatia', 'value': 2016}, {'name': 'Malawi', 'value': 33}, {'name': 'Tanzania', 'value': 300}, {'name': 'Georgia', 'value': 456}, {'name': 'Armenia', 'value': 1677}, {'name': 'Portugal', 'value': 23392}, {'name': 'Kingdom of Bhutan', 'value': 7}, {'name': 'Iraq', 'value': 1763}, {'name': 'Panama', 'value': 5166}, {'name': 'Syria', 'value': 42}, {'name': 'Cayman Is', 'value': 66}, {'name': 'Gambia', 'value': 10}, {'name': 'Fiji', 'value': 18}, {'name': 'Suriname', 'value': 10}, {'name': 'Status Civitatis Vaticanae', 'value': 9}, {'name': 'French Polynesia', 'value': 57}, {'name': 'Monaco', 'value': 98}, {'name': 'Liechtenstein', 'value': 82}, {'name': 'Greenland', 'value': 11}, {'name': 'St.Lucia', 'value': 15}, {'name': 'Seychelles', 'value': 11}, {'name': 'Namibia', 'value': 16}, {'name': 'Yemen', 'value': 1}, {'name': 'Belize', 'value': 18}, {'name': 'Mauritania', 'value': 7}, {'name': 'Laos', 'value': 19}, {'name': 'Saint Barthelemy', 'value': 3}, {'name': 'Reunion Island', 'value': 6}, {'name': 'Grand Princess', 'value': 21}, {'name': 'United Kingdom of Great Britain and Ireland', 'value': 20}, {'name': 'Northern Ireland', 'value': 1}];
-    // worldMap(word_data, '累计确诊人数', '2_1');
-    // worldMap(word_data, 'value', '2_2');
-
-    // var data_2_5 = [{"name": "美国", "value": 15276.0}, {"name": "英国", "value": 4855.0}, {"name": "法国", "value": 3291.0}, {"name": "意大利", "value": 3157.0}, {"name": "西班牙", "value": 2859.0}, {"name": "巴西", "value": 1662.0}, {"name": "比利时", "value": 1464.0}, {"name": "德国", "value": 1387.0}, {"name": "加拿大", "value": 995.0}, {"name": "土耳其", "value": 816.0}, {"name": "荷兰", "value": 808.0}, {"name": "瑞典", "value": 681.0}, {"name": "墨西哥", "value": 675.0}, {"name": "伊朗", "value": 619.0}, {"name": "爱尔兰", "value": 492.0}, {"name": "其他", "value": 4152.0}];
-    // pieChart(data_2_5, "累计确诊人数", "2_5");
-    // pieChart(data_2_5, "累计死亡人数", "2_6");
-
-    let data_2_7 =  [[0.06968845959164106, '全球平均'],
-        [0.15260893546607832, '比利时'],
-        [0.14003517289210343, '法国'],
-        [0.13694170929456723, '英国'],
-        [0.13505945707982042, '意大利'],
-        [0.1286855036855037, '阿尔及利亚'],
-        [0.12059195686857017, '瑞典'],
-        [0.11855337456305458, '荷兰'],
-        [0.10724519033974621, '匈牙利'],
-        [0.10235119034318173, '西班牙'],
-        [0.09485705407085146, '墨西哥'],
-        [0.08365284071104914, '印度尼西亚'],
-        [0.07108126881222505, '埃及'],
-        [0.06851371639142896, '巴西'],
-        [0.06772689882094872, '菲律宾'],
-        [0.06325004477879276, '伊朗'],
-        [0.05727062119497872, '爱尔兰'],
-        [0.056641213704410734, '美国'],
-        [0.05651151857075693, '罗马尼亚'],
-        [0.05551151857075693, '罗马尼亚'],
-        [0.05534020903993909, '瑞士']];
-    // let data_2_8 = data_2_9 = data_2_10 = data_2_7;
-    // barchart(data_2_7, "确诊率", '2_7');
-    // barchart(data_2_8, "病死率", '2_8');
-    // barchart(data_2_9, "检测率", '2_9');
-    // barchart(data_2_10, "阳性率", '2_10');
-
-    let data_2_11 = {
-        "cases": [79221,71412,77146,78413,80343,107882,93870],
-        "deaths": [5894,4307,7229,6546,6387,6465,6361],
-        "week": ['4/20', '4/21', '4/22', '4/23', '4/24', '4/25', '4/26']
-    };
-    // linechart(data_2_11, '2_11');
-
-    // pieChart(data_2_5, "本周全球新增确诊人数来源构成", "2_12");
-    // pieChart(data_2_5, "本周全球新增死亡人数来源构成", "2_13");
-
-    let data_14=[['全球', 0.06872277267293778],
-         ['厄瓜多尔', 6.760339943342776],
-         ['墨西哥', 0.9785549323655558],
-         ['卡塔尔', 0.9078947368421053],
-         ['巴基斯坦', 0.905595736581652],
-         ['沙特阿拉伯', 0.8922423956614004],
-         ['白俄罗斯', 0.8844496670583628],
-         ['新加坡', 0.8145139453019227],
-         ['希腊', 0.7597402597402598],
-         ['俄罗斯', 0.6284630962126763],
-         ['哥伦比亚', 0.4927536231884058],
-         ['印度', 0.4514843320505774],
-         ['秘鲁', 0.4409667194928684],
-         ['巴西', 0.3783190006904777],
-         ['阿联酋', 0.36827747466874516],
-         ['南非', 0.3190854870775348],
-         ['加拿大', 0.2040404040404041],
-         ['荷兰', -0.2194816053511706],
-         ['伊朗', -0.2194851923609188],
-         ['挪威', -0.2711323763955342],
-         ['菲律宾', -0.272453285111513],
-         ['塞尔维亚', -0.31713848508033665],
-         ['德国', -0.3290647633042931],
-         ['爱尔兰', -0.34768439108061744],
-         ['卢森堡', -0.34831460674157305],
-         ['瑞士', -0.3513278188942099],
-         ['马来西亚', -0.4361290322580645],
-         ['奥地利', -0.4485549132947977],
-         ['法国', -0.4858761012445812],
-         ['澳大利亚', -0.5038167938931297],
-         ['韩国', -0.6242774566473989],
-         ['中国', -0.8229426433915211]];
-
-    // bi_directional_barchart(data_14, "本周较上周新增确诊人数增速", "2_14");
-    // bi_directional_barchart(data_14, "本周较上周新增死亡人数增速", "2_15");
+    var flag = true;
+    var loading = Ladda.create($("#create_btn")[0]);
+    function createReport() {
+        if (flag){
+            loading.start();
+            $.post('{% url "saveImage" %}',{'baseimg': JSON.stringify(imagesInfo), 'text': text },function (result, statue) {  //JSON.stringify({'2_5':imagesInfo['2_5']})
+                if (!result.result){
+                    alert(result.error);
+                }else {
+                    // alert("周报生成成功！");
+                    $("#download")[0].click();
+                    flag = false;
+                }
+                loading.stop();
+            });
+        }else{
+            $("#download")[0].click();
+        }
+    }
 </script>
 </body>
 </html>

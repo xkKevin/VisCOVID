@@ -79792,7 +79792,12 @@ DataView.prototype.onclick = function (ecModel, api) {
     var self = this;
 
     function close() {
-        container.removeChild(root);
+        try{
+            container.removeChild(root);
+        }
+        catch (e) {
+            console.log(e);
+        }
         self._dom = null;
     }
     addEventListener(closeButton, 'click', close);

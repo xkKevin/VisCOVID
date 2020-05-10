@@ -8,9 +8,15 @@ import dateutil.parser
 import urllib.request
 from functools import reduce
 
+def store_selected_countries(db, excel):
+    selected_countries = db["selected_countries"]
+    selected_countries.remove({})
+    selected = list(filter(lambda x:  x not in ["全球", "全球2", "法国CDC", "澳门", "台湾", "香港", "中国大陆", "Sheet1"],excel.keys()))
+    selected = list(map(lambda x: {"chinese": x}, selected))
+    selected_countries.insert_many(selected)
 
-def extract_sheet(fp, check_date, sheet_name=None):
-    df = pd.read_excel(fp, sheet_name)
+def extract_sheet(excel, check_date, sheet_name=None):
+    df = excel[sheet_name]
     objs = []
     df = df.replace(pd.NaT, np.nan)
     columns = ['累计确诊', '新增确诊', '累计死亡', '新增死亡', '百万人口确诊率', '百万人口死亡率']
@@ -49,8 +55,8 @@ def store_excel_data(db, config):
     fp = open(config['path']['excel'], "rb")
     excel_df = pd.read_excel(fp, None)
     
-    def extract_end_date(fp):
-        df = pd.read_excel(fp, "全球")
+    def extract_end_date(excel):
+        df = excel["全球"]
         df = df.replace(pd.NaT, np.nan)
         records = []
         for index, row in df.iterrows():
@@ -68,7 +74,7 @@ def store_excel_data(db, config):
         t = reduce(f, t, {})
         return t['日期']
     
-    end_date = extract_end_date(fp)
+    end_date = extract_end_date(excel_df)
     end_date += datetime.timedelta(days=1)
     start_date = end_date - datetime.timedelta(days=7)
     config['time']['end'] = end_date.isoformat()
@@ -77,13 +83,14 @@ def store_excel_data(db, config):
     for sheet_name in excel_df.keys():
         if sheet_name == "Sheet1":
             continue
-        records = extract_sheet(fp, config['time']['end'], sheet_name)
+        records = extract_sheet(excel_df, config['time']['end'], sheet_name)
         if sheet_name == "全球":
             global_records.insert_many(records)
         elif sheet_name in ["全球2","法国CDC", "澳门", "台湾", "香港", "中国大陆" , "Sheet1"]:
             continue
         else:
             country_records.insert_many(records)
+    store_selected_countries(db, excel_df)
             
 
 def store_country_info(db, config):
@@ -105,16 +112,6 @@ def store_country_info(db, config):
     list(map(process_country, json_data))
 # def replace_nan_by_none(obj):
     
-
-def store_selected_countries(db, config):
-    selected_countries = db["selected_countries"]
-    selected_countries.remove({})
-    fp = open(config['path']['excel'], "rb")
-    excel_df = pd.read_excel(fp, None)
-    selected = list(filter(lambda x:  x not in ["全球", "全球2", "法国CDC", "澳门", "台湾", "香港", "中国大陆", "Sheet1"],excel_df.keys()))
-    selected = list(map(lambda x: {"chinese": x}, selected))
-    selected_countries.insert_many(selected)
-
 def float_population(db, config):
     for obj in db.populations.find():
         p = 0
@@ -191,8 +188,8 @@ def prepare_owd_data(db, config):
     # cases = pd.read_csv(config['path']['owd_cases'])
     # death = pd.read_csv(config['path']['owd_death'])
     owd_all = pd.read_csv(config['path']['owd_all'])
-    db.owd_confirmed.remove({})
-    db.owd_death.remove({})
+    # db.owd_confirmed.remove({})
+    # db.owd_death.remove({})
     db.owd_all.remove({})
     # for index, row in cases.iterrows():
     #     obj = dict(row)
@@ -222,7 +219,7 @@ def prepare():
     
     store_excel_data(db, config)
     prepare_owd_data(db, config)
-    store_selected_countries(db, config)
+    # store_selected_countries(db, config)
     
     
     

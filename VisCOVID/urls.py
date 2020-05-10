@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name="index"),
     path('report/', views.report, name="report"),
+    path('saveImage/', views.saveImage, name="saveImage"),
 ]

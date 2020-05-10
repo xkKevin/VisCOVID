@@ -89,33 +89,33 @@ def format_data(name, data):
         return t, '2-11.csv'
     
     def format_weekly_confirmed_data(data):
-        t = pd.DataFrame(map(lambda x: [x['name'], x['value']], data))
+        t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "本周新增确诊人数"]
 
         return t, '2-12.csv'
     
     def format_weekly_death_data(data):
-        t = pd.DataFrame(map(lambda x: [x['name'], x['value']], data))
+        t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "本周新增死亡人数"]
         return t, '2-13.csv'
     
     def format_weekly_confirmed_growth(data):
-        t = pd.DataFrame(map(lambda x: [x['name'], x['growth']], data))
+        t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "本周较上周新增确诊人数增速"]
         return t, '2-14.csv'
 
     def format_weekly_death_growth(data):
-        t = pd.DataFrame(map(lambda x: [x['name'], x['growth']], data))
+        t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "本周较上周新增死亡人数增速"]
         return t, '2-15.csv'
     
     def format_weekly_confirmed_growth_condition_1(data):
-        t = pd.DataFrame(map(lambda x: [x['name'], x['growth']], data))
+        t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "本周较上周新增确诊人数增速"]
         return t, 'appendix-1.csv'
 
     def format_weekly_death_growth_condition_1(data):
-        t = pd.DataFrame(map(lambda x: [x['name'], x['growth']], data))
+        t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "本周较上周新增死亡人数增速"]
         return t, 'appendix-2.csv'
 
