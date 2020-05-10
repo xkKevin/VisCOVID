@@ -893,6 +893,7 @@ function linechart_num(data, div_id) {
             }
         },
         series: [{
+            name: "人数",
             data: handle_data.value,
             type: 'line',
             lineStyle: CSS_STYLE.lineStyle,
@@ -988,6 +989,7 @@ function linechart_rate(data, div_id) {
             }
         },
         series: [{
+            name: data.columns[1].slice(2),
             data: handle_data.value,
             type: 'line',
             lineStyle: CSS_STYLE.lineStyle,

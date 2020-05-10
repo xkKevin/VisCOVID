@@ -1,5 +1,6 @@
 .idea
-# *.csv
-# handleData/data/*
+main/static/export/*.csv
+main/static/report/*.png
+main/static/report/*.txt
 __py
 __pycache__/
