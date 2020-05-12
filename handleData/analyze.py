@@ -109,6 +109,22 @@ def extract_global_seq(db, config):
             "preprocess": [],
             "postprocess": [],
         },
+        {
+            "id": "global_newly_confirmed_seq",
+            "description": "",
+            "process": "global",
+            "operator": f_newly_confirmed_death,
+            "preprocess": [],
+            "postprocess": [],
+        },
+        {
+            "id": "global_newly_death_seq",
+            "description": "",
+            "process": "global",
+            "operator": f_newly_confirmed_death,
+            "preprocess": [],
+            "postprocess": [],
+        },
         
     ] 
 
@@ -209,9 +225,9 @@ def build_insert_average(average, f=None):
             else: 
                 print(len(global_record))
             average_values = f(global_record)
-            data.insert(0, {"name": "全球平均", "values": average_values})
+            data.insert(0, {"name": "各国平均", "values": average_values})
         if average == "global_custom":
-            data.insert(0, {"name": "全球平均", "values":[f(global_record)]})
+            data.insert(0, {"name": "各国平均", "values":[f(global_record)]})
         return data, context
     return insert_average
 
@@ -360,10 +376,10 @@ def process_country_record_last_day(f, args=dict() , preprocess=[], postprocess=
             global_record = db.global_records.find_one({"日期": check_date})
             global_record['国家地区'] = "全球" 
             average_value = f(global_record)
-            values.insert(0, {"name": "全球平均", "value":average_value})
+            values.insert(0, {"name": "各国平均", "value":average_value})
         if average == "global_custom":
             global_record = db.global_records.find_one({"日期": check_date})
-            values.insert(0, {"name": "全球平均", "value":average_func(global_record)})
+            values.insert(0, {"name": "各国平均", "value":average_func(global_record)})
         return values
     
 
@@ -630,6 +646,8 @@ def extract_conutry_seq(db, config):
             "operator": lambda x : [calculate_rate(sum(y['新增确诊'] for y in x[len(x)-7:]), sum(y['新增确诊'] for y in x[-14:-7])) - 1],
             "preprocess": [
                 build_filter_weekly(-14,0),
+                build_filter_records(lambda x: x[-1]['累计死亡']>300 and x[-1]['累计确诊']>10000)
+
                 # build_filter_records(lambda x: x[-1]['累计死亡']>100)
             ],
             "postprocess": [
@@ -644,7 +662,7 @@ def extract_conutry_seq(db, config):
             "operator": lambda x : [calculate_growth(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7]))],
             "preprocess": [
                 build_filter_weekly(-14,0),
-                build_filter_records(lambda x: x[-1]['累计死亡']>100)
+                build_filter_records(lambda x: x[-1]['累计死亡']>300 and x[-1]['累计确诊']>10000)
             ],
             "postprocess": [
                 build_sort(),
