@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import numpy as np
 from pymongo import MongoClient
-from handleData.utils import load_config, save_config
+from .utils import load_config, save_config
 import datetime
 import dateutil.parser
 import urllib.request
@@ -216,8 +216,8 @@ def fetch_owd_data(config, db):
     urllib.request.urlretrieve(config['resource']['owd_cases'], config['path']['owd_cases'])
     urllib.request.urlretrieve(config['resource']['owd_death'], config['path']['owd_death'])
 
-def prepare():
-    config = load_config()
+def prepare(config_path="./handleData/config.json"):
+    config = load_config(config_path)
     
     client = MongoClient()
     db = client['coronavirus_analysis']
@@ -243,4 +243,4 @@ def prepare():
 
 
 if __name__ == "__main__":
-    prepare()
+    prepare(config_path="./config_run.json")

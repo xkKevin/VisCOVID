@@ -11,10 +11,15 @@ def check_two_paths(path1, path2):
         hasher2 = hashlib.md5()
         hasher1.update(buf1)
         hasher2.update(buf2)
-        print(hasher1.hexdigest()==hasher2.hexdigest())
+        print( path1, ": ",hasher1.hexdigest()==hasher2.hexdigest())
 
 
-
+def valid_dirs(path1, path2):
+    dir1 = os.listdir(path1)
+    dir2 = os.listdir(path2)
+    len1 = len(dir1)
+    list(map(lambda i: check_two_paths(os.path.join(path1, dir1[i]), os.path.join( path2, dir2[i])), list(range(len1))))
+ 
 def check_export(config):
     export_path = config['export']['root']
     archived_path = config['export']['archived']

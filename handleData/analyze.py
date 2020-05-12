@@ -3,12 +3,12 @@ import pandas as pd
 from pymongo import MongoClient
 from functools import reduce
 import numpy as np
-from handleData.utils import save_data, load_config, find_population_by_chinese_name, save_world_map, build_time_range
+from .utils import save_data, load_config, find_population_by_chinese_name, save_world_map, build_time_range
 from datetime import datetime, timedelta
 import dateutil.parser
-from handleData.format import format_data
+from .format import format_data
 import csv
-from handleData.report import build_report
+from .report import build_report
 import re
 client = MongoClient()
 db = client['coronavirus_analysis']
@@ -741,12 +741,21 @@ def extract_world_map_from_owd(db, config):
         "location": {"$last": "$location"},
         "total_cases": {"$last": "$total_cases"}
     }}]))
-    confirmed_records = list(db.owd_all.aggregate([{"$group": {
-        "_id": "$location",
-        "location": {"$last": "$location"},
-        "total_cases": {"$last": "$total_cases"},
-        "total_deaths": {"$last": "$total_deaths"}
-    }}]))
+    confirmed_records = list(db.owd_all.aggregate([
+        {
+            "$group": {
+                "_id": "$location",
+                "location": {"$last": "$location"},
+                "total_cases": {"$last": "$total_cases"},
+                "total_deaths": {"$last": "$total_deaths"}
+            }
+        },
+        {
+            "$sort":{
+                "location": 1,
+            }
+
+        }]))
     # death_records = list(db.owd_all.find({"date": check_date, "location": {"$nin": exclude_entities}}))
     get_map_name = build_name_conversion()
     
@@ -930,8 +939,8 @@ def build_not_world(db, config):
         save_data(path, s)
     # list(map(f, key_countries))
 
-def analyze(export_dir):
-    config = load_config()
+def analyze(export_dir, config_path = "./handleData/config.json"):
+    config = load_config(config_path)
     # pa
     config['export']['root'] = export_dir
     build_not_world(db, config)
@@ -939,6 +948,6 @@ def analyze(export_dir):
     build_world_map(db, config)
 
 if __name__ == "__main__":
-    analyze() 
+    analyze(export_dir="../main/static/export/run", config_path = "./config.json") 
     
     # docker  run  -v `pwd`:`pwd` -w `pwd` -t -p 8000:80 2a5f319370cb  
