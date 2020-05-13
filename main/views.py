@@ -26,6 +26,10 @@ def index(request):
     return render(request, "index.html")
 
 
+def upload(request):
+    return render(request, "upload.html")
+
+
 def report(request):
     client = MongoClient()
     db = client['coronavirus_analysis']

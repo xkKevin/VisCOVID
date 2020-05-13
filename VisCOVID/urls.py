@@ -20,6 +20,7 @@ from main import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name="index"),
+    path('upload/', views.upload, name="upload"),
     path('report/', views.report, name="report"),
     path('saveImage/', views.saveImage, name="saveImage"),
     path('export/<file_name>/', views.csvFile, name='csvFile')
