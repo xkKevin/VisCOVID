@@ -13,12 +13,12 @@ def format_data(name, data):
     def format_confirmed(data):
         t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "累计确诊人数"]
-        return t, "2-5.csv"
+        return t, "2-6.csv"
 
     def format_death(data):
         t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "累计死亡人数"]
-        return t, "2-6.csv"
+        return t, "2-7.csv"
 
     def format_global_death_seq(data):
         t = [data['x'], data['y']]
