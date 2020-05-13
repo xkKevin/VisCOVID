@@ -21,7 +21,7 @@ class ConfigEncoder(json.JSONEncoder):
             return obj.isoformat()
         else:
             return obj
-def save_config(config, config_path="./handleData/config_run.json"):
+def save_config(config, config_path="./handleData/config.json"):
     fp = open(config_path, 'w', encoding='utf-8')
     json.dump(config, fp, cls=ConfigEncoder, ensure_ascii=False)
 
