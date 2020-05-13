@@ -67,6 +67,12 @@
             （<span class="start_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="start_date_day"><font>&nbsp;Null&nbsp;</font></span>日—<span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日）
             <br>
             2020年<span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日
+            <br>
+            <h3>本周疫情要点</h3>
+            全球累计确诊已达<span class="wan_2"><font>&nbsp;Null&nbsp;</font></span>万，病死<span class="wan_3"><font>&nbsp;Null&nbsp;</font></span>万。<br>
+            本周全球确诊<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，新增确诊较上周<span class="15"><font>&nbsp;Null&nbsp;</font></span>。<br>
+            本周全球死亡<span class="16"><font>&nbsp;Null&nbsp;</font></span>例，新增死亡较上周<span class="17"><font>&nbsp;Null&nbsp;</font></span>。<br>
+            本报告所有疫情数据截至<span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日<span class="end_date_hour"><font>&nbsp;Null&nbsp;</font></span>时<font><span class="end_date_min"><font>&nbsp;Null&nbsp;</font></span>分。
         </div>
         <h3>2. 全球疫情现况</h3>
         <h3>2.1 全球累计确诊：<span class="2"><font>&nbsp;Null&nbsp;</font></span>例，死亡：<span class="3"><font>&nbsp;Null&nbsp;</font></span>例</h3>
@@ -128,11 +134,11 @@
 
         <h3>2.6&nbsp;本周新增确诊增长最快：<span class="26"><font>&nbsp;Null&nbsp;</font></span>，新增死亡增长最快：<span class="30"><font>&nbsp;Null&nbsp;</font></span></h3>
         <div id="2_15" style="width: 800px;"></div>
-        <div>图2-15&nbsp;本周较上周新增确诊人数增速（仅显示增速绝对值大于等于20%的国家）</div>
+        <div>图2-15&nbsp;本周较上周新增确诊人数增速（仅显示累计确诊人数超过1万的国家中增速绝对值大于等于20%的国家）</div>
         <div>注：本周较上周新增确诊人数增速=（本周新增确诊人数-上周新增确诊人数）/上周新增确诊人数</div>
 
         <div id="2_16" style="width: 800px;"></div>
-        <div>图2-16&nbsp;本周较上周新增死亡人数增速（仅显示累计死亡人数超过100的国家中增速绝对值大于等于20%的国家）</div>
+        <div>图2-16&nbsp;本周较上周新增死亡人数增速（仅显示累计死亡人数超过300的国家中增速绝对值大于等于20%的国家）</div>
         <div>注：本周较上周新增死亡人数增速=（本周新增死亡人数-上周新增死亡人数）/上周新增死亡人数</div>
 
         <h3>附录</h3>
@@ -163,6 +169,7 @@
             let data_format = {
                 date: [0,1],
                 int_num: [2,3,7,9,11,13,14,16,19,21,23,25],
+                int_wan: [2,3],
                 percent_num: [4,5],
                 percent_rate: [15,17],
                 percent_int_num: [27,29,31,33],
@@ -182,14 +189,17 @@
                          $(".start_date_day").text(data.getDate());
                      }
                 }else if (data_format.int_num.includes(index)){
+                    if (data_format.int_wan.includes(index)){
+                        $(".wan_"+index).text((data/10000).toFixed(1));
+                    }
                     data = format_number(data)
                 }else if (data_format.percent_num.includes(index)){
                     data = format_percent(data)
                 }else if (data_format.percent_rate.includes(index)){
                     if (data > 0){
-                        data = "增加" + Math.round(data * 100) + "%"
+                        data = "上升" + Math.round(data * 100) + "%"
                     }else if (data < 0){
-                        data = "减少" + Math.round(Math.abs(data) * 100) + "%"
+                        data = "下降" + Math.round(Math.abs(data) * 100) + "%"
                     }else{
                         data = "一致"
                     }
