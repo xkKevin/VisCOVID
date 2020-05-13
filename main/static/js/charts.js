@@ -54,7 +54,7 @@ function worldMap(data, name, div_id, num_max) {
         let label_min = i>-8 ? min === 500000 ? 200000 : min :0;
         pieces.push({
             min: label_min,
-            max: pieces_map(min, 1),
+            max: pieces_map(min, 1) === 500000 ? 200000 : pieces_map(min, 1),
             color: color[8+i],
             label: String(label_min)
         })
