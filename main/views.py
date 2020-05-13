@@ -132,3 +132,8 @@ def saveImage(request):
         return JsonResponse({"result": True})
 
     return JsonResponse({"result": "404"})
+
+
+
+def dataprocess_index(request):
+    return render( request, "dataprocess.html")
