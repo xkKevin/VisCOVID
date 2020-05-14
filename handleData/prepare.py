@@ -102,7 +102,7 @@ def store_excel_data(db, config):
 def store_country_info(db, config):
     path = config['path']['conrties_info']
     db.countries.remove({})
-    fp = open(path)
+    fp = open(path, encoding="utf-8")
     json_data = json.load(fp)
     def process_country(item):
         if 'phone_code' in item.keys():
