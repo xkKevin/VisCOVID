@@ -1,6 +1,7 @@
 var CSS_STYLE = {
     'color11' :['#c23531', '#61a0a8', '#d48265','#749f83','#2f4554', '#91c7ae',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],  // 11色，和echarts默认色系基本一致
-    'color9': ['#FFF7E6', '#FFE6BA', '#FFD591','#FFC069','#FF8206','#FF6906','#FA541C','#D4380D','#AD2101'],
+    'color9_red': ['#FFF7E6', '#FFE6BA', '#FFD591','#FFC069','#FF8206','#FF6906','#FA541C','#D4380D','#AD2101'],
+    'color9_blue': ['#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b'],
     'color3': ["#D4380D", "#6EA748", "#5d80b6"], // 红绿蓝
     'nameTextStyle': {
         align: "left",
@@ -47,13 +48,14 @@ function worldMap(data, name, div_id, num_max) {
     }
 
     let pieces = [];
+    let color = name === "累计死亡人数"? CSS_STYLE.color9_blue : CSS_STYLE.color9_red;
     for (let i = 0; i > -9; i--) {
         let min = pieces_map(data_max, i);
-        let label_min = i>-8 ? min:0;
+        let label_min = i>-8 ? min === 500000 ? 200000 : min :0;
         pieces.push({
             min: label_min,
-            max: pieces_map(min, 1),
-            color: CSS_STYLE.color9[8+i],
+            max: pieces_map(min, 1) === 500000 ? 200000 : pieces_map(min, 1),
+            color: color[8+i],
             label: String(label_min)
         })
     }
@@ -230,12 +232,12 @@ function pieChart(data, name, div_id) {
                     num: {
                         fontSize: CSS_STYLE.pieChart.fontSizeNum,
                         fontWeight: 'bold',
-                        color: "black"
+                        color: CSS_STYLE.color3[0]
                     },
                     rate: {
                         fontSize: CSS_STYLE.pieChart.fontSizeNum,
                         fontWeight: 'bold',
-                        color: "black"
+                        color: CSS_STYLE.color3[1]
                     },
                     symbol: {
                         fontSize: CSS_STYLE.pieChart.fontSizeNum,
@@ -868,7 +870,7 @@ function linechart_num(data, div_id) {
         grid: {
             bottom: '11%',
             top: 45,
-            left: 15+7*precision_len,
+            left: 33+5*precision_len,
             right: 65
         },
         tooltip:{ trigger: 'axis'},
@@ -965,7 +967,7 @@ function linechart_rate(data, div_id) {
         grid: {
             bottom: '11%',
             top: 45,
-            left: 27+8*precision_len,
+            left: 35+6*precision_len,
             right: 65
         },
         yAxis: {
