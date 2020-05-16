@@ -1,6 +1,6 @@
-## COVID19——新冠疫情可视化
+# COVID19——新冠疫情可视化
 
-### 一周疫情关键数据（4月27日 —5月3日）
+## 一周疫情关键数据（4月27日 —5月3日）
 
 ——当前全球累计确诊数量：3,472,075例
 
@@ -27,3 +27,11 @@
 ——上周确诊增速最快国家：加纳（100%）、阿富汗（90%）
 
 ——上周死亡增速最快国家：加纳（700%）、厄瓜多尔（563%）
+
+
+
+## Deploy on Windows
+### Reference
+https://docs.microsoft.com/en-us/iis/get-started/getting-started-with-iis/getting-started-with-appcmdexe
+
+https://stackoverflow.com/questions/58261464/how-to-host-python-3-7-flask-application-on-windows-server

@@ -232,12 +232,12 @@ function pieChart(data, name, div_id) {
                     num: {
                         fontSize: CSS_STYLE.pieChart.fontSizeNum,
                         fontWeight: 'bold',
-                        color: CSS_STYLE.color3[0]
+                        color: "black"
                     },
                     rate: {
                         fontSize: CSS_STYLE.pieChart.fontSizeNum,
                         fontWeight: 'bold',
-                        color: CSS_STYLE.color3[1]
+                        color: CSS_STYLE.color3[0]
                     },
                     symbol: {
                         fontSize: CSS_STYLE.pieChart.fontSizeNum,

@@ -12,11 +12,29 @@ import string
 import os
 import traceback
 from shutil import copyfile
+import re
 # Create your views here.
 wxb_name = "./handleData/data/wang.xlsx"
 world_name = "./handleData/data/owd.csv"
 export_path = "./main/static/export"
 report_path = "./main/static/report"
+
+
+def extract_excel_time(name):
+    pattern = "全球及重点国家疫情主要指数数据-(\d*)-(\d*)-(\d*)-(\d*)H(\d*).xlsx"
+    matched = re.match(pattern, name)
+    if not matched:
+        return None
+    year = matched.group(1)
+    month = matched.group(2)
+    day = matched.group(3)
+    hour = matched.group(4)
+    minute = matched.group(5)
+    return {
+        "hour": hour,
+        "minute": minute
+    }
+
 
 def random_string(stringLength=8):
     letters = string.ascii_lowercase
@@ -40,8 +58,9 @@ def report(request):
             folder = request.FILES.getlist("folder")
             method = None
             if folder:
+                
                 if db.csv.count() == 0:
-                    pass
+                    db.due.remove({})
                 else:
                     last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
                     last_export_dir = os.path.join(export_path, last_version['name'])
@@ -57,6 +76,13 @@ def report(request):
             else:
                 method = "excel"
                 wxb_file = request.FILES.get("wxb_file")
+                due = extract_excel_time(wxb_file.name)
+                if not due:
+                    db.due.remove({})
+                    pass
+                else:
+                    db.due.remove({})
+                    db.due.insert_one(due)
                 ourworldindata = request.FILES.get("ourworldindata")
                 with open(wxb_name, "wb") as f1, open(world_name, "wb") as f2:
                     for i in wxb_file.chunks():

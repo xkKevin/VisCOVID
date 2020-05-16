@@ -19,6 +19,11 @@ db = client['coronavirus_analysis']
 # 全球累计死亡增长曲线 death_seq
 # 全球确诊率增长曲线 confirmed_per_million
 # 全球病死率 death_rate_seq = 累计死亡/累计确诊
+def build_filter_weekly(period_start=-7, period_end=0):
+    def filter_weekly(records, context):
+        length = len(records)
+        return list(map(lambda x: x[ len(x) + period_start: len(x) + period_end], records)), context
+    return filter_weekly
 
 
 def process_global_seq(operator, preprocess, postprocess):
@@ -26,6 +31,7 @@ def process_global_seq(operator, preprocess, postprocess):
         found = list(db.global_records.find())
         found.sort(key=lambda x: x['日期'])
         truncated = list(filter(lambda x: not np.isnan(x['累计确诊']), found))
+        context = {}
         def generate_default_seq():
             return {'x': [], 'y': []}
         def process(acc, c):
@@ -48,6 +54,17 @@ def extract_global_seq(db, config):
         acc['x'].append(current['日期'])
         acc['y'].append(current['累计确诊'])
         return acc
+
+    def f_newly_confirmed(acc, current):
+        acc['x'].append(current['日期'])
+        acc['y'].append(current['新增确诊'])
+        return acc
+    
+    def f_newly_death(acc, current):
+        acc['x'].append(current['日期'])
+        acc['y'].append(current['新增死亡'])
+        return acc
+
 
     def f_confirmed_per_million(acc, current):
         acc['x'].append(current['日期'])
@@ -102,10 +119,26 @@ def extract_global_seq(db, config):
             "postprocess": [],
         },
         {
+            "id": "global_confirmed_weekly_seq",
+            "description": "",
+            "process": "global",
+            "operator": f_newly_confirmed,
+            "preprocess": [],
+            "postprocess": [],
+        },
+        {
             "id": "global_confirmed_death_seq",
             "description": "",
             "process": "global",
             "operator": f_newly_confirmed_death,
+            "preprocess": [],
+            "postprocess": [],
+        },
+        {
+            "id": "global_death_weekly_seq",
+            "description": "",
+            "process": "global",
+            "operator": f_newly_death,
             "preprocess": [],
             "postprocess": [],
         },
@@ -254,12 +287,6 @@ def build_filter_nan():
 
         
 
-def build_filter_weekly(period_start=-7, period_end=0):
-    def filter_weekly(records, context):
-        length = len(records)
-
-        return list(map(lambda x: x[ len(x) + period_start: len(x) + period_end], records)), context
-    return filter_weekly
 
 def build_filter_records(f):
     def filter_records(records, context):
@@ -940,6 +967,8 @@ def build_not_world(db, config):
     c = extract_conutry_seq(db, config)
     # c = {}
     r = merge_objs([a,b,c])
+    due = db.due.find_one()
+    r['due'] = due
     report = build_report(r, config)
     report.to_csv(get_export_path("basic_info.csv", ""), quoting=csv.QUOTE_NONE, index=False)
     for key in r.keys():

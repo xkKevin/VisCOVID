@@ -4,6 +4,11 @@ import dateutil.parser
 from functools import reduce
 def build_report(r, config):
     report =[]
+    if r['due'] == None:
+        r['due'] = {
+            'hour': None,
+            'minute': None,
+        }
     report.append(["开始日期", dateutil.parser.parse(config['time']['start']).strftime('"%Y-%m-%d"')])
     report.append(["结束日期", (dateutil.parser.parse(config['time']['end']) - timedelta(days=1)).strftime('"%Y-%m-%d"')])
     report.append(["当前全球确诊数量", r['global_confirmed_seq']['y'][-1]])
@@ -19,7 +24,7 @@ def build_report(r, config):
     report.append(["当前全球死亡第二多国家", r['death_data'][1]['name']])
     report.append(["当前全球死亡第二多国家死亡数", r['death_data'][1]['values'][0]])
     
-    
+
     # Calculate the weekly confirmed and death data
     def count_global_confirmed_death(acc, c):
         acc['confirmed'] += c[0]
@@ -49,6 +54,8 @@ def build_report(r, config):
     report.append(["上周死亡增速第二快国家增速值", r['weekly_death_growth'][2]['values'][0]])
     report.append(["当前全球确诊第三多国家", r['confirmed_data'][2]['name']])
     report.append(["当前全球确诊第三多国家确诊数", r['confirmed_data'][2]['values'][0]])
+    report.append(["所有疫情数据截止小时", r['due']['hour']]) 
+    report.append(["所有疫情数据截止分钟", r['due']['minute']])
     report = pd.DataFrame(report)
     report.columns = ['name', 'value']
     return report
