@@ -67,38 +67,41 @@ def createReport():
     paragraphs[4],
     paragraphs[6],
     paragraphs[20],
-    paragraphs[32],
-    paragraphs[33],
     paragraphs[34],
+    paragraphs[35],
     paragraphs[36],
-    paragraphs[38],
-    paragraphs[41],
-    paragraphs[44],
-    paragraphs[45],
-    paragraphs[47],
-    paragraphs[49],
-    paragraphs[50],
-    paragraphs[52],
-    paragraphs[54],
-    paragraphs[56],
+    paragraphs[37],
+    paragraphs[57],
     paragraphs[58],
     paragraphs[59],
-    paragraphs[61],
+    paragraphs[60],
     paragraphs[62],
     paragraphs[64],
-    paragraphs[65],
     paragraphs[67],
-    paragraphs[68],
     paragraphs[70],
     paragraphs[71],
     paragraphs[73],
-    paragraphs[74],
-    paragraphs[77],
+    paragraphs[75],
+    paragraphs[76],
+    paragraphs[78],
+    paragraphs[80],
+    paragraphs[82],
     paragraphs[84],
     paragraphs[85],
+    paragraphs[88],
+    paragraphs[89],
+    paragraphs[91],
+    paragraphs[92],
     paragraphs[94],
-    paragraphs[95]
-    ]
+    paragraphs[95],
+    paragraphs[97],
+    paragraphs[98],
+    paragraphs[100],
+    paragraphs[101],
+    paragraphs[102],
+    paragraphs[105],
+    paragraphs[108]
+]
     if len(to_replace_text_paragraphs) != len(texts):
         print('error: inconsistent texts')
         print(len(to_replace_text_paragraphs))
@@ -130,33 +133,32 @@ def createReport():
     pic_2_8 = ['2_8.png']
     pic_2_9 = ['2_9.png']
     pic_2_10 = ['2_10.png']
-    pic_2_11 = ['2_11.png']
+    pic_2_11 = ['2_11_a.png','2_11_b.png']
     pic_2_12 = ['2_12.png']
     pic_2_13 = ['2_13.png']
     pic_2_14 = ['2_14.png']
     pic_2_15 = ['2_15.png']
-    pic_2_16 = ['2_16.png']
+    pic_2_16 = ['2_16_a.png','2_16_b.png']
     pic_2_17 = ['2_17.png']
-    pic_2_18 = ['2_18.png']
-
-    replace_pic(paragraphs[35],pic_2_1, height=Cm(8.6))
-    replace_pic(paragraphs[37],pic_2_2, height=Cm(8.6))
-    replace_pic(paragraphs[39],pic_2_3, width=Cm(7.3))
-    replace_pic(paragraphs[42],pic_2_4, width=Cm(7.3))
-    replace_pic(paragraphs[46],pic_2_5, height=Cm(7.8))
-    replace_pic(paragraphs[48],pic_2_6, height=Cm(7.8))
-    replace_pic(paragraphs[51],pic_2_7, height=Cm(10.6))
-    replace_pic(paragraphs[53],pic_2_8, height=Cm(10.6))
-    replace_pic(paragraphs[55],pic_2_9, height=Cm(10.6))
-    replace_pic(paragraphs[57],pic_2_10, height=Cm(10.6))
-    replace_pic(paragraphs[60],pic_2_11, height=Cm(8))
-    replace_pic(paragraphs[63],pic_2_12, height=Cm(7.8))
-    replace_pic(paragraphs[66],pic_2_13, height=Cm(7.8))
-    replace_pic(paragraphs[69],pic_2_14, height=Cm(19.2))
-    replace_pic(paragraphs[72],pic_2_15, height=Cm(19.2))
-    replace_pic(paragraphs[76],pic_2_16,width=Cm(10.2))
-    replace_pic(paragraphs[83],pic_2_17,width=Cm(10.2))
-    replace_pic(paragraphs[93],pic_2_18,width=Cm(10.2))
+    
+    
+    replace_pic(paragraphs[61],pic_2_1, height=Cm(8.6))
+    replace_pic(paragraphs[63],pic_2_2, height=Cm(8.6))
+    replace_pic(paragraphs[65],pic_2_3, width=Cm(7.3))
+    replace_pic(paragraphs[68],pic_2_4, width=Cm(7.3))
+    replace_pic(paragraphs[72],pic_2_5, height=Cm(7.8))
+    replace_pic(paragraphs[74],pic_2_6, height=Cm(7.8))
+    replace_pic(paragraphs[77],pic_2_7, height=Cm(10.6))
+    replace_pic(paragraphs[79],pic_2_8, height=Cm(10.6))
+    replace_pic(paragraphs[81],pic_2_9, height=Cm(10.6))
+    replace_pic(paragraphs[83],pic_2_10, height=Cm(10.6))
+    replace_pic(paragraphs[86],pic_2_11, width=Cm(7.3))
+    replace_pic(paragraphs[90],pic_2_12, height=Cm(7.8))
+    replace_pic(paragraphs[93],pic_2_13, height=Cm(7.8))
+    replace_pic(paragraphs[96],pic_2_14, width=Cm(14.5))
+    replace_pic(paragraphs[99],pic_2_15, width=Cm(14.5))
+    replace_pic(paragraphs[103],pic_2_16, width=Cm(7.3))
+    replace_pic(paragraphs[107],pic_2_17,width=Cm(14.5))
 
     file_name = report_data_path + 'report.docx'
 
