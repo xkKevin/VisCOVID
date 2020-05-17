@@ -48,7 +48,7 @@ function worldMap(data, name, div_id, num_max) {
     }
 
     let pieces = [];
-    let color = name === "累计死亡人数"? CSS_STYLE.color9_blue : CSS_STYLE.color9_red;
+    let color = name === "累计病死人数"? CSS_STYLE.color9_blue : CSS_STYLE.color9_red;
     for (let i = 0; i > -9; i--) {
         let min = pieces_map(data_max, i);
         let label_min = i>-8 ? min === 500000 ? 200000 : min :0;
@@ -472,7 +472,7 @@ function barchart_num(data, name, div_id) {
             type: 'value',
             position: 'top',
             // interval: 2000000,
-            max: 10000000,
+            max: 14000000,
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.median,
                 // formatter: function(param) {
@@ -520,11 +520,11 @@ function linechart(data, div_id) {
         let date = new Date(x["日期"]);
         handle_data.week.push(String(date.getMonth()+1)+'/'+String(date.getDate()));
         handle_data.cases.push(x["新增确诊人数"]);
-        handle_data.deaths.push(x["新增死亡人数"]);
+        handle_data.deaths.push(x["新增病死人数"]);
     });
 
     let name = {
-        "save": "全球过去一周每日新增确诊人数和死亡人数",
+        "save": "全球过去一周每日新增确诊人数和病死人数",
         "yAxis": "人数"
     };
 
@@ -547,7 +547,7 @@ function linechart(data, div_id) {
             textStyle: {
                 fontSize: CSS_STYLE.fontSize.median,
             },
-            data: ["新增确诊人数", "新增死亡人数"],
+            data: ["新增确诊人数", "新增病死人数"],
             icon: "rect",
             itemGap: 80,
             top: 5
@@ -611,7 +611,7 @@ function linechart(data, div_id) {
             animation: false,
             color: CSS_STYLE.color3[2],
         }, {
-            name: "新增死亡人数",
+            name: "新增病死人数",
             data: handle_data.deaths,
             symbol: 'circle',
             symbolSize: CSS_STYLE.symbolSize,
@@ -872,6 +872,101 @@ function linechart_num(data, div_id) {
             top: 45,
             left: 33+5*precision_len,
             right: 65
+        },
+        tooltip:{ trigger: 'axis'},
+        yAxis: {
+            axisLabel: {
+                fontSize: CSS_STYLE.fontSize.small-6,
+                // formatter: function(value) {
+                //     if (precision_len>1){
+                //         return (value*100).toFixed(precision_len-2) + '%'; // 用从长度减去2（即0.）
+                //     }
+                //     return (value*100).toFixed(0) + '%'
+                // }
+            },
+            type: 'value',
+            name: "人数",
+            nameTextStyle: {
+                align: "center",
+                fontSize: CSS_STYLE.fontSize.median-1,
+                fontFamily: "楷体",
+                fontWeight: "bold",
+                padding: [0, 0, 2, 18]
+            }
+        },
+        series: [{
+            name: "人数",
+            data: handle_data.value,
+            type: 'line',
+            lineStyle: CSS_STYLE.lineStyle,
+            symbol: 'none',
+            symbolSize: CSS_STYLE.symbolSize,
+            smooth: true,
+            color: CSS_STYLE.color3[0],
+            animation: false,
+        }]
+    };
+    myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        excludeComponents: ['toolbox'],
+    });
+}
+
+function linechart_num_week(data, div_id) {
+    let handle_data = {value:[], date:[]};
+    data.forEach(function (x) {
+        let date = new Date(x[data.columns[0]]);
+        // handle_data.date.push(date);
+        handle_data.date.push(String(date.getMonth()+1)+'/'+String(date.getDate()));
+        handle_data.value.push(x[data.columns[1]]);
+    });
+
+    let handle_data_len = handle_data.value.length;
+    let precision_len = format_number(handle_data.value[handle_data_len-1]).length;
+
+    var myChart = echarts.init(document.getElementById(div_id));
+
+    let option = {
+        backgroundColor: CSS_STYLE.backgroundColor,
+        // width: CSS_STYLE.smallChart.width,
+        // height: CSS_STYLE.smallChart.height,
+        toolbox: {
+            feature: {
+                dataView: {readOnly: false},
+                restore: {},
+                saveAsImage: {
+                    name: div_id
+                }
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: handle_data.date,
+            axisTick: {
+                alignWithLabel: true
+            },
+            name: "日期",
+            axisLabel: {
+                fontSize: CSS_STYLE.fontSize.small-4,
+                showMaxLabel: true,
+                showMinLabel: false,
+                // splitNumber: 3
+                interval: Math.round((handle_data_len)/6)-1,
+            },
+            nameTextStyle: {
+                align: "left",
+                fontSize: CSS_STYLE.fontSize.median-1,
+                fontFamily: "楷体",
+                fontWeight: "bold",
+                padding: [28, 0, 0, -12]   // 上右下左
+            }
+        },
+        grid: {
+            bottom: '11%',
+            top: 45,
+            left: 33+5*precision_len,
+            right: 47
         },
         tooltip:{ trigger: 'axis'},
         yAxis: {
