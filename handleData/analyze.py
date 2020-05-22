@@ -449,7 +449,9 @@ def extract_conutry_data(db, config):
 
     def calculate_positive_rate(x):
         return [x['累计确诊'] / x['总检测数']]
-
+    
+    def calculate_recovery_rate(x):
+        return [x['累计治愈']/x['累计确诊']]
     def group_four_rates(x):
         return [calculate_test_rate(x), calculate_positive_rate(x), calculate_confirmed_rate(x), calculate_death_rate(x)]
     
@@ -537,6 +539,18 @@ def extract_conutry_data(db, config):
             "description": "Death rate of each country",
             "process": "last_day",
             "operator": calculate_death_rate,
+            "preprocess": [],
+            "postprocess": [
+                # build_topk(),
+                build_sort(),
+                build_insert_average("global", calculate_death_rate)
+            ]
+        },
+        {
+            "id": "recovery_rate_data",
+            "description": "Recovery rate of each country",
+            "process": "last_day",
+            "operator": calculate_recovery_rate,
             "preprocess": [],
             "postprocess": [
                 # build_topk(),
@@ -673,7 +687,7 @@ def extract_conutry_seq(db, config):
             "operator": lambda x : [calculate_rate(sum(y['新增确诊'] for y in x[len(x)-7:]), sum(y['新增确诊'] for y in x[-14:-7])) - 1],
             "preprocess": [
                 build_filter_weekly(-14,0),
-                build_filter_records(lambda x: x[-1]['累计确诊']>10000)
+                build_filter_records(lambda x: reduce(lambda acc, c: acc + c['新增确诊'], x[-7:], 0)>500)
 
                 # build_filter_records(lambda x: x[-1]['累计死亡']>100)
             ],
@@ -689,7 +703,7 @@ def extract_conutry_seq(db, config):
             "operator": lambda x : [calculate_growth(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7]))],
             "preprocess": [
                 build_filter_weekly(-14,0),
-                build_filter_records(lambda x: x[-1]['累计死亡']>300)
+                build_filter_records(lambda x: reduce(lambda acc, c: acc + c['新增死亡'], x[-7:], 0)>100)
             ],
             "postprocess": [
                 build_sort(),
