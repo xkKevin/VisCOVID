@@ -705,7 +705,7 @@ def extract_conutry_seq(db, config):
             "operator": lambda x : [calculate_growth(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7]))],
             "preprocess": [
                 build_filter_weekly(-14,0),
-                build_filter_records(lambda x: reduce(lambda acc, c: acc + c['新增死亡'], x[-7:], 0)>500 )
+                build_filter_records(lambda x: reduce(lambda acc, c: acc + c['新增死亡'], x[-7:], 0)>100 and x[-1]['累计死亡'] > 300 )
             ],
             "postprocess": [
                 build_sort(),
