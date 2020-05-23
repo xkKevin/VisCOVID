@@ -670,7 +670,7 @@ function bi_directional_barchart(data, name, div_id) {
      });
     // console.log(values);
 
-    $('#'+div_id).css("height",(30*num+70)+"px");
+    $('#'+div_id).css("height",(30*num+95)+"px");
 
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
