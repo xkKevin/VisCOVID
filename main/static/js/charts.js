@@ -263,6 +263,8 @@ function pieChart(data, name, div_id) {
 
 function barchart(data, name, div_id) {
     data = data.map((x)=> [x["国家"],x[name]]);
+    let format_min = format_percent(data[20][1]);
+    let format_fixed_num = format_min.length - format_min.indexOf('.') - 2;
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
         backgroundColor: CSS_STYLE.backgroundColor,
@@ -285,7 +287,7 @@ function barchart(data, name, div_id) {
                         }
                         table += `</textarea><h5>系统配置</h5>
                                 max: <input type="text" value="${xAxis_max}"><br>
-                                interval: <input type="text" value="${xAxis_interval}" disabled>`;
+                                interval: <input type="text" value="${xAxis_interval}">`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -300,10 +302,10 @@ function barchart(data, name, div_id) {
                          opt.yAxis[0].data = handle_data.yAxis;
                         let inputs = $(html).children("input");
                         if (inputs.eq(0).val()){
-                            opt.xAxis[0].max = inputs.eq(0).val();
+                            opt.xAxis[0].max = parseFloat(inputs.eq(0).val());
                         }
                         if (inputs.eq(1).val()){
-                            opt.xAxis[0].interval = inputs.eq(1).val();
+                            opt.xAxis[0].interval = parseFloat(inputs.eq(1).val());
                         }
                         myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
                         return opt;
@@ -351,7 +353,9 @@ function barchart(data, name, div_id) {
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.median,
                     formatter: function(param) {
-                        return param * 100000 / 1000 + "%"
+                        let x1 = param * 1000 / 10 + "%";
+                        let x2 = param * 100000 / 1000 + "%";  // 0.009 会出现精度丢失的情况
+                        return x1.length <= x2.length ? x1 : x2;
                 }
             }
         },
@@ -363,12 +367,10 @@ function barchart(data, name, div_id) {
                 show: true,
                 position: 'right',
                 formatter: function(param) {
-                    // 如果保留两位有效数字之后是个整数，则再保留一位小数
-                    let display = (param.value * 100).toPrecision(2); // toPrecision 保留多少位有效数字
-                    if (display.includes(".")){
-                        return display + "%";
+                    if (param.dataIndex === 0){
+                        return format_percent(param.value);
                     }
-                    return (param.value * 100).toFixed(1) + "%";  // // toFixed 保留多少位小数
+                    return (param.value * 100).toFixed(format_fixed_num) + "%";  // // toFixed 保留多少位小数
                 },
                 color: 'black',
                 fontSize: CSS_STYLE.fontSize.small
@@ -408,7 +410,7 @@ function barchart_num(data, name, div_id) {
                         }
                         table += `</textarea><h5>系统配置</h5>
                                 max: <input type="text" value="${xAxis_max}"><br>
-                                interval: <input type="text" value="${xAxis_interval}" disabled>`;
+                                interval: <input type="text" value="${xAxis_interval}">`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -423,10 +425,10 @@ function barchart_num(data, name, div_id) {
                          opt.yAxis[0].data = handle_data.yAxis;
                         let inputs = $(html).children("input");
                         if (inputs.eq(0).val()){
-                            opt.xAxis[0].max = inputs.eq(0).val();
+                            opt.xAxis[0].max = parseFloat(inputs.eq(0).val());
                         }
                         if (inputs.eq(1).val()){
-                            opt.xAxis[0].interval = inputs.eq(1).val();
+                            opt.xAxis[0].interval = parseFloat(inputs.eq(1).val());
                         }
                         myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
                         return opt;
@@ -471,8 +473,8 @@ function barchart_num(data, name, div_id) {
         xAxis: {
             type: 'value',
             position: 'top',
-            // interval: 2000000,
-            max: 14000000,
+            interval: 4000000,
+            max: 16000000,
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.median,
                 // formatter: function(param) {
@@ -670,7 +672,7 @@ function bi_directional_barchart(data, name, div_id) {
      });
     // console.log(values);
 
-    $('#'+div_id).css("height",(30*num+70)+"px");
+    $('#'+div_id).css("height",(30*num+95)+"px");
 
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {

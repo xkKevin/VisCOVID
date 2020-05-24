@@ -21,7 +21,7 @@ report_path = "./main/static/report"
 
 
 def extract_excel_time(name):
-    pattern = "全球及重点国家疫情主要指数数据-(\d*)-(\d*)-(\d*)-(\d*)H(\d*).xlsx"
+    pattern = "全球及重点国家疫情主要指数数据-(\d*)-(\d*)-(\d*)-(\d*)H(\d*)(.*).xlsx"
     matched = re.match(pattern, name)
     if not matched:
         return None
