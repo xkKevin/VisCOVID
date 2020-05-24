@@ -43,6 +43,85 @@ def random_string(stringLength=8):
 def index(request):
     return render(request, "index.html")
 
+def apiServerReady(request):
+    client = MongoClient()
+    db = client['coronavirus_analysis']
+    if db.csv.count()> 0:
+        return JsonResponse({'ready': True})
+    else:
+        return JsonResponse({'ready': False})
+
+
+def apiAnalyze(request):
+    client = MongoClient()
+    db = client['coronavirus_analysis']
+    dir_name = random_string()
+    export_dir = os.path.join(export_path, dir_name)
+    os.mkdir(export_dir)
+    analyze(export_dir)
+    db.csv.insert({
+                "name": dir_name,
+                "method": "api",
+    })
+    return JsonResponse({
+        "message": "success"
+    })
+
+def apiPrepare(request):
+    # return JsonResponse({
+
+    # })
+    client = MongoClient()
+    db = client['coronavirus_analysis']
+    if request.method == "POST":
+        try:
+            # -----------------------------------------------
+            # Generate a random dir name
+            dir_name = random_string()
+            export_dir = os.path.join(export_path, dir_name)
+            os.mkdir(export_dir)
+            # -----------------------------------------------
+            
+            method = None
+            
+            method = "excel"
+            wxb_file = request.FILES.get("wxb_file")
+            print(wxb_file)
+            due = extract_excel_time(wxb_file.name)
+            if not due:
+                    db.due.remove({})
+                    pass
+            else:
+                    db.due.remove({})
+                    db.due.insert_one(due)
+            ourworldindata = request.FILES.get("ourworldindata")
+            with open(wxb_name, "wb") as f1, open(world_name, "wb") as f2:
+                for i in wxb_file.chunks():
+                        f1.write(i)
+                for i in ourworldindata.chunks():
+                        f2.write(i)
+            prepare()
+            # analyze(export_dir=export_dir)
+            db.csv.insert({
+                "name": dir_name,
+                "method": method,
+            })
+            return JsonResponse({"message": "success"})
+        except Exception as e:
+            return JsonResponse({"error": "Error!\n"+traceback.format_exc()})
+        # return render(request, "report.html")
+    else:
+        pass
+    print(db.csv.count())
+    if db.csv.count() == 0:
+        return render(request, "report.html", {"export_dir": ""})
+    last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
+    
+    context = {
+        "export_dir": "export/" + last_version['name'] + "/"
+    }
+    return {}
+
 
 def report(request):
     client = MongoClient()

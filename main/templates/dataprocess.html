@@ -5,19 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>疫情数据</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js" integrity="sha384-FzT3vTVGXqf7wRfy8k4BiyzvbNfeYjK+frTVqZeNDFl8woCbF0CYG6g2fMEFFo/i" crossorigin="anonymous"></script> -->
+<!-- <script>
+  document.addEventListener('DOMContentLoaded', (event) => {
+  //the event occurred
+  function prepareExcel(){
+      console.log("Je;;;s")
+        $("#excelUpload").ajaxForm(function(e){
+            console.log(e)
 
+            // $("#excelSpinner").attr("visible", "false")
+            alert("HELLO WORLD")
+        })
+      }
+      $(prepareExcel);
+
+  })
+
+      
+</script> -->
+<script>
+  function checkServerReady(){
+    let url = "{% url 'apiServerReady' %}";
+    $.ajax({
+      url: url,
+      method: "GET",
+      success: data => {
+        if(!data.ready){
+            $("#analyzeButton").addClass("btn-secondary");
+            $("#analyzeButton").prop("disabled", true);
+            $("#analyzeButton").text("请先上传数据")
+
+        }else{
+            $("#analyzeButton").addClass("btn-primary");
+            $("#analyzeButton").disabled = true;
+        }
+      }
+    })
+  }
+  checkServerReady();
+</script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="#">Navbar</a>
+  <a class="navbar-brand" href="#">疫情数据控制面板</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+  <!-- <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
         <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
@@ -44,26 +83,130 @@
       <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form>
-  </div>
+  </div> -->
 </nav>
-<div class="jumbotron">
+<!-- <div class="jumbotron">
   <h1 class="display-4">Hello, world!</h1>
   <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
   <hr class="my-4">
   <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
   <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
-</div>
+</div> -->
 
 <div class="container">
     <div class="row" >
-        <div class="col-sm-9">
+       <div>
+        <h2>文件上传</h2>
+
+        <div class="row">
+
+        
+          <form class="col-md-8" id="excelUpload" method="post" action="{% url 'apiPrepare' %}" enctype="multipart/form-data" style="padding-left: 20px;">
+              {% csrf_token %}
+              {{ form.as_p }}
+
+              疫情数据Excel文件上传<br><br>
+              <input class="form-control-file attachment" id="wxbFile" type="file" name="wxb_file" accept=".xlsx"/>
+                
+              全球确诊数及死亡数分布数据csv文件上传：
+              （点击此链接下载：<a href="https://covid.ourworldindata.org/data/owid-covid-data.csv">ourworldindata</a>）
+              <br><br>
+              <input type="file" id="owdFile" class="attachment" name="ourworldindata" accept=".csv"/>
+              <br><hr>
+              
+              <!-- <input class='btn btn-primary' type="submit" value="提交">
+                <div id="excelSpinner" class="spinner-border text-primary" visible="false" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>  
+              </input> -->
+<!--               
+              <br><br><br>
+              <hr> -->
+          </form>
+          
+          
+          
 
         </div>
 
-        <div class="col-sm-3">
-            33
+        <div class="row">
+          <div>
+
+              <button class="btn btn-primary my-button" onclick="prepareExcel()" >上传文件
+                <div id="excelSpinner" class="spinner-border spinner-border-sm" style="display:none;" role="status">
+                </div>  
+              </button>
+          
+          </div>
+          <div>
+            <button id="analyzeButton" class="btn btn-primary my-button" onclick="analyzeData()" >生成Report</button>
+          </div>
         </div>
+        <!-- <h2>文件夹上传</h2>
+        使用中间csv数据生成报告：
+        <form method="post" action="{% url 'report' %}" enctype="multipart/form-data" style="padding-left: 20px;">
+            {% csrf_token %}
+            <input type="file" name="folder" webkitdirectory/>
+            <input type="submit" value="提交"/>
+            <br><br><br>
+            <hr>
+        </form> -->
+    </div> 
 
     </div>
-</div>
+
+
+  </div>
+
+  
+<script>
+  function prepareExcel(){
+    let url = "{% url 'apiPrepare' %}";
+    let ajaxData = new FormData();
+    let fileNames = ["wxb_file", "ourworldindata"]
+    $("#excelSpinner").attr("style", "")
+    $.each($(".attachment"), function(i, obj) {
+        $.each(obj.files,function(j,file){
+          console.log("sss:")
+            ajaxData.append(fileNames[i], file);
+        });
+    });
+    // console.log($("#wxb"))
+    // ajaxData.append('wxb_file', $("#wxbFile").files[0])
+    // ajaxData.append('wxb_file', $("#owdFile").files[0])
+    $.ajax({
+      url: url,
+      data: ajaxData,
+      type: "POST",
+      contentType: false,
+      processData: false,
+      success: data => {
+        console.log(data);
+        $("#excelSpinner").attr('style',"display:none;")
+      }
+    })
+  }
+
+  function analyzeData(){
+    let url = "{% url 'apiAnalyze' %}";
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: {},
+      success: data => {
+        console.log(data);
+        window.location.href = "/report";
+      }
+    })
+
+  }
+</script>
+
 </body>
+
+<style>
+  .my-button{
+    margin-left: 15px
+  }
+</style>
