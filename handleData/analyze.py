@@ -260,6 +260,8 @@ def build_insert_average(average, f=None):
             average_values = f(global_record)
             data.insert(0, {"name": "各国平均", "values": average_values})
         if average == "global_custom":
+            print(global_record)
+            print("*****************************************")
             data.insert(0, {"name": "各国平均", "values":[f(global_record)]})
         return data, context
     return insert_average
@@ -505,7 +507,9 @@ def extract_conutry_data(db, config):
             "description": "Positive rate data of each country",
             "process": "last_day",
             "operator": calculate_positive_rate,
-            "preprocess": [],
+            "preprocess": [
+                build_filter_records(lambda x: '总检测数' in x.keys() and x['总检测数'] > x['累计确诊'])
+            ],
             "postprocess": [
                 # build_topk(),
                 build_sort(),
@@ -559,7 +563,7 @@ def extract_conutry_data(db, config):
             "postprocess": [
                 # build_topk(),
                 build_sort(),
-                build_insert_average("counted", calculate_recovery_rate)
+                build_insert_average("global_custom", lambda x: x['累计治愈']/x['累计确诊'])
             ]
         },
         
