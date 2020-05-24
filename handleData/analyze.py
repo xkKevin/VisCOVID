@@ -448,6 +448,8 @@ def extract_conutry_data(db, config):
         return [x['累计死亡']/x['累计确诊']]
 
     def calculate_positive_rate(x):
+        if x['总检测数'] == 0:
+            return [0]
         return [x['累计确诊'] / x['总检测数']]
     
     def calculate_recovery_rate(x):
