@@ -17,7 +17,7 @@ report_data_path = "./main/static/report/"
 #     doc.Close(SaveChanges=True)
 #     word.Quit()
 
-def renew_text(p,text):
+def renew_text(p, text):
     p.clear()
     p.add_run()
     p.runs[0].text = text
@@ -30,13 +30,13 @@ def replace_pic(p, pic_list, width=None, height=None):
     for pic in pic_list:
         pic = report_data_path + pic
         if width:
-            p.runs[0].add_picture(pic,width=width)
+            p.runs[0].add_picture(pic, width=width)
         elif height:
-            p.runs[0].add_picture(pic,height=height)
+            p.runs[0].add_picture(pic, height=height)
 
 
 def createReport():
-    document = Document(report_data_path+'模板.docx')
+    document = Document(report_data_path + '模板.docx')
     style = document.styles['Normal']
     style.font.name = 'Times New Roman'
     paragraphs = document.paragraphs
@@ -60,48 +60,49 @@ def createReport():
     # title_2_6 = '2.6 本周新增确诊增长最快：阿富汗，新增死亡增长最快：厄瓜多尔'
 
     texts = []
-    with open(report_data_path+'text.txt',encoding='utf-8') as f:
+    with open(report_data_path + 'text.txt', encoding='utf-8') as f:
         for line in f:
             texts.append(line.strip())
     to_replace_text_paragraphs = [
-    paragraphs[4],
-    paragraphs[6],
-    paragraphs[20],
-    paragraphs[34],
-    paragraphs[35],
-    paragraphs[36],
-    paragraphs[37],
-    paragraphs[57],
-    paragraphs[58],
-    paragraphs[59],
-    paragraphs[60],
-    paragraphs[62],
-    paragraphs[64],
-    paragraphs[67],
-    paragraphs[70],
-    paragraphs[71],
-    paragraphs[73],
-    paragraphs[75],
-    paragraphs[76],
-    paragraphs[78],
-    paragraphs[80],
-    paragraphs[82],
-    paragraphs[84],
-    paragraphs[85],
-    paragraphs[88],
-    paragraphs[89],
-    paragraphs[91],
-    paragraphs[92],
-    paragraphs[94],
-    paragraphs[95],
-    paragraphs[97],
-    paragraphs[98],
-    paragraphs[100],
-    paragraphs[101],
-    paragraphs[102],
-    paragraphs[105],
-    paragraphs[108]
-]
+        paragraphs[4],
+        paragraphs[6],
+        paragraphs[20],
+        paragraphs[34],
+        paragraphs[35],
+        paragraphs[36],
+        paragraphs[37],
+        paragraphs[56],
+        paragraphs[57],
+        paragraphs[58],
+        paragraphs[59],
+        paragraphs[61],
+        paragraphs[63],
+        paragraphs[66],
+        paragraphs[69],
+        paragraphs[70],
+        paragraphs[72],
+        paragraphs[74],
+        paragraphs[75],
+        paragraphs[77],
+        paragraphs[79],
+        paragraphs[81],
+        paragraphs[83],
+        paragraphs[85],
+        paragraphs[86],
+        paragraphs[89],
+        paragraphs[90],
+        paragraphs[92],
+        paragraphs[93],
+        paragraphs[95],
+        paragraphs[96],
+        paragraphs[98],
+        paragraphs[99],
+        paragraphs[101],
+        paragraphs[102],
+        paragraphs[103],
+        paragraphs[106],
+        paragraphs[109]
+    ]
     if len(to_replace_text_paragraphs) != len(texts):
         print('error: inconsistent texts')
         print(len(to_replace_text_paragraphs))
@@ -110,7 +111,7 @@ def createReport():
         for i in range(0, len(texts)):
             if i > 0:
                 renew_text(to_replace_text_paragraphs[i], texts[i])
-    #替换文本，需要使用renew_text的方法，有三个参数分别是文档对应段落以及新的文本
+    # 替换文本，需要使用renew_text的方法，有三个参数分别是文档对应段落以及新的文本
     # renew_text(paragraphs[6],week_period)
     # renew_text(paragraphs[20],report_date)
     # renew_text(paragraphs[33],title_2_1)
@@ -121,44 +122,45 @@ def createReport():
     # renew_text(paragraphs[65],title_2_5)
     # renew_text(paragraphs[68],title_2_6)
 
-    #替换图片，需要使用replace_pic方法，有三个参数分别是文档对应段落、图片地址以及图片宽度
+    # 替换图片，需要使用replace_pic方法，有三个参数分别是文档对应段落、图片地址以及图片宽度
 
     pic_2_1 = ['2_1.png']
     pic_2_2 = ['2_2.png']
-    pic_2_3 = ['2_3_a.png','2_3_b.png']
-    pic_2_4 = ['2_4_a.png','2_4_b.png']
+    pic_2_3 = ['2_3_a.png', '2_3_b.png']
+    pic_2_4 = ['2_4_a.png', '2_4_b.png']
     pic_2_5 = ['2_5.png']
     pic_2_6 = ['2_6.png']
     pic_2_7 = ['2_7.png']
     pic_2_8 = ['2_8.png']
     pic_2_9 = ['2_9.png']
     pic_2_10 = ['2_10.png']
-    pic_2_11 = ['2_11_a.png','2_11_b.png']
-    pic_2_12 = ['2_12.png']
+    pic_2_11 = ['2_11.png']
+    pic_2_12 = ['2_12_a.png', '2_12_b.png']
     pic_2_13 = ['2_13.png']
     pic_2_14 = ['2_14.png']
     pic_2_15 = ['2_15.png']
-    pic_2_16 = ['2_16_a.png','2_16_b.png']
-    pic_2_17 = ['2_17.png']
-    
-    
-    replace_pic(paragraphs[61],pic_2_1, height=Cm(8.6))
-    replace_pic(paragraphs[63],pic_2_2, height=Cm(8.6))
-    replace_pic(paragraphs[65],pic_2_3, width=Cm(7.3))
-    replace_pic(paragraphs[68],pic_2_4, width=Cm(7.3))
-    replace_pic(paragraphs[72],pic_2_5, height=Cm(7.8))
-    replace_pic(paragraphs[74],pic_2_6, height=Cm(7.8))
-    replace_pic(paragraphs[77],pic_2_7, height=Cm(10.6))
-    replace_pic(paragraphs[79],pic_2_8, height=Cm(10.6))
-    replace_pic(paragraphs[81],pic_2_9, height=Cm(10.6))
-    replace_pic(paragraphs[83],pic_2_10, height=Cm(10.6))
-    replace_pic(paragraphs[86],pic_2_11, width=Cm(7.3))
-    replace_pic(paragraphs[90],pic_2_12, height=Cm(7.8))
-    replace_pic(paragraphs[93],pic_2_13, height=Cm(7.8))
-    replace_pic(paragraphs[96],pic_2_14, width=Cm(14.5))
-    replace_pic(paragraphs[99],pic_2_15, width=Cm(14.5))
-    replace_pic(paragraphs[103],pic_2_16, width=Cm(7.3))
-    replace_pic(paragraphs[107],pic_2_17,width=Cm(14.5))
+    pic_2_16 = ['2_16.png']
+    pic_2_17 = ['2_17_a.png', '2_17_b.png']
+    pic_2_18 = ['2_18.png']
+
+    replace_pic(paragraphs[60], pic_2_1, height=Cm(8.6))
+    replace_pic(paragraphs[62], pic_2_2, height=Cm(8.6))
+    replace_pic(paragraphs[64], pic_2_3, width=Cm(7.3))
+    replace_pic(paragraphs[67], pic_2_4, width=Cm(7.3))
+    replace_pic(paragraphs[71], pic_2_5, height=Cm(7.8))
+    replace_pic(paragraphs[73], pic_2_6, height=Cm(7.8))
+    replace_pic(paragraphs[76], pic_2_7, height=Cm(10.6))
+    replace_pic(paragraphs[78], pic_2_8, height=Cm(10.6))
+    replace_pic(paragraphs[80], pic_2_9, height=Cm(10.6))
+    replace_pic(paragraphs[82], pic_2_10, height=Cm(10.6))
+    replace_pic(paragraphs[84], pic_2_11, height=Cm(10.6))
+    replace_pic(paragraphs[87], pic_2_12, height=Cm(4))
+    replace_pic(paragraphs[91], pic_2_13, height=Cm(5.7))
+    replace_pic(paragraphs[94], pic_2_14, height=Cm(5.7))
+    replace_pic(paragraphs[97], pic_2_15, width=Cm(14.5))
+    replace_pic(paragraphs[100], pic_2_16, width=Cm(14.5))
+    replace_pic(paragraphs[104], pic_2_17, width=Cm(7.3))
+    replace_pic(paragraphs[108], pic_2_18, width=Cm(14.5))
 
     file_name = report_data_path + 'report.docx'
 
