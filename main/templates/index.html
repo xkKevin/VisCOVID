@@ -20,17 +20,18 @@
             <input type="file" name="ourworldindata" accept=".csv"/>
             <br><hr>
             <input type="submit" value="提交"/>
+            <br><br><br>
+            <hr>
+        </form>
+
+        <h2>文件夹上传</h2>
+        使用中间csv数据生成报告：
+        <form method="post" action="{% url 'report' %}" enctype="multipart/form-data" style="padding-left: 20px;">
+            {% csrf_token %}
+            <input type="file" name="folder" webkitdirectory/>
+            <input type="submit" value="提交"/>
+            <br><br><br>
+            <hr>
         </form>
     </div>
-<!--
-    <h2>文件夹上传</h2>
-    使用中间csv数据生成报告：
-    <form method="post" action="{% url 'report' %}" enctype="multipart/form-data" style="padding-left: 20px;">
-        {% csrf_token %}
-        <input type="file" name="folder" webkitdirectory/>
-        <input type="submit" value="提交"/>
-        <br><br><br>
-        <hr>
-    </form>
--->
 </body> 

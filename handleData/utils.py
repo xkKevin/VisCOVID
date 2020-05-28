@@ -39,6 +39,8 @@ def save_world_map(path, data):
     json.dump( r, fp)
 
 def find_population_by_chinese_name(db, chinese):
+    if chinese == "刚果":
+        chinese = "刚果(金)"
     if chinese == "全球":
         return 7594270356.
         populations = list(db.populations.find({}))
@@ -61,6 +63,8 @@ def find_population_by_chinese_name(db, chinese):
     
     country = db.countries.find_one({"country_name_chinese_short": chinese})
     t = db.populations.find_one({"Country Code": country['country_code3']})
+    if not t:
+        print(chinese)
     return float(t['2018 [YR2018]'])
 
 

@@ -20,8 +20,11 @@ from main import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name="index"),
-    path('upload/', views.upload, name="upload"),
     path('report/', views.report, name="report"),
     path('saveImage/', views.saveImage, name="saveImage"),
-    path('export/<file_name>/', views.csvFile, name='csvFile')
+    path('export/<file_name>/', views.csvFile, name='csvFile'),
+    path('dataprocess/', views.dataprocess_index, name="dataprocess"),
+    path('api/prepare', views.apiPrepare, name="apiPrepare"),
+    path('api/analyze', views.apiAnalyze, name="apiAnalyze"),
+    path('api/serverReady', views.apiServerReady, name="apiServerReady")
 ]

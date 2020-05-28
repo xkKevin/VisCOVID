@@ -3,12 +3,12 @@ import pandas as pd
 from pymongo import MongoClient
 from functools import reduce
 import numpy as np
-from handleData.utils import save_data, load_config, find_population_by_chinese_name, save_world_map, build_time_range
+from .utils import save_data, load_config, find_population_by_chinese_name, save_world_map, build_time_range
 from datetime import datetime, timedelta
 import dateutil.parser
-from handleData.format import format_data
+from .format import format_data
 import csv
-from handleData.report import build_report
+from .report import build_report
 import re
 client = MongoClient()
 db = client['coronavirus_analysis']
@@ -19,6 +19,11 @@ db = client['coronavirus_analysis']
 # 全球累计死亡增长曲线 death_seq
 # 全球确诊率增长曲线 confirmed_per_million
 # 全球病死率 death_rate_seq = 累计死亡/累计确诊
+def build_filter_weekly(period_start=-7, period_end=0):
+    def filter_weekly(records, context):
+        length = len(records)
+        return list(map(lambda x: x[ len(x) + period_start: len(x) + period_end], records)), context
+    return filter_weekly
 
 
 def process_global_seq(operator, preprocess, postprocess):
@@ -26,6 +31,7 @@ def process_global_seq(operator, preprocess, postprocess):
         found = list(db.global_records.find())
         found.sort(key=lambda x: x['日期'])
         truncated = list(filter(lambda x: not np.isnan(x['累计确诊']), found))
+        context = {}
         def generate_default_seq():
             return {'x': [], 'y': []}
         def process(acc, c):
@@ -48,6 +54,17 @@ def extract_global_seq(db, config):
         acc['x'].append(current['日期'])
         acc['y'].append(current['累计确诊'])
         return acc
+
+    def f_newly_confirmed(acc, current):
+        acc['x'].append(current['日期'])
+        acc['y'].append(current['新增确诊'])
+        return acc
+    
+    def f_newly_death(acc, current):
+        acc['x'].append(current['日期'])
+        acc['y'].append(current['新增死亡'])
+        return acc
+
 
     def f_confirmed_per_million(acc, current):
         acc['x'].append(current['日期'])
@@ -102,7 +119,39 @@ def extract_global_seq(db, config):
             "postprocess": [],
         },
         {
+            "id": "global_confirmed_weekly_seq",
+            "description": "",
+            "process": "global",
+            "operator": f_newly_confirmed,
+            "preprocess": [],
+            "postprocess": [],
+        },
+        {
             "id": "global_confirmed_death_seq",
+            "description": "",
+            "process": "global",
+            "operator": f_newly_confirmed_death,
+            "preprocess": [],
+            "postprocess": [],
+        },
+        {
+            "id": "global_death_weekly_seq",
+            "description": "",
+            "process": "global",
+            "operator": f_newly_death,
+            "preprocess": [],
+            "postprocess": [],
+        },
+        {
+            "id": "global_newly_confirmed_seq",
+            "description": "",
+            "process": "global",
+            "operator": f_newly_confirmed_death,
+            "preprocess": [],
+            "postprocess": [],
+        },
+        {
+            "id": "global_newly_death_seq",
             "description": "",
             "process": "global",
             "operator": f_newly_confirmed_death,
@@ -209,9 +258,11 @@ def build_insert_average(average, f=None):
             else: 
                 print(len(global_record))
             average_values = f(global_record)
-            data.insert(0, {"name": "全球平均", "values": average_values})
+            data.insert(0, {"name": "各国平均", "values": average_values})
         if average == "global_custom":
-            data.insert(0, {"name": "全球平均", "values":[f(global_record)]})
+            print(global_record)
+            print("*****************************************")
+            data.insert(0, {"name": "各国平均", "values":[f(global_record)]})
         return data, context
     return insert_average
 
@@ -238,12 +289,6 @@ def build_filter_nan():
 
         
 
-def build_filter_weekly(period_start=-7, period_end=0):
-    def filter_weekly(records, context):
-        length = len(records)
-
-        return list(map(lambda x: x[ len(x) + period_start: len(x) + period_end], records)), context
-    return filter_weekly
 
 def build_filter_records(f):
     def filter_records(records, context):
@@ -360,10 +405,10 @@ def process_country_record_last_day(f, args=dict() , preprocess=[], postprocess=
             global_record = db.global_records.find_one({"日期": check_date})
             global_record['国家地区'] = "全球" 
             average_value = f(global_record)
-            values.insert(0, {"name": "全球平均", "value":average_value})
+            values.insert(0, {"name": "各国平均", "value":average_value})
         if average == "global_custom":
             global_record = db.global_records.find_one({"日期": check_date})
-            values.insert(0, {"name": "全球平均", "value":average_func(global_record)})
+            values.insert(0, {"name": "各国平均", "value":average_func(global_record)})
         return values
     
 
@@ -405,8 +450,12 @@ def extract_conutry_data(db, config):
         return [x['累计死亡']/x['累计确诊']]
 
     def calculate_positive_rate(x):
+        if x['总检测数'] == 0:
+            return [0]
         return [x['累计确诊'] / x['总检测数']]
-
+    
+    def calculate_recovery_rate(x):
+        return [x['累计治愈']/x['累计确诊']]
     def group_four_rates(x):
         return [calculate_test_rate(x), calculate_positive_rate(x), calculate_confirmed_rate(x), calculate_death_rate(x)]
     
@@ -458,7 +507,9 @@ def extract_conutry_data(db, config):
             "description": "Positive rate data of each country",
             "process": "last_day",
             "operator": calculate_positive_rate,
-            "preprocess": [],
+            "preprocess": [
+                build_filter_records(lambda x: '总检测数' in x.keys() and x['总检测数'] > x['累计确诊'])
+            ],
             "postprocess": [
                 # build_topk(),
                 build_sort(),
@@ -499,6 +550,20 @@ def extract_conutry_data(db, config):
                 # build_topk(),
                 build_sort(),
                 build_insert_average("global", calculate_death_rate)
+            ]
+        },
+        {
+            "id": "recovery_rate_data",
+            "description": "Recovery rate of each country",
+            "process": "last_day",
+            "operator": calculate_recovery_rate,
+            "preprocess": [
+                build_filter_records(lambda x: x['累计确诊'] > 2000)
+            ],
+            "postprocess": [
+                # build_topk(),
+                build_sort(),
+                build_insert_average("global_custom", lambda x: x['累计治愈']/x['累计确诊'])
             ]
         },
         
@@ -630,6 +695,8 @@ def extract_conutry_seq(db, config):
             "operator": lambda x : [calculate_rate(sum(y['新增确诊'] for y in x[len(x)-7:]), sum(y['新增确诊'] for y in x[-14:-7])) - 1],
             "preprocess": [
                 build_filter_weekly(-14,0),
+                build_filter_records(lambda x: reduce(lambda acc, c: acc + c['新增确诊'], x[-7:], 0)>500 and x[-1]['累计确诊'] > 10000)
+
                 # build_filter_records(lambda x: x[-1]['累计死亡']>100)
             ],
             "postprocess": [
@@ -644,7 +711,7 @@ def extract_conutry_seq(db, config):
             "operator": lambda x : [calculate_growth(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7]))],
             "preprocess": [
                 build_filter_weekly(-14,0),
-                build_filter_records(lambda x: x[-1]['累计死亡']>100)
+                build_filter_records(lambda x: reduce(lambda acc, c: acc + c['新增死亡'], x[-7:], 0)>100 and x[-1]['累计死亡'] > 300 )
             ],
             "postprocess": [
                 build_sort(),
@@ -741,12 +808,21 @@ def extract_world_map_from_owd(db, config):
         "location": {"$last": "$location"},
         "total_cases": {"$last": "$total_cases"}
     }}]))
-    confirmed_records = list(db.owd_all.aggregate([{"$group": {
-        "_id": "$location",
-        "location": {"$last": "$location"},
-        "total_cases": {"$last": "$total_cases"},
-        "total_deaths": {"$last": "$total_deaths"}
-    }}]))
+    confirmed_records = list(db.owd_all.aggregate([
+        {
+            "$group": {
+                "_id": "$location",
+                "location": {"$last": "$location"},
+                "total_cases": {"$last": "$total_cases"},
+                "total_deaths": {"$last": "$total_deaths"}
+            }
+        },
+        {
+            "$sort":{
+                "location": 1,
+            }
+
+        }]))
     # death_records = list(db.owd_all.find({"date": check_date, "location": {"$nin": exclude_entities}}))
     get_map_name = build_name_conversion()
     
@@ -913,6 +989,8 @@ def build_not_world(db, config):
     c = extract_conutry_seq(db, config)
     # c = {}
     r = merge_objs([a,b,c])
+    due = db.due.find_one()
+    r['due'] = due
     report = build_report(r, config)
     report.to_csv(get_export_path("basic_info.csv", ""), quoting=csv.QUOTE_NONE, index=False)
     for key in r.keys():
@@ -930,8 +1008,8 @@ def build_not_world(db, config):
         save_data(path, s)
     # list(map(f, key_countries))
 
-def analyze(export_dir):
-    config = load_config()
+def analyze(export_dir, config_path = "./handleData/config.json"):
+    config = load_config(config_path)
     # pa
     config['export']['root'] = export_dir
     build_not_world(db, config)
@@ -939,6 +1017,6 @@ def analyze(export_dir):
     build_world_map(db, config)
 
 if __name__ == "__main__":
-    analyze() 
+    analyze(export_dir="../main/static/export/run", config_path = "./config.json") 
     
     # docker  run  -v `pwd`:`pwd` -w `pwd` -t -p 8000:80 2a5f319370cb  

@@ -1,6 +1,7 @@
 var CSS_STYLE = {
     'color11' :['#c23531', '#61a0a8', '#d48265','#749f83','#2f4554', '#91c7ae',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],  // 11色，和echarts默认色系基本一致
-    'color9': ['#FFF7E6', '#FFE6BA', '#FFD591','#FFC069','#FF8206','#FF6906','#FA541C','#D4380D','#AD2101'],
+    'color9_red': ['#FFF7E6', '#FFE6BA', '#FFD591','#FFC069','#FF8206','#FF6906','#FA541C','#D4380D','#AD2101'],
+    'color9_blue': ['#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b'],
     'color3': ["#D4380D", "#6EA748", "#5d80b6"], // 红绿蓝
     'nameTextStyle': {
         align: "left",
@@ -47,13 +48,14 @@ function worldMap(data, name, div_id, num_max) {
     }
 
     let pieces = [];
+    let color = name === "累计病死人数"? CSS_STYLE.color9_blue : CSS_STYLE.color9_red;
     for (let i = 0; i > -9; i--) {
         let min = pieces_map(data_max, i);
-        let label_min = i>-8 ? min:0;
+        let label_min = i>-8 ? min === 500000 ? 200000 : min :0;
         pieces.push({
             min: label_min,
-            max: pieces_map(min, 1),
-            color: CSS_STYLE.color9[8+i],
+            max: pieces_map(min, 1) === 500000 ? 200000 : pieces_map(min, 1),
+            color: color[8+i],
             label: String(label_min)
         })
     }
@@ -235,7 +237,7 @@ function pieChart(data, name, div_id) {
                     rate: {
                         fontSize: CSS_STYLE.pieChart.fontSizeNum,
                         fontWeight: 'bold',
-                        color: "black"
+                        color: CSS_STYLE.color3[0]
                     },
                     symbol: {
                         fontSize: CSS_STYLE.pieChart.fontSizeNum,
@@ -261,6 +263,8 @@ function pieChart(data, name, div_id) {
 
 function barchart(data, name, div_id) {
     data = data.map((x)=> [x["国家"],x[name]]);
+    let format_min = format_percent(data[20][1]);
+    let format_fixed_num = format_min.length - format_min.indexOf('.') - 2;
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
         backgroundColor: CSS_STYLE.backgroundColor,
@@ -283,7 +287,7 @@ function barchart(data, name, div_id) {
                         }
                         table += `</textarea><h5>系统配置</h5>
                                 max: <input type="text" value="${xAxis_max}"><br>
-                                interval: <input type="text" value="${xAxis_interval}" disabled>`;
+                                interval: <input type="text" value="${xAxis_interval}">`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -298,10 +302,10 @@ function barchart(data, name, div_id) {
                          opt.yAxis[0].data = handle_data.yAxis;
                         let inputs = $(html).children("input");
                         if (inputs.eq(0).val()){
-                            opt.xAxis[0].max = inputs.eq(0).val();
+                            opt.xAxis[0].max = parseFloat(inputs.eq(0).val());
                         }
                         if (inputs.eq(1).val()){
-                            opt.xAxis[0].interval = inputs.eq(1).val();
+                            opt.xAxis[0].interval = parseFloat(inputs.eq(1).val());
                         }
                         myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
                         return opt;
@@ -349,7 +353,9 @@ function barchart(data, name, div_id) {
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.median,
                     formatter: function(param) {
-                        return param * 100000 / 1000 + "%"
+                        let x1 = param * 1000 / 10 + "%";
+                        let x2 = param * 100000 / 1000 + "%";  // 0.009 会出现精度丢失的情况
+                        return x1.length <= x2.length ? x1 : x2;
                 }
             }
         },
@@ -361,12 +367,10 @@ function barchart(data, name, div_id) {
                 show: true,
                 position: 'right',
                 formatter: function(param) {
-                    // 如果保留两位有效数字之后是个整数，则再保留一位小数
-                    let display = (param.value * 100).toPrecision(2); // toPrecision 保留多少位有效数字
-                    if (display.includes(".")){
-                        return display + "%";
+                    if (param.dataIndex === 0){
+                        return format_percent(param.value);
                     }
-                    return (param.value * 100).toFixed(1) + "%";  // // toFixed 保留多少位小数
+                    return (param.value * 100).toFixed(format_fixed_num) + "%";  // // toFixed 保留多少位小数
                 },
                 color: 'black',
                 fontSize: CSS_STYLE.fontSize.small
@@ -406,7 +410,7 @@ function barchart_num(data, name, div_id) {
                         }
                         table += `</textarea><h5>系统配置</h5>
                                 max: <input type="text" value="${xAxis_max}"><br>
-                                interval: <input type="text" value="${xAxis_interval}" disabled>`;
+                                interval: <input type="text" value="${xAxis_interval}">`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -421,10 +425,10 @@ function barchart_num(data, name, div_id) {
                          opt.yAxis[0].data = handle_data.yAxis;
                         let inputs = $(html).children("input");
                         if (inputs.eq(0).val()){
-                            opt.xAxis[0].max = inputs.eq(0).val();
+                            opt.xAxis[0].max = parseFloat(inputs.eq(0).val());
                         }
                         if (inputs.eq(1).val()){
-                            opt.xAxis[0].interval = inputs.eq(1).val();
+                            opt.xAxis[0].interval = parseFloat(inputs.eq(1).val());
                         }
                         myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
                         return opt;
@@ -469,8 +473,8 @@ function barchart_num(data, name, div_id) {
         xAxis: {
             type: 'value',
             position: 'top',
-            // interval: 2000000,
-            max: 10000000,
+            interval: 4000000,
+            max: 16000000,
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.median,
                 // formatter: function(param) {
@@ -518,11 +522,11 @@ function linechart(data, div_id) {
         let date = new Date(x["日期"]);
         handle_data.week.push(String(date.getMonth()+1)+'/'+String(date.getDate()));
         handle_data.cases.push(x["新增确诊人数"]);
-        handle_data.deaths.push(x["新增死亡人数"]);
+        handle_data.deaths.push(x["新增病死人数"]);
     });
 
     let name = {
-        "save": "全球过去一周每日新增确诊人数和死亡人数",
+        "save": "全球过去一周每日新增确诊人数和病死人数",
         "yAxis": "人数"
     };
 
@@ -545,7 +549,7 @@ function linechart(data, div_id) {
             textStyle: {
                 fontSize: CSS_STYLE.fontSize.median,
             },
-            data: ["新增确诊人数", "新增死亡人数"],
+            data: ["新增确诊人数", "新增病死人数"],
             icon: "rect",
             itemGap: 80,
             top: 5
@@ -609,7 +613,7 @@ function linechart(data, div_id) {
             animation: false,
             color: CSS_STYLE.color3[2],
         }, {
-            name: "新增死亡人数",
+            name: "新增病死人数",
             data: handle_data.deaths,
             symbol: 'circle',
             symbolSize: CSS_STYLE.symbolSize,
@@ -668,7 +672,7 @@ function bi_directional_barchart(data, name, div_id) {
      });
     // console.log(values);
 
-    $('#'+div_id).css("height",(30*num+70)+"px");
+    $('#'+div_id).css("height",(30*num+95)+"px");
 
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
@@ -868,8 +872,103 @@ function linechart_num(data, div_id) {
         grid: {
             bottom: '11%',
             top: 45,
-            left: 15+7*precision_len,
+            left: 33+5*precision_len,
             right: 65
+        },
+        tooltip:{ trigger: 'axis'},
+        yAxis: {
+            axisLabel: {
+                fontSize: CSS_STYLE.fontSize.small-6,
+                // formatter: function(value) {
+                //     if (precision_len>1){
+                //         return (value*100).toFixed(precision_len-2) + '%'; // 用从长度减去2（即0.）
+                //     }
+                //     return (value*100).toFixed(0) + '%'
+                // }
+            },
+            type: 'value',
+            name: "人数",
+            nameTextStyle: {
+                align: "center",
+                fontSize: CSS_STYLE.fontSize.median-1,
+                fontFamily: "楷体",
+                fontWeight: "bold",
+                padding: [0, 0, 2, 18]
+            }
+        },
+        series: [{
+            name: "人数",
+            data: handle_data.value,
+            type: 'line',
+            lineStyle: CSS_STYLE.lineStyle,
+            symbol: 'none',
+            symbolSize: CSS_STYLE.symbolSize,
+            smooth: true,
+            color: CSS_STYLE.color3[0],
+            animation: false,
+        }]
+    };
+    myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        excludeComponents: ['toolbox'],
+    });
+}
+
+function linechart_num_week(data, div_id) {
+    let handle_data = {value:[], date:[]};
+    data.forEach(function (x) {
+        let date = new Date(x[data.columns[0]]);
+        // handle_data.date.push(date);
+        handle_data.date.push(String(date.getMonth()+1)+'/'+String(date.getDate()));
+        handle_data.value.push(x[data.columns[1]]);
+    });
+
+    let handle_data_len = handle_data.value.length;
+    let precision_len = format_number(handle_data.value[handle_data_len-1]).length;
+
+    var myChart = echarts.init(document.getElementById(div_id));
+
+    let option = {
+        backgroundColor: CSS_STYLE.backgroundColor,
+        // width: CSS_STYLE.smallChart.width,
+        // height: CSS_STYLE.smallChart.height,
+        toolbox: {
+            feature: {
+                dataView: {readOnly: false},
+                restore: {},
+                saveAsImage: {
+                    name: div_id
+                }
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: handle_data.date,
+            axisTick: {
+                alignWithLabel: true
+            },
+            name: "日期",
+            axisLabel: {
+                fontSize: CSS_STYLE.fontSize.small-4,
+                showMaxLabel: true,
+                showMinLabel: false,
+                // splitNumber: 3
+                interval: Math.round((handle_data_len)/6)-1,
+            },
+            nameTextStyle: {
+                align: "left",
+                fontSize: CSS_STYLE.fontSize.median-1,
+                fontFamily: "楷体",
+                fontWeight: "bold",
+                padding: [28, 0, 0, -12]   // 上右下左
+            }
+        },
+        grid: {
+            bottom: '11%',
+            top: 45,
+            left: 33+5*precision_len,
+            right: 47
         },
         tooltip:{ trigger: 'axis'},
         yAxis: {
@@ -965,7 +1064,7 @@ function linechart_rate(data, div_id) {
         grid: {
             bottom: '11%',
             top: 45,
-            left: 27+8*precision_len,
+            left: 35+6*precision_len,
             right: 65
         },
         yAxis: {
