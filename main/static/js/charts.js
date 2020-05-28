@@ -1107,7 +1107,7 @@ function linechart_rate(data, div_id) {
 }
 
 function bi_yAxis_barchart(data, name, div_id, span) {
-    data = data.map((x)=> [x["时间"],x["新增确诊（左）"],x["新增治愈（右）"]]);
+    data = data.map((x)=> [x["日期"],x["新增确诊（左）"],x["新增治愈（右）"]]);
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
         title: {
