@@ -1105,3 +1105,160 @@ function linechart_rate(data, div_id) {
         excludeComponents: ['toolbox'],
     });
 }
+
+function bi_yAxis_barchart(data, name, div_id, span) {
+    data = data.map((x)=> [x["时间"],x["新增确诊（左）"],x["新增治愈（右）"]]);
+    var myChart = echarts.init(document.getElementById(div_id));
+    let option = {
+        title: {
+            text: name,
+            left: 'center',
+            textStyle: {
+                color: CSS_STYLE.color3[0],
+                fontSize: 26,
+                fontWeight: "bold"
+            }
+        },
+        toolbox: {
+            feature: {
+                dataView: {
+                    readOnly: false,
+                    optionToContent: function(opt) {
+                        // console.log(opt.title);
+                        let data_len = opt.series[0].data.length;
+                        var table = `<h5>表格数据</h5>
+                        <textarea rows='${data_len+1}' style="width: 100%">日期,${opt.series[0].name},${opt.series[1].name}`;
+                        for (let i =0;i<data_len;i++){
+                            table += "\n" + opt.xAxis[0].data[i] + "," + opt.series[0].data[i] + "," + opt.series[1].data[i];
+                        }
+                        table += `</textarea><h5>系统配置</h5>
+                                title: <input type="text" value="${opt.title[0].text}" style="width: 60%"><br>
+                                left max: <input type="text" value="${opt.yAxis[0].max}"><br>
+                                right max: <input type="text" value="${opt.yAxis[1].max}"><br>
+                                interval: <input type="text" value="${opt.yAxis[0].interval}">`;
+                        return table
+                    },
+                    contentToOption: function(html, opt) {
+                        let content = $(html).children("textarea").val().split("\n");
+                        let handle_data = {data:[[],[]],xAxis:[]};
+                        content.slice(1).forEach(function(x, index){
+                            let data = x.split(',');
+                            handle_data.xAxis.push(data[0]);
+                            handle_data.data[0].push(data[1]);
+                            handle_data.data[1].push(data[2]);
+                         });
+                         opt.series[0].data = handle_data.data[0];
+                         opt.series[1].data = handle_data.data[1];
+                         opt.xAxis[0].data = handle_data.xAxis;
+                        let inputs = $(html).children("input");
+                        opt.title[0].text = inputs.eq(0).val();
+                        opt.yAxis[0].max = parseFloat(inputs.eq(1).val());
+                        opt.yAxis[1].max = parseFloat(inputs.eq(2).val());
+                        opt.yAxis[0].min = -opt.yAxis[1].max;
+                        opt.yAxis[1].min = -opt.yAxis[0].max;
+                        opt.yAxis[0].interval = opt.yAxis[1].interval = parseFloat(inputs.eq(3).val());
+                        // myChart.clear(); 清空当前绘制的图形，要不然只会数据更新，样式不更新
+                        return opt;
+                    }
+                },
+                restore: {},
+                saveAsImage: {
+                    name: div_id
+                }
+            }
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            },
+            formatter: function(param){
+                return param[0].name +"<br>" + param[0].marker + param[0].seriesName + ": " + param[0].value
+                        + "<br>" + param[1].marker + param[1].seriesName + ": " + (param[1].value);
+            }
+        },
+        legend:{
+            itemGap: 120,
+            top: 42,
+            textStyle: {
+                fontSize: CSS_STYLE.fontSize.small,
+            },
+        },
+        grid: {
+            top: 92,
+            bottom: 54,
+            left: 92,
+            right: 92
+        },
+        yAxis: [{
+            type: 'value',
+            splitLine: {
+                lineStyle: {
+                    type: 'dashed'
+                }
+            },
+            axisLine: {show: false},
+            axisTick: {show: false},
+            axisLabel: {
+                fontSize: CSS_STYLE.fontSize.small-2,
+            },
+            max:span[0],
+            min:-span[1],
+            interval: span[2]
+        },{
+            type: 'value',
+            position: 'right',
+            inverse: true,
+            axisLine: {show: false},
+            axisTick: {show: false},
+            axisLabel: {
+                fontSize: CSS_STYLE.fontSize.small-2,
+            },
+            max:span[1],
+            min:-span[0],
+            interval: span[2]
+        }],
+        xAxis: [{
+            type: 'category',
+            axisLine: {onZero: false},
+            axisTick: {alignWithLabel: true},
+            axisLabel: {
+                rotate: 90,
+                fontSize: CSS_STYLE.fontSize.small-4,
+
+            },
+            data: data.map((x) => x[0]),
+        },{
+            type: 'category',
+            axisLine: {show: false},
+            axisTick: {show: false},
+            axisLabel: {show: false},
+            data: data.map((x) => x[0]),
+        }],
+        series: [
+            {
+                yAxisIndex: 0,
+                xAxisIndex: 0,
+                name: '新增确诊（左）',
+                // color: 'red',//CSS_STYLE.color3[0],
+                type: 'bar',
+                data: data.map((x) => x[1]),
+                animation: false,
+            },{
+                yAxisIndex: 1,
+                xAxisIndex: 1,
+                // stack: 'new',
+                name: '新增治愈（右）',
+                color: 'green',//CSS_STYLE.color3[1],
+                type: 'bar',
+                data: data.map((x) => x[2]),
+                animation: false,
+            }
+        ]
+    };
+    myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        excludeComponents: ['toolbox'],
+    });
+}

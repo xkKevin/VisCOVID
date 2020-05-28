@@ -139,7 +139,7 @@
         <div>注：本周较上周新增确诊人数增速=（本周新增确诊人数-上周新增确诊人数）/上周新增确诊人数</div>
 
         <div id="2_16" style="width: 800px;"></div>
-        <div>图2-16&nbsp;本周较上周新增确诊人数增速（仅显示累计病死人数超过300且本周新增病死人数超过100的国家中增速绝对值大于等于20%的国家）</div>
+        <div>图2-16&nbsp;本周较上周新增病死人数增速（仅显示累计病死人数超过300且本周新增病死人数超过100的国家中增速绝对值大于等于20%的国家）</div>
         <div>注：本周较上周新增病死人数增速=（本周新增病死人数-上周新增病死人数）/上周新增病死人数</div>
         <h3>2.7&nbsp;全球新增确诊和新增病死走势图</h3>
         <div class="row" style="width: 800px;">
@@ -153,6 +153,14 @@
         <h3>附录</h3>
         <div id="2_18" style="width: 800px;height:858px;"></div>
         <div>图2-18&nbsp;各国累计检测数（仅显示累计确诊人数超过2000的国家中累计检测数前20个国家，部分国家检测数据更新不及时）</div>
+        <div id="2_19" style="width: 800px;height:550px;"></div>
+        <div>图2-19&nbsp;全球215个国家地区单日新增确诊和新增治愈走势</div>
+        <div id="2_20" style="width: 800px;height:550px;"></div>
+        <div>图2-20&nbsp;65个“一带一路”国家地区单日新增确诊和新增治愈走势</div>
+        <div id="2_21" style="width: 800px;height:550px;"></div>
+        <div>图2-21&nbsp;52个非洲国家地区单日新增确诊和新增治愈走势</div>
+        <div id="2_22" style="width: 800px;height:550px;"></div>
+        <div>图2-22&nbsp;20个周边国家地区单日新增确诊和新增治愈走势</div>
         <!-- <div id="2_18" style="width: 800px;"></div>
         <div>
             图2-18&nbsp;本周较上周新增确诊人数增速（仅显示累计确诊人数超过1万的国家中增速绝对值大于等于20%的国家）<br>
@@ -411,13 +419,46 @@
     //     }
     // });
 
-    d3.csv("{% static export_dir|add:'appendix-3.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-18.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
             barchart_num(csvdata.slice(0,20), "累计检测数", '2_18');
         }
     });
+
+    d3.csv("{% static export_dir|add:'2-19.csv' %}", function (error, csvdata) {
+        if(error){
+            console.log(error);
+        }else{
+            bi_yAxis_barchart(csvdata, "全球（215个国家地区合计）", '2_19',[120000,100000,20000]);
+        }
+    });
+
+    d3.csv("{% static export_dir|add:'2-20.csv' %}", function (error, csvdata) {
+        if(error){
+            console.log(error);
+        }else{
+            bi_yAxis_barchart(csvdata, '"一带一路"国家（65个国家地区合计）', '2_20',[4000,3000,1000]);
+        }
+    });
+
+    d3.csv("{% static export_dir|add:'2-21.csv' %}", function (error, csvdata) {
+        if(error){
+            console.log(error);
+        }else{
+            bi_yAxis_barchart(csvdata, "非洲国家（52个国家地区合计）", '2_21',[6000,4000,2000]);
+        }
+    });
+
+    d3.csv("{% static export_dir|add:'2-22.csv' %}", function (error, csvdata) {
+        if(error){
+            console.log(error);
+        }else{
+            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22',[25000,20000,5000]);
+        }
+    });
+
     var flag = true;
     var loading = Ladda.create($("#create_btn")[0]);
     function createReport() {
