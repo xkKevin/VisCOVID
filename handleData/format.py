@@ -160,7 +160,7 @@ def format_data(name, data):
     def format_test_num_data(data):
         t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "累计检测数"]
-        return t, 'appendix-3.csv'
+        return t, '2-18.csv'
 
 
     def format_recovery_rate_data(data):
