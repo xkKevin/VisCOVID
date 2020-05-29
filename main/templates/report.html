@@ -35,6 +35,9 @@
         .green {
             background-color: lightgreen;
         }
+        .last {
+            margin-bottom: 45px;
+        }
     </style>
 </head>
 <body>
@@ -439,7 +442,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, '"一带一路"国家（65个国家地区合计）', '2_20',[4000,3000,1000]);
+            bi_yAxis_barchart(csvdata, "“一带一路”国家（65个国家地区合计）", '2_20',[40000,30000,10000]);
         }
     });
 
@@ -470,7 +473,7 @@
                 }else {
                     // alert("周报生成成功！");
                     $("#download")[0].click();
-                    flag = false;
+                    // flag = false;
                 }
                 loading.stop();
             });

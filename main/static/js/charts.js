@@ -169,7 +169,7 @@ function pieChart(data, name, div_id) {
                         }
                         table += `</textarea><h5>系统配置</h5>
                                 radius: <input type="text" value="${opt.series[0].radius}">（圆半径相对于整个图的大小）<br>
-                                center: <input type="text" value="${opt.series[0].center}">（圆心在图中的位置(x,y)）`;
+                                center: <input type="text" value="${opt.series[0].center}" class="last">（圆心在图中的位置(x,y)）`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -287,7 +287,7 @@ function barchart(data, name, div_id) {
                         }
                         table += `</textarea><h5>系统配置</h5>
                                 max: <input type="text" value="${xAxis_max}"><br>
-                                interval: <input type="text" value="${xAxis_interval}">`;
+                                interval: <input type="text" value="${xAxis_interval}" class="last">`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -410,7 +410,7 @@ function barchart_num(data, name, div_id) {
                         }
                         table += `</textarea><h5>系统配置</h5>
                                 max: <input type="text" value="${xAxis_max}"><br>
-                                interval: <input type="text" value="${xAxis_interval}">`;
+                                interval: <input type="text" value="${xAxis_interval}" class="last">`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -1135,7 +1135,7 @@ function bi_yAxis_barchart(data, name, div_id, span) {
                                 title: <input type="text" value="${opt.title[0].text}" style="width: 60%"><br>
                                 left max: <input type="text" value="${opt.yAxis[0].max}"><br>
                                 right max: <input type="text" value="${opt.yAxis[1].max}"><br>
-                                interval: <input type="text" value="${opt.yAxis[0].interval}">`;
+                                interval: <input type="text" value="${opt.yAxis[0].interval}" class="last">`;
                         return table
                     },
                     contentToOption: function(html, opt) {
