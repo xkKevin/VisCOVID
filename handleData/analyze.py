@@ -25,6 +25,19 @@ def build_filter_weekly(period_start=-7, period_end=0):
         return list(map(lambda x: x[ len(x) + period_start: len(x) + period_end], records)), context
     return filter_weekly
 
+# def build_filter_days(first_date):
+#     def filter_days(records, context):
+#         return list(filter(lambda x: x['日期'] > first_date), records), context
+#     return 
+
+def build_filter_seq(l):
+    def filter_seq(records, context):
+        filtered = {
+            "x": records['x'][-l:],
+            'y': list(map(lambda x:x[-l:], records['y']))
+        }
+        return filtered, context
+    return filter_seq
 
 def process_global_seq(operator, preprocess, postprocess):
     def build_final_seq(db, config):
@@ -758,7 +771,122 @@ def extract_conutry_seq(db, config):
     return obj
 
 
+def process_region_records(operator, preprocess=[], postprocess=[]):
+    def build_final_data(db, config):
+        def generate_default_seq():
+            return {'x': [], 'y': []}
+        records = db.region_records.find({})
+        check_date = dateutil.parser.parse(config['time']['end'])
+        check_date -= timedelta(days=1)
+        def process(acc, c):
+            return c(acc, context)[0]
+        data = reduce(process, preprocess, records)
+        data = reduce(operator, data, generate_default_seq())
+        data = reduce(process, postprocess, data)
+        mfound = reduce(process, preprocess, found)
+        # mfound = list(filter(filter_country, mfound))
+        # Process on the records
 
+        data = list(map(lambda x: {"name": x[0]['国家地区'], "values": operator(x)}, mfound))
+        data = reduce(process, postprocess, data) 
+
+
+def process_region_records(operator, preprocess=[], postprocess=[]):
+    def build_final_data(db, config):
+        def generate_default_seq():
+            return {'x': [], 'y': [[],[]]}
+        records = db.region_records.find({})
+        context = {}
+        print(records[0])
+        check_date = dateutil.parser.parse(config['time']['end'])
+        check_date -= timedelta(days=1)
+        def process(acc, c):
+            return c(acc, context)[0]
+        data = reduce(process, preprocess, records)
+        data = reduce(operator, data, generate_default_seq())
+        data = reduce(process, postprocess, data)
+        return data
+        # mfound = list(filter(filter_country, mfound))
+        # Process on the records
+
+        # data = list(map(lambda x: {"name": x[0]['国家地区'], "values": operator(x)}, mfound))
+        # data = reduce(process, postprocess, data) 
+    return build_final_data
+
+
+def build_filter_region(region):
+    def filter_region(records, context):
+        return list(filter(lambda x: x['地区']==region, records)), context
+    return filter_region
+
+
+def extract_region_data(db, config):
+
+    def add_to_seq(acc, c):
+        acc['x'].append(c['日期'])
+        acc['y'][0].append(c['新增确诊'])
+        acc['y'][1].append(c['新增治愈'])
+        return acc
+
+    data_descriptions = [
+        {
+            "id": "regions_daily_confirmed_recovered_global",
+            "description": "Daily confirmed and recovered data",
+            "process": "seq",
+            "operator": add_to_seq,
+            "preprocess": [
+                build_filter_region("全球")
+            ],
+            "postprocess": [
+                build_filter_seq(94)
+            ]
+        },
+        {
+            "id": "regions_daily_confirmed_recovered_tbr",
+            "description": "Daily confirmed and recovered data",
+            "process": "seq",
+            "operator": add_to_seq,
+            "preprocess": [
+                build_filter_region("一带一路")
+            ],
+            "postprocess": [
+                build_filter_seq(94)
+            ]
+        },
+        {
+            "id": "regions_daily_confirmed_recovered_africa",
+            "description": "Daily confirmed and recovered data",
+            "process": "seq",
+            "operator": add_to_seq,
+            "preprocess": [
+                build_filter_region("非洲")
+            ],
+            "postprocess": [
+                build_filter_seq(94)
+            ]
+        },
+        {
+            "id": "regions_daily_confirmed_recovered_around",
+            "description": "Daily confirmed and recovered data",
+            "process": "seq",
+            "operator": add_to_seq,
+            "preprocess": [
+                build_filter_region("周边")
+            ],
+            "postprocess": [
+                build_filter_seq(94)
+            ]
+        }
+    ]
+    def compile(description):
+        return process_region_records(description['operator'], preprocess=description['preprocess'],postprocess=description['postprocess'])(db, config)
+    
+    data = list(map(compile, data_descriptions))
+    # confirmed_data = process_country_record_last_day(lambda x: [x["累计确诊"]], postprocess=[build_topk(), build_sort(), build_append_others_func(lambda x: [x["累计确诊"]], global_record)])(db, config)
+    obj = {}
+    for i in range(len(data)):
+        obj[data_descriptions[i]['id']] = data[i]
+    return obj
 
 def analyze_country(chinese, data,config):
     r = {
@@ -987,8 +1115,9 @@ def build_not_world(db, config):
     b = {}
     b = extract_global_seq(db, config)
     c = extract_conutry_seq(db, config)
+    d = extract_region_data(db, config)
     # c = {}
-    r = merge_objs([a,b,c])
+    r = merge_objs([a,b,c,d])
     due = db.due.find_one()
     r['due'] = due
     report = build_report(r, config)

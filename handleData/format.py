@@ -168,6 +168,29 @@ def format_data(name, data):
         t.columns = ['国家', "治愈率"]
         return t, '2-9.csv'
 
+    def format_regions_daily_global(data):
+        length = len(data['x'])
+        t = pd.DataFrame(map(lambda i: [data['x'][i], data['y'][0][i], data['y'][1][i]], range(length)))
+        t.columns = ['日期', "新增确诊（左）", "新增治愈（右）"]
+        return t, "2-19.csv"
+    
+    def format_regions_daily_tbr(data):
+        length = len(data['x'])
+        t = pd.DataFrame(map(lambda i: [data['x'][i], data['y'][0][i], data['y'][1][i]], range(length)))
+        t.columns = ['日期', "新增确诊（左）", "新增治愈（右）"]
+        return t, "2-20.csv"
+
+    def format_regions_daily_africa(data):
+        length = len(data['x'])
+        t = pd.DataFrame(map(lambda i: [data['x'][i], data['y'][0][i], data['y'][1][i]], range(length)))
+        t.columns = ['日期', "新增确诊（左）", "新增治愈（右）"]
+        return t, "2-21.csv"
+    def format_regions_daily_around(data):
+        length = len(data['x'])
+        t = pd.DataFrame(map(lambda i: [data['x'][i], data['y'][0][i], data['y'][1][i]], range(length)))
+        t.columns = ['日期', "新增确诊（左）", "新增治愈（右）"]
+        return t, "2-22.csv"
+
     if name == "confirmed_data":
         return format_confirmed(data)
     elif name == "death_data":
@@ -219,5 +242,13 @@ def format_data(name, data):
         return format_global_newly_confirmed_seq(data)
     elif name == "global_newly_death_seq":
         return format_global_newly_death_seq(data)
+    elif name == "regions_daily_confirmed_recovered_global":
+        return format_regions_daily_global(data)
+    elif name == "regions_daily_confirmed_recovered_africa":
+        return format_regions_daily_africa(data)
+    elif name == "regions_daily_confirmed_recovered_tbr":
+        return format_regions_daily_tbr(data)
+    elif name == "regions_daily_confirmed_recovered_around":
+        return format_regions_daily_around(data)
     else:
         return None, None

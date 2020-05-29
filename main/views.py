@@ -16,6 +16,7 @@ import re
 # Create your views here.
 wxb_name = "./handleData/data/wang.xlsx"
 world_name = "./handleData/data/owd.csv"
+regions_name = "./handleData/data/regions.xlsx"
 export_path = "./main/static/export"
 report_path = "./main/static/report"
 
@@ -30,6 +31,8 @@ def extract_excel_time(name):
     day = matched.group(3)
     hour = matched.group(4)
     minute = matched.group(5)
+    if not minute:
+        minute = 0
     return {
         "hour": hour,
         "minute": minute
@@ -163,11 +166,14 @@ def report(request):
                     db.due.remove({})
                     db.due.insert_one(due)
                 ourworldindata = request.FILES.get("ourworldindata")
-                with open(wxb_name, "wb") as f1, open(world_name, "wb") as f2:
+                regionsdata = request.FILES.get("regionsdata")
+                with open(wxb_name, "wb") as f1, open(world_name, "wb") as f2, open(regions_name, "wb") as f3:
                     for i in wxb_file.chunks():
                         f1.write(i)
                     for i in ourworldindata.chunks():
                         f2.write(i)
+                    for i in regionsdata.chunks():
+                        f3.write(i)
                 prepare()
                 analyze(export_dir=export_dir)
             db.csv.insert({

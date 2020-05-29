@@ -7,6 +7,38 @@ import datetime
 import dateutil.parser
 import urllib.request
 from functools import reduce
+import os
+
+
+
+def extract_region_sheet(sheet, name):
+    sheet = sheet[2:-1]
+    objs = []
+    for index, row in sheet.iterrows():
+        obj = {
+            "日期": row[0],
+            "新增确诊": row[1],
+            "新增治愈": row[2],
+            "地区": name
+        }
+        objs.append(obj)
+    return objs
+
+
+
+def store_region_records(db, config):
+    db.region_records.remove({})
+    # region_files = os.listdir(config['path']['regions'])
+    # for filename in region_files:
+        # print(filename)
+    fp = open(config['path']['regions'], "rb")
+    excel_df = pd.read_excel(fp, None)
+    for sheet_name in excel_df.keys():
+        objs = extract_region_sheet(excel_df[sheet_name], sheet_name)
+        db.region_records.insert_many(objs)
+
+
+
 
 def store_selected_countries(db, excel):
     selected_countries = db["selected_countries"]
@@ -226,7 +258,8 @@ def prepare(config_path="./handleData/config.json"):
     store_excel_data(db, config)
     prepare_owd_data(db, config)
     # store_selected_countries(db, config)
-    
+
+    store_region_records(db, config)
     
     
     store_country_info(db, config)
