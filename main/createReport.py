@@ -18,6 +18,8 @@ report_data_path = "./main/static/report/"
 #     word.Quit()
 
 def renew_text(p, text):
+    if "“" in text:
+        return
     p.clear()
     p.add_run()
     p.runs[0].text = text
@@ -102,11 +104,10 @@ def createReport():
         paragraphs[103],
         paragraphs[106],
         paragraphs[109],
-        paragraphs[110],
-        paragraphs[112],
-        paragraphs[114],
-        paragraphs[116],
-        paragraphs[118]
+        paragraphs[111],
+        paragraphs[113],
+        paragraphs[115],
+        paragraphs[117]
     ]
     if len(to_replace_text_paragraphs) != len(texts):
         print('error: inconsistent texts')
@@ -170,10 +171,10 @@ def createReport():
     replace_pic(paragraphs[100], pic_2_16, width=Cm(14.5))
     replace_pic(paragraphs[104], pic_2_17, width=Cm(7.3))
     replace_pic(paragraphs[108], pic_2_18, width=Cm(14.5))
-    replace_pic(paragraphs[111], pic_2_19, height=Cm(10))
-    replace_pic(paragraphs[113], pic_2_20, height=Cm(10))
-    replace_pic(paragraphs[115], pic_2_21, height=Cm(10))
-    replace_pic(paragraphs[117], pic_2_22, height=Cm(10))
+    replace_pic(paragraphs[110], pic_2_19, height=Cm(10))
+    replace_pic(paragraphs[112], pic_2_20, height=Cm(10))
+    replace_pic(paragraphs[114], pic_2_21, height=Cm(10))
+    replace_pic(paragraphs[116], pic_2_22, height=Cm(10))
 
     file_name = report_data_path + 'report.docx'
 
