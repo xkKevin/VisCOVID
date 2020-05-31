@@ -276,7 +276,7 @@ function barchart(data, name, div_id) {
                 dataView: {
                     readOnly: false,
                     optionToContent: function(opt) {
-                        console.log(opt);
+                        // console.log(opt);
                         let xAxis_max = opt.xAxis[0].max ? opt.xAxis[0].max : "";
                         let xAxis_interval = opt.xAxis[0].interval ? opt.xAxis[0].interval : "";
                         let data_len = opt.series[0].data.length;
@@ -386,7 +386,7 @@ function barchart(data, name, div_id) {
     });
 }
 
-function barchart_num(data, name, div_id) {
+function barchart_num(data, name, div_id, span) {
     data = data.map((x)=> [x["国家"],x[name]]);
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
@@ -399,7 +399,7 @@ function barchart_num(data, name, div_id) {
                 dataView: {
                     readOnly: false,
                     optionToContent: function(opt) {
-                        console.log(opt);
+                        // console.log(opt);
                         let xAxis_max = opt.xAxis[0].max ? opt.xAxis[0].max : "";
                         let xAxis_interval = opt.xAxis[0].interval ? opt.xAxis[0].interval : "";
                         let data_len = opt.series[0].data.length;
@@ -473,8 +473,8 @@ function barchart_num(data, name, div_id) {
         xAxis: {
             type: 'value',
             position: 'top',
-            interval: 4000000,
-            max: 16000000,
+            max: span[0], // 16000000,
+            interval: span[1], // 4000000,
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.median,
                 // formatter: function(param) {
@@ -687,7 +687,7 @@ function bi_directional_barchart(data, name, div_id) {
                         var axisData = opt.xAxis[0].data;
                         var series = opt.series;
                         let data_len = opt.yAxis[0].data.length;
-                        console.log(opt);
+                        // console.log(opt);
                         var table = `<h5>表格数据</h5>
                         <textarea rows='${data_len+1}' style="width: 100%">国家,${opt.series[0].name}`;
                         for (let i =0;i<data_len;i++){
@@ -736,7 +736,7 @@ function bi_directional_barchart(data, name, div_id) {
                          });
                          opt.series[0].data = handle_data;
                          opt.yAxis[0].data = countries;
-                        console.log(opt);
+                        // console.log(opt);
                         myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
                         return opt;
                     }
@@ -1161,11 +1161,11 @@ function bi_yAxis_barchart(data, name, div_id, span) {
                         opt.yAxis[0].min = -opt.yAxis[1].max;
                         opt.yAxis[1].min = -opt.yAxis[0].max;
                         opt.yAxis[0].interval = opt.yAxis[1].interval = parseFloat(inputs.eq(3).val());
-                        // myChart.clear(); 清空当前绘制的图形，要不然只会数据更新，样式不更新
+                        myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
                         return opt;
                     }
                 },
-                restore: {},
+                // restore: {},
                 saveAsImage: {
                     name: div_id
                 }
@@ -1228,6 +1228,7 @@ function bi_yAxis_barchart(data, name, div_id, span) {
             axisTick: {alignWithLabel: true},
             axisLabel: {
                 rotate: 90,
+                // showMaxLabel: true,
                 fontSize: CSS_STYLE.fontSize.small-4,
 
             },

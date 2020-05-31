@@ -828,6 +828,8 @@ def extract_region_data(db, config):
         acc['y'][1].append(c['新增治愈'])
         return acc
 
+    region_data_num = 93
+
     data_descriptions = [
         {
             "id": "regions_daily_confirmed_recovered_global",
@@ -838,7 +840,7 @@ def extract_region_data(db, config):
                 build_filter_region("全球")
             ],
             "postprocess": [
-                build_filter_seq(94)
+                build_filter_seq(region_data_num)
             ]
         },
         {
@@ -850,7 +852,7 @@ def extract_region_data(db, config):
                 build_filter_region("一带一路")
             ],
             "postprocess": [
-                build_filter_seq(94)
+                build_filter_seq(region_data_num)
             ]
         },
         {
@@ -862,7 +864,7 @@ def extract_region_data(db, config):
                 build_filter_region("非洲")
             ],
             "postprocess": [
-                build_filter_seq(94)
+                build_filter_seq(region_data_num)
             ]
         },
         {
@@ -874,7 +876,7 @@ def extract_region_data(db, config):
                 build_filter_region("周边")
             ],
             "postprocess": [
-                build_filter_seq(94)
+                build_filter_seq(region_data_num)
             ]
         }
     ]

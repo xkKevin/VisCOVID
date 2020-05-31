@@ -426,7 +426,7 @@
         if(error){
             console.log(error);
         }else{
-            barchart_num(csvdata.slice(0,20), "累计检测数", '2_18');
+            barchart_num(csvdata.slice(0,20), "累计检测数", '2_18', [20000000, 5000000]);
         }
     });
 
@@ -434,7 +434,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "全球（215个国家地区合计）", '2_19',[120000,100000,20000]);
+            bi_yAxis_barchart(csvdata, "全球（215个国家地区合计）", '2_19',[140000, 100000, 20000]);
         }
     });
 
@@ -442,7 +442,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "“一带一路”国家（65个国家地区合计）", '2_20',[40000,30000,10000]);
+            bi_yAxis_barchart(csvdata, "“一带一路”国家（65个国家地区合计）", '2_20',[50000, 50000, 10000]);
         }
     });
 
@@ -450,7 +450,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "非洲国家（52个国家地区合计）", '2_21',[6000,4000,2000]);
+            bi_yAxis_barchart(csvdata, "非洲国家（52个国家地区合计）", '2_21',[8000, 4000, 2000]);
         }
     });
 
@@ -458,7 +458,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22',[25000,20000,5000]);
+            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22',[25000, 25000, 5000]);
         }
     });
 
