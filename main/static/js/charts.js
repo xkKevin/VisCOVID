@@ -1108,6 +1108,10 @@ function linechart_rate(data, div_id) {
 
 function bi_yAxis_barchart(data, name, div_id, span) {
     data = data.map((x)=> [x["日期"],x["新增确诊（左）"],x["新增治愈（右）"]]);
+    let x_data = data.map(function(x) {
+       let date = new Date(x[0]);
+       return String(date.getMonth()+1)+'/'+String(date.getDate());
+    });
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
         title: {
@@ -1227,13 +1231,13 @@ function bi_yAxis_barchart(data, name, div_id, span) {
                 fontSize: CSS_STYLE.fontSize.small-4,
 
             },
-            data: data.map((x) => x[0]),
+            data: x_data,
         },{
             type: 'category',
             axisLine: {show: false},
             axisTick: {show: false},
             axisLabel: {show: false},
-            data: data.map((x) => x[0]),
+            data: x_data,
         }],
         series: [
             {
