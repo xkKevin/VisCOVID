@@ -329,6 +329,7 @@ def process_country_record_last_day(f, args=dict() , preprocess=[], postprocess=
     def filter_2000(x):
         # if x ['国家地区'] == "冰岛":
             # print(x)
+        # print(x)
         if x['累计确诊'] >= 2000.:
             return True
         else:
@@ -351,7 +352,6 @@ def process_country_record_last_day(f, args=dict() , preprocess=[], postprocess=
         
         found = reduce(process, preprocess, found)
         mfound = list(filter(filter_country, found))
-        print(mfound)
         # Process on the records
         values = list(map(lambda x: {"name": x['国家地区'], "values": f(x)}, mfound))
         
@@ -799,7 +799,7 @@ def process_region_records(operator, preprocess=[], postprocess=[]):
         context = {}
         print(records[0])
         check_date = dateutil.parser.parse(config['time']['end'])
-        check_date -= timedelta(days=1)
+        # check_date -= timedelta(days=1)
         def process(acc, c):
             return c(acc, context)[0]
         data = reduce(process, preprocess, records)

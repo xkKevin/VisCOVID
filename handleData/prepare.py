@@ -12,15 +12,19 @@ import os
 
 
 def extract_region_sheet(sheet, name):
-    sheet = sheet[2:-1]
+    sheet = sheet[2:]
     objs = []
+    sheet = sheet.replace(pd.NaT, np.nan)
     for index, row in sheet.iterrows():
+        if type(row[1]) == pd._libs.tslibs.nattype.NaTType:
+            break
         obj = {
             "日期": row[0],
             "新增确诊": row[1],
             "新增治愈": row[2],
             "地区": name
         }
+        # print(obj)
         objs.append(obj)
     return objs
 
@@ -43,7 +47,7 @@ def store_region_records(db, config):
 def store_selected_countries(db, excel):
     selected_countries = db["selected_countries"]
     selected_countries.remove({})
-    selected = list(filter(lambda x:  x not in ["全球", "全球2", "法国CDC", "澳门", "台湾", "香港", "中国大陆", "Sheet1"],excel.keys()))
+    selected = list(filter(lambda x:  x not in ["全球", "全球2", "法国CDC", "澳门", "台湾", "香港", "中国大陆", "Sheet1"] and x[:2]!='Sh',excel.keys()))
     selected = list(map(lambda x: {"chinese": x}, selected))
     selected_countries.insert_many(selected)
 
@@ -52,7 +56,7 @@ def extract_sheet(excel, check_date, sheet_name=None):
     objs = []
     df = df.replace(pd.NaT, np.nan)
     columns = ['累计确诊', '新增确诊', '累计死亡', '新增死亡', '百万人口确诊率', '百万人口死亡率']
-    
+    # print(sheet_name)
     # necessary_columns = ['累计确诊', '新增确诊', '累计死亡', "新增死亡", '累计治愈',  '百万人口确诊率'， '百万人口死亡率' ]
     for index, row in df.iterrows():
         # print(row)
@@ -119,12 +123,14 @@ def store_excel_data(db, config):
     config['time']['start'] = start_date.isoformat()
     save_config(config)
     for sheet_name in excel_df.keys():
-        if sheet_name == "Sheet1":
+        if sheet_name == "Sheet1" or sheet_name[:2] == "Sh":
             continue
         records = extract_sheet(excel_df, config['time']['end'], sheet_name)
         if sheet_name == "全球":
             global_records.insert_many(records)
         elif sheet_name in ["全球2","法国CDC", "澳门", "台湾", "香港", "中国大陆" , "Sheet1"]:
+            continue
+        elif sheet_name[0] == "S":
             continue
         else:
             country_records.insert_many(records)
