@@ -828,7 +828,7 @@ def extract_region_data(db, config):
         acc['y'][1].append(c['新增治愈'])
         return acc
 
-    region_data_num = 93
+    region_data_num = 97
 
     data_descriptions = [
         {

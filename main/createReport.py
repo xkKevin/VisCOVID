@@ -107,7 +107,11 @@ def createReport():
         paragraphs[111],
         paragraphs[113],
         paragraphs[115],
-        paragraphs[117]
+        paragraphs[117],
+        paragraphs[119],
+        paragraphs[121],
+        paragraphs[123],
+        paragraphs[125]
     ]
     if len(to_replace_text_paragraphs) != len(texts):
         print('error: inconsistent texts')
@@ -152,6 +156,10 @@ def createReport():
     pic_2_20 = ['2_20.png']
     pic_2_21 = ['2_21.png']
     pic_2_22 = ['2_22.png']
+    pic_2_23 = ['2_23.png']
+    pic_2_24 = ['2_24.png']
+    pic_2_25 = ['2_25.png']
+    pic_2_26 = ['2_26.png']
 
     replace_pic(paragraphs[60], pic_2_1, height=Cm(8.6))
     replace_pic(paragraphs[62], pic_2_2, height=Cm(8.6))
@@ -175,6 +183,10 @@ def createReport():
     replace_pic(paragraphs[112], pic_2_20, height=Cm(10))
     replace_pic(paragraphs[114], pic_2_21, height=Cm(10))
     replace_pic(paragraphs[116], pic_2_22, height=Cm(10))
+    replace_pic(paragraphs[118], pic_2_23, height=Cm(10))
+    replace_pic(paragraphs[120], pic_2_24, height=Cm(10))
+    replace_pic(paragraphs[122], pic_2_25, height=Cm(10))
+    replace_pic(paragraphs[124], pic_2_26, height=Cm(10))
 
     file_name = report_data_path + 'report.docx'
 

@@ -1183,14 +1183,14 @@ function bi_yAxis_barchart(data, name, div_id, span) {
         },
         legend:{
             itemGap: 120,
-            top: 42,
+            top: 43,
             textStyle: {
                 fontSize: CSS_STYLE.fontSize.small,
             },
         },
         grid: {
-            top: 92,
-            bottom: 54,
+            top: 95,
+            bottom: 46,
             left: 92,
             right: 92
         },
@@ -1227,9 +1227,10 @@ function bi_yAxis_barchart(data, name, div_id, span) {
             axisLine: {onZero: false},
             axisTick: {alignWithLabel: true},
             axisLabel: {
-                rotate: 90,
+                // rotate: 90,
                 // showMaxLabel: true,
-                fontSize: CSS_STYLE.fontSize.small-4,
+                margin: 17, // default: 8 label与x轴刻度的距离
+                fontSize: CSS_STYLE.fontSize.small-3,
 
             },
             data: x_data,

@@ -156,6 +156,7 @@
         <h3>附录</h3>
         <div id="2_18" style="width: 800px;height:858px;"></div>
         <div>图2-18&nbsp;各国累计检测数（仅显示累计确诊人数超过2000的国家中累计检测数前20个国家，部分国家检测数据更新不及时）</div>
+
         <div id="2_19" style="width: 800px;height:550px;"></div>
         <div>图2-19&nbsp;全球215个国家地区单日新增确诊和新增治愈走势</div>
         <div id="2_20" style="width: 800px;height:550px;"></div>
@@ -164,6 +165,15 @@
         <div>图2-21&nbsp;52个非洲国家地区单日新增确诊和新增治愈走势</div>
         <div id="2_22" style="width: 800px;height:550px;"></div>
         <div>图2-22&nbsp;20个周边国家地区单日新增确诊和新增治愈走势</div>
+
+        <div id="2_23" style="width: 800px;height:550px;"></div>
+        <div>图2-23&nbsp;上行阶段26个国家地区单日新增确诊和新增治愈走势</div>
+        <div id="2_24" style="width: 800px;height:550px;"></div>
+        <div>图2-24&nbsp;震荡阶段28个国家地区单日新增确诊和新增治愈走势</div>
+        <div id="2_25" style="width: 800px;height:550px;"></div>
+        <div>图2-25&nbsp;下行阶段27个国家地区单日新增确诊和新增治愈走势</div>
+        <div id="2_26" style="width: 800px;height:550px;"></div>
+        <div>图2-26&nbsp;尾期阶段26个国家地区单日新增确诊和新增治愈走势</div>
         <!-- <div id="2_18" style="width: 800px;"></div>
         <div>
             图2-18&nbsp;本周较上周新增确诊人数增速（仅显示累计确诊人数超过1万的国家中增速绝对值大于等于20%的国家）<br>
@@ -459,6 +469,38 @@
             console.log(error);
         }else{
             bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22',[25000, 25000, 5000]);
+        }
+    });
+
+    d3.csv("{% static export_dir|add:'2-23.csv' %}", function (error, csvdata) {
+        if(error){
+            console.log(error);
+        }else{
+            bi_yAxis_barchart(csvdata, "上行阶段（26个国家地区合计）", '2_23',[90000, 60000, 15000]);
+        }
+    });
+
+    d3.csv("{% static export_dir|add:'2-24.csv' %}", function (error, csvdata) {
+        if(error){
+            console.log(error);
+        }else{
+            bi_yAxis_barchart(csvdata, "震荡阶段（28个国家地区合计）", '2_24',[25000, 30000, 5000]);
+        }
+    });
+
+    d3.csv("{% static export_dir|add:'2-25.csv' %}", function (error, csvdata) {
+        if(error){
+            console.log(error);
+        }else{
+            bi_yAxis_barchart(csvdata, "下行阶段（27个国家地区合计）", '2_25',[80000, 60000, 20000]);
+        }
+    });
+
+    d3.csv("{% static export_dir|add:'2-26.csv' %}", function (error, csvdata) {
+        if(error){
+            console.log(error);
+        }else{
+            bi_yAxis_barchart(csvdata, "尾期阶段（26个国家地区合计）", '2_26',[5000, 5000, 1000]);
         }
     });
 
