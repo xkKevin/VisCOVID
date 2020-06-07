@@ -44,10 +44,11 @@ def store_region_records(db, config):
 
 
 
-def store_selected_countries(db, excel):
+def store_selected_countries(db, selected):
     selected_countries = db["selected_countries"]
     selected_countries.remove({})
-    selected = list(filter(lambda x:  x not in ["全球", "全球2", "法国CDC", "澳门", "台湾", "香港", "中国大陆", "Sheet1"] and x[:2]!='Sh',excel.keys()))
+    # selected = list(filter(lambda x:  x not in ["全球", "全球2", "法国CDC", "澳门", "台湾", "香港", "中国大陆", "Sheet1"] and x[:2]!='Sh',excel.keys()))
+    # selected = list(filter(lambda x: x not in excluded, selected))
     selected = list(map(lambda x: {"chinese": x}, selected))
     selected_countries.insert_many(selected)
 
@@ -89,11 +90,37 @@ def extract_sheet(excel, check_date, sheet_name=None):
         objs.append(obj)
     return objs
 
+
+def check_country_missing(db, country):
+    t = db.chinese_conversion.find_one({"sheet": country})
+    chinese = country
+    if t:
+        chinese = t['formal']
+    country = db.countries.find_one({"country_name_chinese_short": chinese})
+    if not country:
+        return False
+    else:
+        return True
+
+
+def get_sheet_type(db, sheet_name):
+    if sheet_name == "Sheet1" or sheet_name[:2] == "Sh" or sheet_name[0] == "S":
+        return "Sheet" 
+    elif sheet_name in ["全球2","法国CDC", "澳门", "台湾", "香港", "中国大陆" , "Sheet1"]:
+        return "Excluded"
+    elif sheet_name == "全球":
+        return "Global"
+    elif not check_country_missing(db, sheet_name):
+        return "Missing"
+    else:
+        return "Country"
+
 def store_excel_data(db, config):
     country_records = db["country_records"]
     global_records = db["global_records"]
     country_records.remove({})
     global_records.remove({})
+    db.missing_countries.remove({})
     fp = open(config['path']['excel'], "rb")
     excel_df = pd.read_excel(fp, None)
     
@@ -122,19 +149,22 @@ def store_excel_data(db, config):
     config['time']['end'] = end_date.isoformat()
     config['time']['start'] = start_date.isoformat()
     save_config(config)
+    effective_countries = []
     for sheet_name in excel_df.keys():
-        if sheet_name == "Sheet1" or sheet_name[:2] == "Sh":
+        sheet_type = get_sheet_type(db, sheet_name)
+        if sheet_type == "Sheet" or sheet_type == "Excluded":
             continue
-        records = extract_sheet(excel_df, config['time']['end'], sheet_name)
-        if sheet_name == "全球":
-            global_records.insert_many(records)
-        elif sheet_name in ["全球2","法国CDC", "澳门", "台湾", "香港", "中国大陆" , "Sheet1"]:
-            continue
-        elif sheet_name[0] == "S":
+        elif sheet_type == "Missing":
+            db.missing_countries.insert_one({"chinese": sheet_name})
             continue
         else:
-            country_records.insert_many(records)
-    store_selected_countries(db, excel_df)
+            records = extract_sheet(excel_df, config['time']['end'], sheet_name)
+            if sheet_type == "Global":
+                global_records.insert_many(records)
+            else:
+                effective_countries.append(sheet_name)
+                country_records.insert_many(records)
+    store_selected_countries(db, effective_countries)
             
 
 def store_country_info(db, config):
@@ -221,7 +251,7 @@ def store_population(db, config, check=False):
 # 
 
 def prepare_country_chinese_conversion(db, config):
-
+    db.chinese_conversion.insert_one({"sheet": "刚果", "formal": "刚果(金)"})
     db.chinese_conversion.insert_one({"sheet": "孟加拉", "formal": "孟加拉国"})
 
 def prepare_dxy_data(db ,config):
@@ -261,6 +291,10 @@ def prepare(config_path="./handleData/config.json"):
     db = client['coronavirus_analysis']
     # fetch_owd_data(db, config)
     
+    store_country_info(db, config)
+    store_population(db, config)
+    prepare_country_chinese_conversion(db, config)
+
     store_excel_data(db, config)
     prepare_owd_data(db, config)
     # store_selected_countries(db, config)
@@ -268,9 +302,7 @@ def prepare(config_path="./handleData/config.json"):
     store_region_records(db, config)
     
     
-    store_country_info(db, config)
-    store_population(db, config)
-    prepare_country_chinese_conversion(db, config)
+    
     # check_populations(db, config)
     # prepare_dxy_data(db, config)
 

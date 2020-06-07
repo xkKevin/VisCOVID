@@ -188,6 +188,12 @@
 </div>
 
 <script>
+    var countries = [];
+    {% for country in missing_countries %}
+        countries.push("{{country}}");
+    {% endfor %}
+    console.log(countries)
+    alert("缺失国家：" + countries)
     var imagesInfo = {};
     var text = "";
     var cases_3 = [];

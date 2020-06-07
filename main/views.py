@@ -3,7 +3,7 @@ import os
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from handleData.prepare import prepare
-from handleData.analyze import analyze
+from handleData.analyze import analyze, get_missing_countries
 import base64, json
 from main.createReport import createReport
 from pymongo import MongoClient, DESCENDING
@@ -189,9 +189,10 @@ def report(request):
     if db.csv.count() == 0:
         return render(request, "report.html", {"export_dir": ""})
     last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
-    
+    missing_countries = get_missing_countries()
     context = {
-        "export_dir": "export/" + last_version['name'] + "/"
+        "export_dir": "export/" + last_version['name'] + "/",
+        "missing_countries": missing_countries
     }
     return render(request, "report.html", context)
 

@@ -39,12 +39,12 @@ def save_world_map(path, data):
     json.dump( r, fp)
 
 def find_population_by_chinese_name(db, chinese):
-    if chinese == "北马其顿":
-        return 2082958.
-    if chinese == "刚果":
-        chinese = "刚果(金)"
-    if chinese == "马约特":
-        return 216452.
+    # if chinese == "北马其顿":
+    #     return 2082958.
+    # if chinese == "刚果":
+    #     chinese = "刚果(金)"
+    # if chinese == "马约特":
+    #     return 216452.
     if chinese == "全球":
         return 7594270356.
         populations = list(db.populations.find({}))

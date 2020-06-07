@@ -1139,6 +1139,7 @@ def build_not_world(db, config):
         save_data(path, s)
     # list(map(f, key_countries))
 
+
 def analyze(export_dir, config_path = "./handleData/config.json"):
     config = load_config(config_path)
     # pa
@@ -1146,6 +1147,11 @@ def analyze(export_dir, config_path = "./handleData/config.json"):
     build_not_world(db, config)
     # check_unmapped_countries(db, config)
     build_world_map(db, config)
+
+def get_missing_countries():
+    missing_countries = list(map(lambda x: x['chinese'], db.missing_countries.find()))
+    return missing_countries
+
 
 if __name__ == "__main__":
     analyze(export_dir="../main/static/export/run", config_path = "./config.json") 
