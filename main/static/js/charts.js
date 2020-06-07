@@ -38,6 +38,7 @@ var CSS_STYLE = {
         fontSizeNum: 20
     }
 };
+var case_scale = [0, 1000, 5000, 10000, 50000, 100000, 200000, 500000, 1000000];
 
 function worldMap(data, name, div_id, num_max) {
     var myChart = echarts.init(document.getElementById(div_id));
@@ -48,17 +49,31 @@ function worldMap(data, name, div_id, num_max) {
     }
 
     let pieces = [];
-    let color = name === "累计病死人数"? CSS_STYLE.color9_blue : CSS_STYLE.color9_red;
-    for (let i = 0; i > -9; i--) {
-        let min = pieces_map(data_max, i);
-        let label_min = i>-8 ? min === 500000 ? 200000 : min :0;
-        pieces.push({
-            min: label_min,
-            max: pieces_map(min, 1) === 500000 ? 200000 : pieces_map(min, 1),
-            color: color[8+i],
-            label: String(label_min)
-        })
+    let color = CSS_STYLE.color9_red;
+
+    if (name === "累计病死人数"){
+        color = CSS_STYLE.color9_blue;
+        for (let i = 0; i > -9; i--) {
+            let min = pieces_map(data_max, i);
+            let label_min = i > -8 ? min :0;
+            pieces.push({
+                min: label_min,
+                max: pieces_map(min, 1),
+                color: color[8 + i],
+                label: String(label_min)
+            })
+        }
+    }else {
+        for (let i = 0; i < 9; i++) {
+            pieces.push({
+                min: case_scale[i],
+                max: case_scale[i + 1],
+                color: color[i],
+                label: String(case_scale[i])
+            })
+        }
     }
+
     var option = {
         backgroundColor: CSS_STYLE.backgroundColor,
         width: CSS_STYLE.bigChart.width,
@@ -80,7 +95,7 @@ function worldMap(data, name, div_id, num_max) {
                 fontFamily: "楷体",
                 fontWeight: "bold"
             },
-            left: '60px',
+            left: '40px',
             bottom: '40px'
         },
         /* tooltip: {
@@ -114,7 +129,7 @@ function worldMap(data, name, div_id, num_max) {
             // ],
             orient: 'horizontal',
             bottom: 15,
-            left: '60px',
+            left: '40px',
             itemGap: 10,
             textStyle: {
                 color: '#000',
