@@ -43,6 +43,8 @@ def find_population_by_chinese_name(db, chinese):
         return 2082958.
     if chinese == "刚果":
         chinese = "刚果(金)"
+    if chinese == "马约特":
+        return 216452.
     if chinese == "全球":
         return 7594270356.
         populations = list(db.populations.find({}))
@@ -64,6 +66,7 @@ def find_population_by_chinese_name(db, chinese):
         chinese = t['formal']
     
     country = db.countries.find_one({"country_name_chinese_short": chinese})
+    print(chinese)
     t = db.populations.find_one({"Country Code": country['country_code3']})
     if not t:
         print(chinese)
