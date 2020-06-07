@@ -28,19 +28,49 @@ def extract_region_sheet(sheet, name):
         objs.append(obj)
     return objs
 
-
+def extract_stage_sheet(sheet):
+    sheet = sheet[1:]
+    stages = ["上行", "下行", "震荡", "尾期"]
+    def f(acc, c):
+        acc[c] = [],
+        return acc
+    stage_records_index = reduce(f, stages, {})
+    
+    def build_obj(item):
+        # index = item[0]
+        # stage = item[1]
+        obj = {
+            "日期": item['split'][0],
+            "新增确诊": item['split'][1],
+            "新增治愈": item['split'][2],
+            "阶段": item['stage'] 
+        }
+        return obj
+    all_stages = []
+    for index, row in sheet.iterrows():
+        if type(row[1]) == pd._libs.tslibs.nattype.NaTType:
+            break
+        splits = list(map(lambda i: {"split": row[3*i: 3*i+3], "stage": stages[i]}, range(4)))
+        objs = list(map(build_obj, splits))
+        all_stages.extend(objs)
+    return all_stages
 
 def store_region_records(db, config):
     db.region_records.remove({})
+    db.stage_records.remove({})
     # region_files = os.listdir(config['path']['regions'])
     # for filename in region_files:
         # print(filename)
     fp = open(config['path']['regions'], "rb")
     excel_df = pd.read_excel(fp, None)
+    region_names = ["全球", "非洲", "周边", "一带一路"]
     for sheet_name in excel_df.keys():
-        objs = extract_region_sheet(excel_df[sheet_name], sheet_name)
-        db.region_records.insert_many(objs)
-
+        if sheet_name in region_names:
+            objs = extract_region_sheet(excel_df[sheet_name], sheet_name)
+            db.region_records.insert_many(objs)
+        elif sheet_name == "四个阶段分别合计":
+            objs = extract_stage_sheet(excel_df[sheet_name])
+            db.stage_records.insert_many(objs)
 
 
 
@@ -64,7 +94,8 @@ def extract_sheet(excel, check_date, sheet_name=None):
         obj = dict(row)
         obj['sheet_name'] = sheet_name
         if '日期' not in obj.keys():
-            print(sheet_name)
+            pass
+            # print(sheet_name)
         date = obj['日期']
         date = datetime.datetime(date.year, date.month, date.day)
         # print(type(check_date))
@@ -179,7 +210,7 @@ def store_country_info(db, config):
             elif item['phone_code'] == "688":
                 item['country_code3'] = "SRB"
             elif item['phone_code'] == "191":
-                print(item)
+                # print(item)
                 item['country_code3'] = "HRV"
         
         db.countries.insert_one(item)
@@ -291,6 +322,8 @@ def prepare(config_path="./handleData/config.json"):
     db = client['coronavirus_analysis']
     # fetch_owd_data(db, config)
     
+    store_region_records(db, config)
+
     store_country_info(db, config)
     store_population(db, config)
     prepare_country_chinese_conversion(db, config)
@@ -299,7 +332,7 @@ def prepare(config_path="./handleData/config.json"):
     prepare_owd_data(db, config)
     # store_selected_countries(db, config)
 
-    store_region_records(db, config)
+    
     
     
     

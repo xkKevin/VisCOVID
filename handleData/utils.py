@@ -59,14 +59,12 @@ def find_population_by_chinese_name(db, chinese):
             acc += p
             return acc
         global_population = reduce(f, populations, 0)
-        print(global_population)
         return global_population
     t = db.chinese_conversion.find_one({"sheet": chinese})
     if t:
         chinese = t['formal']
     
     country = db.countries.find_one({"country_name_chinese_short": chinese})
-    print(chinese)
     t = db.populations.find_one({"Country Code": country['country_code3']})
     if not t:
         print(chinese)

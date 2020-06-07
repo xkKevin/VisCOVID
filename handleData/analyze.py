@@ -268,13 +268,11 @@ def build_insert_average(average, f=None):
         if average == "global":
             if isinstance(global_record, dict):
                 global_record['国家地区'] = "全球"
-            else: 
-                print(len(global_record))
+            else:
+                pass 
             average_values = f(global_record)
             data.insert(0, {"name": "各国平均", "values": average_values})
         if average == "global_custom":
-            print(global_record)
-            print("*****************************************")
             data.insert(0, {"name": "各国平均", "values":[f(global_record)]})
         return data, context
     return insert_average
@@ -797,7 +795,6 @@ def process_region_records(operator, preprocess=[], postprocess=[]):
             return {'x': [], 'y': [[],[]]}
         records = db.region_records.find({})
         context = {}
-        print(records[0])
         check_date = dateutil.parser.parse(config['time']['end'])
         # check_date -= timedelta(days=1)
         def process(acc, c):
@@ -818,7 +815,10 @@ def build_filter_region(region):
     def filter_region(records, context):
         return list(filter(lambda x: x['地区']==region, records)), context
     return filter_region
-
+def build_filter_stage(stage):
+    def filter_stage(records, context):
+        return list(filter(lambda x: x['阶段']==stage, records)), context
+    return filter_stage
 
 def extract_region_data(db, config):
 
@@ -882,6 +882,96 @@ def extract_region_data(db, config):
     ]
     def compile(description):
         return process_region_records(description['operator'], preprocess=description['preprocess'],postprocess=description['postprocess'])(db, config)
+    
+    data = list(map(compile, data_descriptions))
+    # confirmed_data = process_country_record_last_day(lambda x: [x["累计确诊"]], postprocess=[build_topk(), build_sort(), build_append_others_func(lambda x: [x["累计确诊"]], global_record)])(db, config)
+    obj = {}
+    for i in range(len(data)):
+        obj[data_descriptions[i]['id']] = data[i]
+    return obj
+
+def process_stage_records(operator, preprocess=[], postprocess=[]):
+    def build_final_data(db, config):
+        def generate_default_seq():
+            return {'x': [], 'y': [[],[]]}
+        records = db.stage_records.find({})
+        context = {}
+        check_date = dateutil.parser.parse(config['time']['end'])
+        # check_date -= timedelta(days=1)
+        def process(acc, c):
+            return c(acc, context)[0]
+        data = reduce(process, preprocess, records)
+        data = reduce(operator, data, generate_default_seq())
+        data = reduce(process, postprocess, data)
+        return data
+        # mfound = list(filter(filter_country, mfound))
+        # Process on the records
+
+        # data = list(map(lambda x: {"name": x[0]['国家地区'], "values": operator(x)}, mfound))
+        # data = reduce(process, postprocess, data) 
+    return build_final_data
+
+def extract_stage_data(db, config):
+    def add_to_seq(acc, c):
+        acc['x'].append(c['日期'])
+        acc['y'][0].append(c['新增确诊'])
+        acc['y'][1].append(c['新增治愈'])
+        return acc
+
+    data_num = 97
+
+    data_descriptions = [
+        {
+            "id": "stage_daily_confirmed_recovered_upward",
+            "description": "Daily confirmed and recovered data",
+            "process": "seq",
+            "operator": add_to_seq,
+            "preprocess": [
+                build_filter_stage("上行")
+            ],
+            "postprocess": [
+                build_filter_seq(data_num)
+            ]
+        },
+        {
+            "id": "stage_daily_confirmed_recovered_downward",
+            "description": "Daily confirmed and recovered data",
+            "process": "seq",
+            "operator": add_to_seq,
+            "preprocess": [
+                build_filter_stage("下行")
+            ],
+            "postprocess": [
+                build_filter_seq(data_num)
+            ]
+        },
+        {
+            "id": "stage_daily_confirmed_recovered_vibration",
+            "description": "Daily confirmed and recovered data",
+            "process": "seq",
+            "operator": add_to_seq,
+            "preprocess": [
+                build_filter_stage("震荡")
+            ],
+            "postprocess": [
+                build_filter_seq(data_num)
+            ]
+        },
+        {
+            "id": "stage_daily_confirmed_recovered_final",
+            "description": "Daily confirmed and recovered data",
+            "process": "seq",
+            "operator": add_to_seq,
+            "preprocess": [
+                build_filter_stage("尾期")
+            ],
+            "postprocess": [
+                build_filter_seq(data_num)
+            ]
+        },
+    ]
+    def compile(description):
+        return process_stage_records(description['operator'], preprocess=description['preprocess'],postprocess=description['postprocess'])(db, config)
     
     data = list(map(compile, data_descriptions))
     # confirmed_data = process_country_record_last_day(lambda x: [x["累计确诊"]], postprocess=[build_topk(), build_sort(), build_append_others_func(lambda x: [x["累计确诊"]], global_record)])(db, config)
@@ -1090,7 +1180,7 @@ def check_unmapped_countries(db, config):
     r = list(map(search_name_in_outputs, unmapped))
 
 
-    list(map(lambda x: print(x), filter(lambda x: len(x['searched']) >= 0, r)))
+    # list(map(lambda x: print(x), filter(lambda x: len(x['searched']) >= 0, r)))
 
 def merge_objs(objs):
     r = {}
@@ -1118,8 +1208,9 @@ def build_not_world(db, config):
     b = extract_global_seq(db, config)
     c = extract_conutry_seq(db, config)
     d = extract_region_data(db, config)
+    e = extract_stage_data(db, config)
     # c = {}
-    r = merge_objs([a,b,c,d])
+    r = merge_objs([a,b,c,d,e])
     due = db.due.find_one()
     r['due'] = due
     report = build_report(r, config)
