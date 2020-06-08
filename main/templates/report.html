@@ -41,11 +41,11 @@
     </style>
 </head>
 <body>
-<div class="container fixed-top" style="text-align: right; margin-top: 20px;">
+<div class="container fixed-top" style="text-align: right; margin-top: 25px;">
     <a id="download" href="{% static 'report/report.docx' %}"></a>
-    <button id="create_btn" class="btn btn-default ladda-button" data-style="zoom-out" onclick="createReport()">生成疫情周报</button>
+    <button id="create_btn" class="btn btn-info ladda-button" data-style="zoom-out" onclick="createReport()">生成疫情周报</button>
     <br>
-    <button class="btn btn-info" onclick="showMissingCountries()">查看忽略国家</button>
+    <button class="btn btn-warning" style="margin-top: 10px;" onclick="showMissingCountries()">查看忽略国家</button>
 </div>
 <div class="container">
     <div>
