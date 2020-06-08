@@ -199,10 +199,10 @@ def format_data(name, data):
         return t, "2-23.csv"
     def format_stages_daily_downward(data):
         t = build_daily_confirmed_recovered_dataframe(data)
-        return t, "2-24.csv"
+        return t, "2-25.csv"
     def format_stages_daily_vibration(data):
         t = build_daily_confirmed_recovered_dataframe(data)
-        return t, "2-25.csv"
+        return t, "2-24.csv"
     def format_stages_daily_final(data):
         t = build_daily_confirmed_recovered_dataframe(data)
         return t, "2-26.csv"

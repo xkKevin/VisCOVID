@@ -37,7 +37,7 @@ def replace_pic(p, pic_list, width=None, height=None):
             p.runs[0].add_picture(pic, height=height)
 
 
-def createReport():
+def createReport(num=33, compress_threshold=33):
     document = Document(report_data_path + '模板.docx')
     style = document.styles['Normal']
     style.font.name = 'Times New Roman'
@@ -175,10 +175,10 @@ def createReport():
     replace_pic(paragraphs[87], pic_2_12, height=Cm(4))
     replace_pic(paragraphs[91], pic_2_13, height=Cm(5.7))
     replace_pic(paragraphs[94], pic_2_14, height=Cm(5.7))
-    replace_pic(paragraphs[97], pic_2_15, width=Cm(14.5))
-    replace_pic(paragraphs[100], pic_2_16, width=Cm(14.5))
+    replace_pic(paragraphs[97], pic_2_15, width=Cm(10.9 if num <= compress_threshold else 14.5))
+    replace_pic(paragraphs[100], pic_2_16, width=Cm(10.9 if num <= compress_threshold else 14.5))
     replace_pic(paragraphs[104], pic_2_17, width=Cm(7.3))
-    replace_pic(paragraphs[108], pic_2_18, width=Cm(14.5))
+    replace_pic(paragraphs[108], pic_2_18, width=Cm(12.6 if num <= compress_threshold else 14.5))
     replace_pic(paragraphs[110], pic_2_19, height=Cm(10))
     replace_pic(paragraphs[112], pic_2_20, height=Cm(10))
     replace_pic(paragraphs[114], pic_2_21, height=Cm(10))
@@ -199,4 +199,5 @@ def createReport():
 
 
 if __name__ == "__main__":
+    # 33 10.7
     createReport()

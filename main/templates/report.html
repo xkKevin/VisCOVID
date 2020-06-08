@@ -43,7 +43,8 @@
 <body>
 <div class="container fixed-top" style="text-align: right; margin-top: 20px;">
     <a id="download" href="{% static 'report/report.docx' %}"></a>
-    <button id="create_btn" class="btn btn-info ladda-button" data-style="zoom-out" onclick="createReport()">生成周报</button>
+    <button id="create_btn" class="btn btn-info ladda-button" data-style="zoom-out" onclick="createReport()">生成疫情周报</button>
+    <button onclick="showMissingCountries()">查看忽略国家</button>
 </div>
 <div class="container">
     <div>
@@ -101,9 +102,9 @@
             <div>注：确诊率为累计确诊人数占总人口的百分比，病死率为累计病死人数占累计确诊人数的百分比。</div>
         </div>
         
-        <div id="2_5" style="width: 800px;height:430px;"></div>
+        <div id="2_5" style="width: 850px;height:430px;"></div>
         <div>图 2-5&nbsp;全球累计确诊人数来源构成（显示前15个国家）</div>
-        <div id="2_6" style="width: 800px;height:430px;"></div>
+        <div id="2_6" style="width: 850px;height:430px;"></div>
         <div>图 2-6&nbsp;全球累计病死人数来源构成（显示前15个国家）</div>
 
         <!--<h3>2.2 全球本周新增确诊<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，病死：<span class="16"><font>&nbsp;Null&nbsp;</font></span>例</h3>-->
@@ -129,11 +130,11 @@
             <div>图2-12&nbsp;全球本周新增确诊人数增长曲线（a）、新增病死人数增长曲线（b）</div>
         </div>
         <h3>2.4&nbsp;全球本周新增确诊主要来源：<span class="18"><font>&nbsp;Null&nbsp;</font></span>、<span class="20"><font>&nbsp;Null&nbsp;</font></span></h3>
-        <div id="2_13" style="width: 800px;height:430px;"></div>
+        <div id="2_13" style="width: 850px;height:430px;"></div>
         <div>图2-13&nbsp;全球本周新增确诊人数来源构成（显示前15个国家）</div>
 
         <h3>2.5&nbsp;全球本周新增病死主要来源：<span class="22"><font>&nbsp;Null&nbsp;</font></span>、<span class="24"><font>&nbsp;Null&nbsp;</font></span></h3>
-        <div id="2_14" style="width: 800px;height:430px;"></div>
+        <div id="2_14" style="width: 850px;height:430px;"></div>
         <div>图2-14&nbsp;全球本周新增病死人数来源构成（显示前15个国家）</div>
 
         <h3>2.6&nbsp;本周新增确诊增长最快：<span class="26"><font>&nbsp;Null&nbsp;</font></span>，新增病死增长最快：<span class="30"><font>&nbsp;Null&nbsp;</font></span></h3>
@@ -160,11 +161,11 @@
         <div id="2_19" style="width: 800px;height:550px;"></div>
         <div>图2-19&nbsp;全球215个国家地区单日新增确诊和新增治愈走势</div>
         <div id="2_20" style="width: 800px;height:550px;"></div>
-        <div>图2-20&nbsp;65个“一带一路”国家地区单日新增确诊和新增治愈走势</div>
+        <div>图2-20&nbsp;“一带一路”65个国家地区单日新增确诊和新增治愈走势</div>
         <div id="2_21" style="width: 800px;height:550px;"></div>
-        <div>图2-21&nbsp;52个非洲国家地区单日新增确诊和新增治愈走势</div>
+        <div>图2-21&nbsp;非洲52个国家地区单日新增确诊和新增治愈走势</div>
         <div id="2_22" style="width: 800px;height:550px;"></div>
-        <div>图2-22&nbsp;20个周边国家地区单日新增确诊和新增治愈走势</div>
+        <div>图2-22&nbsp;周边20个国家地区单日新增确诊和新增治愈走势</div>
 
         <div id="2_23" style="width: 800px;height:550px;"></div>
         <div>图2-23&nbsp;上行阶段26个国家地区单日新增确诊和新增治愈走势</div>
@@ -192,8 +193,9 @@
     {% for country in missing_countries %}
         countries.push("{{country}}");
     {% endfor %}
-    console.log(countries)
-    alert("缺失国家：" + countries)
+    if (countries.length){
+        alert("缺失国家：" + countries);
+    }
     var imagesInfo = {};
     var text = "";
     var cases_3 = [];
@@ -442,7 +444,7 @@
         if(error){
             console.log(error);
         }else{
-            barchart_num(csvdata.slice(0,20), "累计检测数", '2_18', [20000000, 5000000]);
+            barchart_num(csvdata.slice(0,20), "累计检测数", '2_18', [24000000, 6000000]);
         }
     });
 
@@ -450,7 +452,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "全球（215个国家地区合计）", '2_19',[140000, 100000, 20000]);
+            bi_yAxis_barchart(csvdata, "全球（215个国家地区合计）", '2_19',[150000, 180000, 30000]);
         }
     });
 
@@ -466,7 +468,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "非洲国家（52个国家地区合计）", '2_21',[8000, 4000, 2000]);
+            bi_yAxis_barchart(csvdata, "非洲国家（52个国家地区合计）", '2_21',[8000, 6000, 2000]);
         }
     });
 
@@ -474,7 +476,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22',[25000, 25000, 5000]);
+            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22',[30000, 25000, 5000]);
         }
     });
 
@@ -482,7 +484,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "上行阶段（26个国家地区合计）", '2_23',[90000, 60000, 15000]);
+            bi_yAxis_barchart(csvdata, "上行阶段（26个国家地区合计）", '2_23',[100000, 120000, 20000]);
         }
     });
 
@@ -498,7 +500,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "下行阶段（27个国家地区合计）", '2_25',[80000, 60000, 20000]);
+            bi_yAxis_barchart(csvdata, "下行阶段（27个国家地区合计）", '2_25',[80000, 80000, 20000]);
         }
     });
 
@@ -527,6 +529,14 @@
             });
         }else{
             $("#download")[0].click();
+        }
+    }
+
+    function showMissingCountries() {
+        if (countries.length){
+            alert("缺失国家：" + countries);
+        }else{
+            alert("暂无缺失国家");
         }
     }
 </script>

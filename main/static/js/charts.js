@@ -30,10 +30,10 @@ var CSS_STYLE = {
         height: "216px"
     },
     'pieChart':{
-        width: "800px",
+        width: "850px",
         height: "600px",
         radius: '50%',
-        center: ['48%', '35%'],
+        center: ['47%', '35%'],
         fontSizeText: 18,
         fontSizeNum: 20
     }
