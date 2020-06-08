@@ -833,6 +833,7 @@ function bi_directional_barchart(data, name, div_id) {
         pixelRatio: 2,
         excludeComponents: ['toolbox'],
     });
+    return countries.length;  // 返回有多少个国家数量（包括“各国平均”）
 }
 
 function linechart_num(data, div_id) {

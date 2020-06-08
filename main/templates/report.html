@@ -43,8 +43,9 @@
 <body>
 <div class="container fixed-top" style="text-align: right; margin-top: 20px;">
     <a id="download" href="{% static 'report/report.docx' %}"></a>
-    <button id="create_btn" class="btn btn-info ladda-button" data-style="zoom-out" onclick="createReport()">生成疫情周报</button>
-    <button onclick="showMissingCountries()">查看忽略国家</button>
+    <button id="create_btn" class="btn btn-default ladda-button" data-style="zoom-out" onclick="createReport()">生成疫情周报</button>
+    <br>
+    <button class="btn btn-info" onclick="showMissingCountries()">查看忽略国家</button>
 </div>
 <div class="container">
     <div>
@@ -196,6 +197,7 @@
     if (countries.length){
         alert("缺失国家：" + countries);
     }
+    var rate_countries_num = 0;
     var imagesInfo = {};
     var text = "";
     var cases_3 = [];
@@ -398,7 +400,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_directional_barchart(csvdata, "本周较上周新增确诊人数增速", "2_15");
+            rate_countries_num += bi_directional_barchart(csvdata, "本周较上周新增确诊人数增速", "2_15");
         }
     });
 
@@ -406,9 +408,10 @@
         if(error){
             console.log(error);
         }else{
-            bi_directional_barchart(csvdata, "本周较上周新增病死人数增速", "2_16");
+            rate_countries_num += bi_directional_barchart(csvdata, "本周较上周新增病死人数增速", "2_16");
         }
     });
+
     d3.csv("{% static export_dir|add:'2-17-a.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
@@ -517,7 +520,7 @@
     function createReport() {
         if (flag){
             loading.start();
-            $.post('{% url "saveImage" %}',{'baseimg': JSON.stringify(imagesInfo), 'text': text },function (result, statue) {  //JSON.stringify({'2_5':imagesInfo['2_5']})
+            $.post('{% url "saveImage" %}',{'baseimg': JSON.stringify(imagesInfo), 'text': text, 'num': rate_countries_num},function (result, statue) {  //JSON.stringify({'2_5':imagesInfo['2_5']})
                 if (!result.result){
                     alert(result.error);
                 }else {

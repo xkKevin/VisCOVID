@@ -222,7 +222,8 @@ def saveImage(request):
     if request.method == "POST":
         try:
             baseimg = json.loads(request.POST.get("baseimg"))
-            text = request.POST.get("text","")
+            text = request.POST.get("text", "")
+            num = int(request.POST.get("num", "50"))
 
             for key, value in baseimg.items():
                 with open("%s/%s.png" % (report_path, key),'wb') as f:
@@ -237,7 +238,7 @@ def saveImage(request):
                     if len(line) > 3:
                         with open(path, 'a', encoding='utf-8') as f:
                             f.write(line+"\n")
-            createReport()
+            createReport(num)
         except Exception as e:
             return JsonResponse({"error": "Error!\n"+repr(e)})
 
