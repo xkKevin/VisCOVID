@@ -4,7 +4,6 @@ class Parser():
     def parse(self, desc_json):
         desc['id'] = desc_json
     
-    def parse_obj
+    def parse_obj(self):
         pass
     
-    def 

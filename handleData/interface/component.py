@@ -16,8 +16,19 @@ class NotImplementedException(Exception):
 
 
 class Component():
+    parameters = {}
     def __init__(self, args):
-        self.args = args
+        self.args = {}
+        self.set_args(args)
+        
+    def set_args(self, args):
+        for key, parameter in self.parameters.items():
+            if key in args.keys():
+                value = args[key]
+                value = parameter.dtype(value)
+            else:
+                value = parameter.default
+            self.args[key] = value.value
 
     def run(self):
         raise NotImplementedException
@@ -35,14 +46,7 @@ class SortComponent(Component):
         return data_sorted, context
 
 
-class AppendOthers(Component):
-    parameters = {
-        "f": Parameter(FuncType)
-    }
-    def __init__(self):
-        pass
-    def run(self):
-        pass
+
 
 
 

@@ -5,23 +5,34 @@ class DType:
         pass
 
 class FuncType(DType):
-    def __init__(self, funcstr, functype="lambda"):
-        self.funcstr = funcstr
-        self.functype = functype
+    def __init__(self, func):
+        if isinstance(func, FuncType):
+            self.value = func.value
+        else:
+            self.value = func
 
 class StrType(DType):
     def __init__(self, value):
-        self.value = value
+        if isinstance(value, StrType):
+            self.value = value.value
+        else:
+            self.value = value
     
 
 class IntType(DType):
     def __init__(self, value):
-        self.value = value
+        if isinstance(value, IntType):
+            self.value = value.value
+        else:
+            self.value = value
     
 
 class FloatType(DType):
     def __init__(self, value):
-        self.value = value
+        if isinstance(value, FloatType):
+            self.value = value.value
+        else:
+            self.value = value
 
 
 class DateType(DType):
