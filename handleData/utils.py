@@ -80,3 +80,14 @@ def build_time_range(time_range):
         dates.append(c)
         c += timedelta(days=1)
     return dates
+
+def merge_objs(objs):
+    r = {}
+    def merge(acc, c):
+        def f(key):
+            acc[key] = c[key]
+        list(map(f, c.keys()))
+        return acc
+    r = reduce(merge, objs, r)
+    return r
+
