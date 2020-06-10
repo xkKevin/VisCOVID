@@ -22,12 +22,11 @@ class TopK(Component):
     }
     def get_func(self):
         return build_topk()
-    
 
 
 class Sort(Component):
     parameters = {
-        
     }
     def get_func(self):
         return build_sort()
+

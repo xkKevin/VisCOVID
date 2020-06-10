@@ -1,6 +1,7 @@
 from ... import components
 from ...components import rearrange
 from ...components import element
+from ...components import filters
 from ...interface.component import Component
 from .engine import Engine
 from inspect import getmembers, ismodule, isclass
