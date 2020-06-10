@@ -169,6 +169,7 @@ class Compiler():
         description['preprocess'] = list(map(lambda x: x.get_func(), description['preprocess']))
         description['postprocess'] = list(map(lambda x: x.get_func(), description['postprocess']))
         return description
+    
     def compile(self, description):
         db = self.db
         config = self.config
@@ -194,4 +195,11 @@ class Compiler():
         def compile(description):
             return self.compile(description)
         return compile
+
+    def convert_json(description):
+        json_desc = {}
+        json_desc["id"] = description['id']
+        json_desc['description'] = description['description']
+        json_desc['process'] = description['process']
+        json_desc['operator'] = description['operator']
  

@@ -24,3 +24,6 @@ class ComponentEngine(Engine):
 
     def parse(self, componentstr):
         return self.index[componentstr]
+    
+    def get_component_classes(self):
+        return self.index.items()

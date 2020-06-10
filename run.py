@@ -7,6 +7,7 @@ from handleData.compiler import Compiler
 from pymongo import MongoClient
 from handleData.utils import load_config
 import json
+from handleData.components.element import AppendOthers
 
 
 if __name__ == "__main__":
@@ -20,12 +21,14 @@ if __name__ == "__main__":
     }
 
     parser = get_parser()
+    a = parser.jsonify_component_classes()
+    print(a)
     compiler = Compiler(db, config)   
-    with open("./handleData/parser/sample.json", "r") as fp:
-        obj = json.load(fp)
-        obj = parser.parse_file(obj)
-        d = compiler.compile(obj['descriptions'][0])
-        print(d)
+    # with open("./handleData/parser/sample.json", "r") as fp:
+    #     obj = json.load(fp)
+    #     obj = parser.parse_file(obj)
+    #     d = compiler.compile(obj['descriptions'][0])
+    #     print(d)
     # component = AppendOthers({"f": "lambda x: x"})
     
     # component.run()
