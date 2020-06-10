@@ -3,7 +3,7 @@ import dateutil.parser
 from functools import reduce
 import numpy as np
 from .process.builders import build_filter_nan, build_filter_records
-
+from .interface.dtype import FuncType
 
 def process_global_seq(operator, preprocess, postprocess):
     def build_final_seq(db, config):
@@ -164,9 +164,15 @@ class Compiler():
         self.db = db
         self.config = config
 
+    def preprocess(self, description):
+        description['operator'] = FuncType(description['operator']).value
+        description['preprocess'] = list(map(lambda x: x.get_func(), description['preprocess']))
+        description['postprocess'] = list(map(lambda x: x.get_func(), description['postprocess']))
+        return description
     def compile(self, description):
         db = self.db
         config = self.config
+        description = self.preprocess(description)
         if description['process'] == "global":
             data = process_global_seq(description['operator'], description['preprocess'], description['postprocess'])(db, config)
         elif description['process'] == "last_day":

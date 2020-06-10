@@ -10,7 +10,9 @@ class FuncType(DType):
             self.value = func.value
         else:
             self.value = func
-
+        if type(self.value) == str:
+            self.value = eval(self.value)
+        
 class StrType(DType):
     def __init__(self, value):
         if isinstance(value, StrType):

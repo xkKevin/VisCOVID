@@ -13,7 +13,7 @@ import re
 from .process.descriptions import global_data_descriptions, country_data_descriptions, country_seq_descriptions, region_data_descriptions, stage_data_descriptions
 from .compiler import Compiler
 from .world_map import build_world_map
-
+from .descriptions.default import get_default_descriptions
 client = MongoClient()
 db = client['coronavirus_analysis']
 
@@ -30,14 +30,8 @@ db = client['coronavirus_analysis']
 
 
 def extract_wxb_data(db, config):
-    descriptions = []
-    descriptions.extend(global_data_descriptions)
-    descriptions.extend(country_data_descriptions)
-    descriptions.extend(country_seq_descriptions)
-    descriptions.extend(region_data_descriptions)
-    descriptions.extend(stage_data_descriptions)
+    descriptions = get_default_descriptions()
     compiler = Compiler(db, config)
-    
     compile_func = compiler.get_compile_func()
     data = list(map(compile_func, descriptions))
     # confirmed_data = process_country_record_last_day(lambda x: [x["累计确诊"]], postprocess=[build_topk(), build_sort(), build_append_others_func(lambda x: [x["累计确诊"]], global_record)])(db, config)

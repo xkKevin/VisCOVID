@@ -17,9 +17,18 @@ class NotImplementedException(Exception):
 
 class Component():
     parameters = {}
-    def __init__(self, args):
+    def __init__(self, *args, **kwargs):
+        i = 0
+        _args = {}
+        for key, parameter in self.parameters.items():
+            if i == len(args):
+                break
+            _args[key] = args[i]
+            i += 1
+        for key, value in kwargs.items():
+            _args[key] = value
         self.args = {}
-        self.set_args(args)
+        self.set_args(_args)
         
     def set_args(self, args):
         for key, parameter in self.parameters.items():

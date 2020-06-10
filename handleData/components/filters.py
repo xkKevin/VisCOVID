@@ -34,10 +34,11 @@ def build_filter_weekly(period_start=-7, period_end=0):
 
 class WeeklyFilter(Component):
     parameters = {
-        "daysTo": Parameter(IntType)
+        "daysStartToNow": Parameter(IntType, 7),
+        "daysEndToNow": Parameter(IntType, 0)
     }
     def get_func(self):
-        return build_filter_weekly(-self.args['daysTo'])
+        return build_filter_weekly(-self.args['daysStartToNow'], -self.args['daysEndToNow'])
 
 
 def build_filter_records(f):
