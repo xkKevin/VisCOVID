@@ -24,7 +24,7 @@ class LambdaEngine(Engine):
         else:
             value = None
         return value
-
+        
     def extract_functype(funcstr):
         if funcstr.startswith("lambda") and ":" in funcstr:
             return "lambda"
