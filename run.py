@@ -8,7 +8,7 @@ from pymongo import MongoClient
 from handleData.utils import load_config
 import json
 from handleData.components.element import AppendOthers
-
+from handleData.descriptions.default import get_default_descriptions
 
 if __name__ == "__main__":
     db = MongoClient()['coronavirus_analysis']
@@ -22,8 +22,12 @@ if __name__ == "__main__":
 
     parser = get_parser()
     a = parser.jsonify_component_classes()
+    descriptions = get_default_descriptions()
+    with open("./main/static/json/componentClasses.json", "w") as fp:
+        json.dump(a, fp)
     print(a)
     compiler = Compiler(db, config)   
+
     # with open("./handleData/parser/sample.json", "r") as fp:
     #     obj = json.load(fp)
     #     obj = parser.parse_file(obj)

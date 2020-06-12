@@ -24,7 +24,7 @@ class Parser:
             else:
                 value = parameter.default
             args[key] = value
-        return component_class(**args).get_func()
+        return component_class(**args)
     def parse_description(self, json_obj):
         operator = self.lambda_engine.parse(json_obj['operator'])
         preprocess = []

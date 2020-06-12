@@ -5,34 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>疫情数据</title>
+    <script src="{% static 'js/dataprocess-interface.bundle.js' %}"></script>
     <script src="{% static 'js/jquery.min.js' %}"></script>
-    <script src="{% static 'js/popper.min.js' %}"></script>
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <script src="{% static 'js/bootstrap.min.js' %}"></script> 
-    <!-- <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"> -->
-    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script> -->
-    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script> -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js" integrity="sha384-FzT3vTVGXqf7wRfy8k4BiyzvbNfeYjK+frTVqZeNDFl8woCbF0CYG6g2fMEFFo/i" crossorigin="anonymous"></script> -->
-<!-- <script>
-  document.addEventListener('DOMContentLoaded', (event) => {
-  //the event occurred
-  function prepareExcel(){
-      console.log("Je;;;s")
-        $("#excelUpload").ajaxForm(function(e){
-            console.log(e)
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/echarts.js' %}"></script>
+    <script src="{% static 'js/charts.js' %}"></script>
+    <script src="{% static 'js/handle_data.js' %}"></script>
+    
+    
+    <script src="{% static 'js/d3.v4.min.js' %}"></script>
 
-            // $("#excelSpinner").attr("visible", "false")
-            alert("HELLO WORLD")
-        })
-      }
-      $(prepareExcel);
-
-  })
-
-      
-</script> -->
 <script>
+  var imagesInfo = {};
   function checkServerReady(){
     let url = "{% url 'apiServerReady' %}";
     $.ajax({
@@ -53,6 +39,123 @@
   }
   checkServerReady();
 </script>
+
+<script>
+  let parser = new lambdaDataprocessInterface.Parser("safe");
+  var selectedDescription = null;
+  let compileDescription = (description) => {
+    let descriptionJson = parser.jsonifyDescription(description)
+    console.log(descriptionJson)
+    $.get({
+      url: "/lambda/compile",
+      data: {data: JSON.stringify(descriptionJson)},
+      success: response => {
+        console.log(response);
+        d3.csv("{% static 'tmp/compiled.csv' %}", function (error, csvdata) {
+        if(error){
+            console.log(error);
+        }else{
+            pieChart(csvdata, "本周新增确诊人数", 'result');
+        }
+      });
+      }
+    })
+  }
+  let onClickCompilation = ()=>{
+    console.log("HELLO WORLD");
+    let description = selectedDescription;
+    description.postprocess = description.postprocess.map((component, i)=>{
+        for (let pName of Object.keys(component.componentClass.parameters)){
+          let parameterId = "#post-" + i.toString() + "-" + pName;
+          
+          component.args[pName] = $(parameterId).val();
+          console.log($(parameterId).val())
+        }
+        return component;
+    })
+    
+    compileDescription(description);
+  }
+  let displayDescritpion = (index, description) => {
+     selectedDescription = description;
+      let descriptionRowId = "description" + index.toString();
+      $("#description-list").append('<div id=' + descriptionRowId + ' class="row"></div>');
+      let postprocessHTML = description.postprocess.map(
+        (c, i) => {
+          let parameterHTML = Object.entries(c.componentClass.parameters).map( item =>{ 
+            let pName = item[0];
+            let parameter = item[1];
+            let parameterId = "post-" + i.toString() + "-" + pName;
+            return `
+              <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="inputGroup-sizing-sm">${pName}</span>
+                    </div>
+                    <input id=${parameterId} type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" value="${c.getArg(pName)}">
+              </div>
+          `})
+          return `
+          <li class="list-group-item">
+            <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    ${c.componentClass.name}
+                  </h5>
+                  
+
+                  <p class="card-text">
+                    ${parameterHTML}
+                  </p>
+                </div>
+            
+            </div>
+          </li>
+          `
+        }
+      ).reduce((acc,c)=>acc+c, "");
+      let descriptionHTML = `
+        <div class="card">
+          
+          <div class="card-body">
+            <h5 class="card-title">数据源</h5>
+            <p class="card-text">
+              各国数据
+            </p>
+          </div>
+        <ul class="list-group list-group-horizontal-xl">
+        
+        </ul>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">lambda算子</h5>
+            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" value="${description.operator}">
+            
+          </div>
+        </div>
+        <ul class="list-group justify-content-around">
+          ${postprocessHTML}
+        </ul>
+        <div id="result" style="width: 850px;height:430px;">
+        </div>
+      `
+      $("#" + descriptionRowId).append(descriptionHTML);
+      
+  }
+  $.get("{% static 'json/componentClasses.json' %}", response =>{
+    parser.loadComponentClasses(response);
+    console.log(parser.componentClassIndex);
+    $.get("/static/json/default.json", (response)=>{
+      console.log(response);
+      let descriptions = response['descriptions'].map(parser.parseDescription);
+      descriptions.map(description =>{
+        $("#descriptionMenu").append('<a class="dropdown-item" href="#one">' + description['id'] + '</a>');
+      })
+      displayDescritpion(0, descriptions[0])
+    })
+  })
+  
+</script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -60,43 +163,8 @@
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-
-  <!-- <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Link</a>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Dropdown
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#">Something else here</a>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-      </li>
-    </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
-  </div> -->
 </nav>
-<!-- <div class="jumbotron">
-  <h1 class="display-4">Hello, world!</h1>
-  <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
-  <hr class="my-4">
-  <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
-  <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
-</div> -->
+
 
 <div class="container">
     <div class="row" >
@@ -119,14 +187,6 @@
               <input type="file" id="owdFile" class="attachment" name="ourworldindata" accept=".csv"/>
               <br><hr>
               
-              <!-- <input class='btn btn-primary' type="submit" value="提交">
-                <div id="excelSpinner" class="spinner-border text-primary" visible="false" role="status">
-                  <span class="sr-only">Loading...</span>
-                </div>  
-              </input> -->
-<!--               
-              <br><br><br>
-              <hr> -->
           </form>
           
           
@@ -147,15 +207,9 @@
             <button id="analyzeButton" class="btn btn-primary my-button" onclick="analyzeData()" >生成Report</button>
           </div>
         </div>
-        <!-- <h2>文件夹上传</h2>
-        使用中间csv数据生成报告：
-        <form method="post" action="{% url 'report' %}" enctype="multipart/form-data" style="padding-left: 20px;">
-            {% csrf_token %}
-            <input type="file" name="folder" webkitdirectory/>
-            <input type="submit" value="提交"/>
-            <br><br><br>
-            <hr>
-        </form> -->
+        <br><br>
+        
+        
     </div> 
 
     </div>
@@ -163,7 +217,29 @@
 
   </div>
 
-  
+  <div class="container">
+
+          <nav id="navbar-example2" class="navbar navbar-light bg-light">
+              <a class="navbar-brand" href="#">数据生成控制</a>
+              <div class="btn btn-primary" onclick="onClickCompilation()">
+                  编译
+              </div>
+              <ul class="nav nav-pills">
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                  <div id="descriptionMenu" class="dropdown-menu">
+                      
+                    <div role="separator" class="dropdown-divider"></div>
+                    
+                  </div>
+                </li>
+              </ul>
+          </nav>
+    <div id="description-list" class="container">
+      
+    </div>
+       
+  </div>
 <script>
   function prepareExcel(){
     let url = "{% url 'apiPrepare' %}";

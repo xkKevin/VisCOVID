@@ -4,6 +4,9 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from handleData.prepare import prepare
 from handleData.analyze import analyze, get_missing_countries
+from handleData.compiler import Compiler
+from handleData.parser.parser import get_parser
+from handleData.lambdaprocess import LambdaProcess
 import base64, json
 from main.createReport import createReport
 from pymongo import MongoClient, DESCENDING
@@ -13,6 +16,7 @@ import os
 import traceback
 from shutil import copyfile
 import re
+import csv
 # Create your views here.
 wxb_name = "./handleData/data/wang.xlsx"
 world_name = "./handleData/data/owd.csv"
@@ -20,7 +24,7 @@ regions_name = "./handleData/data/regions.xlsx"
 export_path = "./main/static/export"
 report_path = "./main/static/report"
 
-
+lambda_process = LambdaProcess()
 def extract_excel_time(name):
     pattern = "全球及重点国家疫情主要指数数据-(\d*)-(\d*)-(\d*)-(\d*)H(\d*)(.*).xlsx"
     matched = re.match(pattern, name)
@@ -45,6 +49,16 @@ def random_string(stringLength=8):
 
 def index(request):
     return render(request, "index.html")
+
+def lambda_api_compile(request):
+    data = lambda_process.compile_description(request.GET.get("data"))
+    data.to_csv("./main/static/tmp/compiled.csv", index=False, quoting=csv.QUOTE_NONE)
+    response = None
+    # with open('./tmp/compiled.csv') as myfile:
+    #     response = HttpResponse(myfile, content_type='text/csv')
+    #     response['Content-Disposition'] = 'attachment; filename=stockitems_misuper.csv'
+    return JsonResponse({"success": True})
+
 
 def apiServerReady(request):
     client = MongoClient()

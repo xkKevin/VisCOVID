@@ -1,0 +1,89 @@
+{
+    "name": "",
+    "descriptions":[
+        {
+            "id": "weekly_confirmed_data",
+            "description": "Weekly confirmed data of each country",
+            "process": "seq",
+            "operator": "lambda x : [sum(y['新增确诊'] for y in x)]",
+            "preprocess": [
+                {
+                    "name": "WeeklyFilter",
+                    "args": {
+                        "daysTo": 7
+                    }
+                }
+            ],
+            "postprocess": [
+                {
+                    "name": "Sort"
+                },
+                {
+                    "name": "TopK"
+                },
+                {
+                    "name": "AppendOthers",
+                    "args": {
+                        "f": "lambda x: [sum(y['新增确诊'] for y in x[len(x)-7:])]"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "weekly_confirmed_data1",
+            "description": "Weekly confirmed data of each country",
+            "process": "seq",
+            "operator": "lambda x : [sum(y['新增确诊'] for y in x)]",
+            "preprocess": [
+                {
+                    "name": "WeeklyFilter",
+                    "args": {
+                        "daysTo": 7
+                    }
+                }
+            ],
+            "postprocess": [
+                {
+                    "name": "Sort"
+                },
+                {
+                    "name": "TopK"
+                },
+                {
+                    "name": "AppendOthers",
+                    "args": {
+                        "f": "lambda x: [sum(y['新增确诊'] for y in x[len(x)-7:])]"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "weekly_confirmed_data2",
+            "description": "Weekly confirmed data of each country",
+            "process": "seq",
+            "operator": "lambda x : [sum(y['新增确诊'] for y in x)]",
+            "preprocess": [
+                {
+                    "name": "WeeklyFilter",
+                    "args": {
+                        "daysTo": 7
+                    }
+                }
+            ],
+            "postprocess": [
+                {
+                    "name": "Sort"
+                },
+                {
+                    "name": "TopK"
+                },
+                {
+                    "name": "AppendOthers",
+                    "args": {
+                        "f": "lambda x: [sum(y['新增确诊'] for y in x[len(x)-7:])]"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -25,16 +25,20 @@ class IntType(DType):
     def __init__(self, value):
         if isinstance(value, IntType):
             self.value = value.value
-        else:
+        elif value is None:
             self.value = value
-    
+        else:
+            self.value = int(value)
+
 
 class FloatType(DType):
     def __init__(self, value):
         if isinstance(value, FloatType):
             self.value = value.value
-        else:
+        elif value is None:
             self.value = value
+        else:
+            self.value = float(value)
 
 
 class DateType(DType):

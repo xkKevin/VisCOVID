@@ -125,6 +125,7 @@ def format_data(name, data):
         return t, '2-12.csv'
     
     def format_weekly_confirmed_data(data):
+        print(data)
         t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "本周新增确诊人数"]
 

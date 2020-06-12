@@ -26,5 +26,6 @@ urlpatterns = [
     path('dataprocess/', views.dataprocess_index, name="dataprocess"),
     path('api/prepare', views.apiPrepare, name="apiPrepare"),
     path('api/analyze', views.apiAnalyze, name="apiAnalyze"),
-    path('api/serverReady', views.apiServerReady, name="apiServerReady")
+    path('api/serverReady', views.apiServerReady, name="apiServerReady"),
+    path('lambda/compile', views.lambda_api_compile, name="lambdaApiCompile")
 ]

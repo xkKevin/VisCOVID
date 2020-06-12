@@ -1,6 +1,6 @@
 from ..interface.component import Component
 from ..interface.parameter import Parameter
-from ..interface.dtype import FuncType, IntType
+from ..interface.dtype import FuncType, IntType, StrType
 
 def build_topk(k=15, compare=lambda x: x['values'][0]):
     def topk(data, context):
@@ -18,14 +18,16 @@ def build_sort(compare=lambda x: x['values'][0]):
 
 class TopK(Component):
     parameters = {
-        
+       "k": Parameter(IntType, 15) 
     }
     def get_func(self):
-        return build_topk()
+        return build_topk(self.args['k'])
+
 
 
 class Sort(Component):
     parameters = {
+        "order": Parameter(StrType, "decrease")
     }
     def get_func(self):
         return build_sort()
