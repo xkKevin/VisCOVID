@@ -264,3 +264,6 @@ def saveImage(request):
 
 def dataprocess_index(request):
     return render( request, "dataprocess.html")
+
+def dataprocess_interactive(request):
+    return render(request, "interactive-dataprocess.html")

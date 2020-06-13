@@ -24,6 +24,7 @@ urlpatterns = [
     path('saveImage/', views.saveImage, name="saveImage"),
     path('export/<file_name>/', views.csvFile, name='csvFile'),
     path('dataprocess/', views.dataprocess_index, name="dataprocess"),
+    path('dataprocess/interactive', views.dataprocess_interactive, name="interactiveDataprocess"),
     path('api/prepare', views.apiPrepare, name="apiPrepare"),
     path('api/analyze', views.apiAnalyze, name="apiAnalyze"),
     path('api/serverReady', views.apiServerReady, name="apiServerReady"),

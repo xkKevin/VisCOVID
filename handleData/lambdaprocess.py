@@ -12,6 +12,7 @@ class LambdaProcess:
         self.config = load_config()
         self.compiler = Compiler(self.db, self.config)
         self.parser = get_parser()
+        self.descriptions = []
     
     def compile_description(self, description_str):
         description = json.loads(description_str)
@@ -19,6 +20,8 @@ class LambdaProcess:
         description = self.parser.parse_description(description)
         data = self.compiler.compile(description)
         return format_data( data['id'], data['data'])[0]
+    
+    
 
 def lambda_api_compile():
     description = json.loads(description_str)
