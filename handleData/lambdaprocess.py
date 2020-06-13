@@ -19,6 +19,7 @@ class LambdaProcess:
         print(description)
         description = self.parser.parse_description(description)
         data = self.compiler.compile(description)
+        print(data)
         return format_data( data['id'], data['data'])[0]
     
     

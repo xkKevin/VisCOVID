@@ -11,6 +11,7 @@ class ComponentEngine(Engine):
     def __init__(self):
         super(Engine, self).__init__()
         self.index = {}
+        self.rindex = {}
         self.load_components(components)
 
     def load_components(self, module):
@@ -27,3 +28,7 @@ class ComponentEngine(Engine):
     
     def get_component_classes(self):
         return self.index.items()
+    
+    def get_component_class_name(self, component):
+        return component.__class__.__name__
+    

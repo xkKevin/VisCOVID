@@ -87,24 +87,24 @@ country_data_descriptions = [
             "id": "confirmed_data",
             "description": "Confirmed data of each country",
             "process": "last_day",
-            "operator": 'lambda x:  [x["累计确诊"]]',
+            "operator": "lambda x:  [x['累计确诊']]",
             "preprocess": [],
             "postprocess": [
                 TopK(),
                 Sort(), 
-                AppendOthers('lambda x:  [x["累计确诊"]]')
+                AppendOthers("lambda x:  [x['累计确诊']]")
             ]
         },
         {
             "id": "death_data",
             "description": "Confirmed data of each country",
             "process": "last_day",
-            "operator": 'lambda x:  [x["累计死亡"]]',
+            "operator": "lambda x:  [x['累计死亡']]",
             "preprocess": [],
             "postprocess": [
                 TopK(),
                 Sort(),
-                AppendOthers('lambda x:  [x["累计死亡"]]')
+                AppendOthers("lambda x:  [x['累计死亡']]")
             ]
         },
         {
@@ -115,7 +115,7 @@ country_data_descriptions = [
             "preprocess": [],
             "postprocess": [
                 Sort(),
-                InsertAverage("counted", lambda x: [x['总检测数']/ x['人口']])
+                InsertAverage("counted", "lambda x: [x['总检测数']/ x['人口']]")
             ]
         },
         {
@@ -124,7 +124,7 @@ country_data_descriptions = [
             "process": "last_day",
             "operator": calculate_positive_rate,
             "preprocess": [
-                RecordsFilter(lambda x: '总检测数' in x.keys() and x['总检测数'] > x['累计确诊'])
+                RecordsFilter("lambda x: '总检测数' in x.keys() and x['总检测数'] > x['累计确诊']")
             ],
             "postprocess": [
                 Sort(),
@@ -135,7 +135,7 @@ country_data_descriptions = [
             "id": "test_num_data",
             "description": "Test num data of each country",
             "process": "last_day",
-            "operator": lambda x: [x['总检测数']],
+            "operator": "lambda x: [x['总检测数']]",
             "preprocess": [],
             "postprocess": [
                 Sort(),
@@ -149,7 +149,7 @@ country_data_descriptions = [
             "preprocess": [],
             "postprocess": [
                 Sort(),
-                InsertAverage("global_custom", lambda g: g['百万人口确诊率']/1000000.)
+                InsertAverage("global_custom", "lambda g: g['百万人口确诊率']/1000000.")
             ]
         },
         {
@@ -169,11 +169,11 @@ country_data_descriptions = [
             "process": "last_day",
             "operator": calculate_recovery_rate,
             "preprocess": [
-                RecordsFilter(lambda x: x['累计确诊'] > 2000)
+                RecordsFilter("lambda x: x['累计确诊'] > 2000")
             ],
             "postprocess": [
                 Sort(),
-                InsertAverage("global_custom", lambda x: x['累计治愈']/x['累计确诊'])
+                InsertAverage("global_custom", "lambda x: x['累计治愈']/x['累计确诊']")
             ]
         },
         
@@ -184,28 +184,28 @@ country_seq_descriptions = [
             "id": "weekly_confirmed_data",
             "description": "Weekly confirmed data of each country",
             "process": "seq",
-            "operator": lambda x : [sum(y['新增确诊'] for y in x)],
+            "operator": "lambda x : [sum(y['新增确诊'] for y in x)]",
             "preprocess": [
                 WeeklyFilter(7)
             ],
             "postprocess": [
                 Sort(),
                 TopK(),
-                AppendOthers(lambda x: [sum(y['新增确诊'] for y in x[len(x)-7:])])
+                AppendOthers("lambda x: [sum(y['新增确诊'] for y in x[len(x)-7:])]")
             ]
         },
         {
             "id": "weekly_death_data",
             "description": "Weekly death data of each country",
             "process": "seq",
-            "operator": lambda x : [sum(y['新增死亡'] for y in x)],
+            "operator": "lambda x : [sum(y['新增死亡'] for y in x)]",
             "preprocess": [
                 WeeklyFilter()
             ],
             "postprocess": [
                 Sort(),
                 TopK(),
-                AppendOthers(lambda x: [sum(y['新增死亡'] for y in x[len(x)-7:])])
+                AppendOthers("lambda x: [sum(y['新增死亡'] for y in x[len(x)-7:])]")
             ]
         },
         # TBD: 死亡累计大于100
@@ -213,57 +213,56 @@ country_seq_descriptions = [
             "id": "weekly_confirmed_growth",
             "description": "Weekly confirmed growth of each country",
             "process": "seq",
-            "operator": lambda x : [calculate_rate(sum(y['新增确诊'] for y in x[len(x)-7:]), sum(y['新增确诊'] for y in x[-14:-7])) - 1],
+            "operator": "lambda x : [calculate_rate(sum(y['新增确诊'] for y in x[len(x)-7:]), sum(y['新增确诊'] for y in x[-14:-7])) - 1]",
             "preprocess": [
                 WeeklyFilter(14,0),
-                RecordsFilter(lambda x: reduce(lambda acc, c: acc + c['新增确诊'], x[-7:], 0)>500 and x[-1]['累计确诊'] > 10000)
-
+                RecordsFilter("lambda x: reduce(lambda acc, c: acc + c['新增确诊'], x[-7:], 0)>500 and x[-1]['累计确诊'] > 10000")
             ],
             "postprocess": [
                 Sort(),
-                InsertAverage( "global",lambda x: [calculate_growth(sum(y['新增确诊'] for y in x[len(x)-7:]), sum(y['新增确诊'] for y in x[-14:-7]))])
+                InsertAverage( "global","lambda x: [calculate_growth(sum(y['新增确诊'] for y in x[len(x)-7:]), sum(y['新增确诊'] for y in x[-14:-7]))]")
             ]
         },
         {
             "id": "weekly_death_growth",
             "description": "Weekly death growth of each country",
             "process": "seq",
-            "operator": lambda x : [calculate_growth(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7]))],
+            "operator": "lambda x : [calculate_growth(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7]))]",
             "preprocess": [
                 WeeklyFilter(14,0),
-                RecordsFilter(lambda x: reduce(lambda acc, c: acc + c['新增死亡'], x[-7:], 0)>100 and x[-1]['累计死亡'] > 300 )
+                RecordsFilter("lambda x: reduce(lambda acc, c: acc + c['新增死亡'], x[-7:], 0)>100 and x[-1]['累计死亡'] > 300" )
             ],
             "postprocess": [
                 Sort(),
-                InsertAverage( "global",lambda x : [calculate_growth(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7]))])
+                InsertAverage( "global","lambda x : [calculate_growth(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7]))]")
             ]
         },
         {
             "id": "weekly_confirmed_growth_condition_1",
             "description": "Weekly death growth of each country",
             "process": "seq",
-            "operator": lambda x : [calculate_growth(sum(y['新增确诊'] for y in x[-7:]), sum(y['新增确诊'] for y in x[-14:-7]))],
+            "operator": "lambda x : [calculate_growth(sum(y['新增确诊'] for y in x[-7:]), sum(y['新增确诊'] for y in x[-14:-7]))]",
             "preprocess": [
                 WeeklyFilter(14,0),
                 ConfirmedConditionFilter()
             ],
             "postprocess": [
                 Sort(),
-                InsertAverage( "global",lambda x : [calculate_rate(sum(y['新增确诊'] for y in x[-7:]), sum(y['新增确诊'] for y in x[-14:-7])) - 1])
+                InsertAverage( "global","lambda x : [calculate_rate(sum(y['新增确诊'] for y in x[-7:]), sum(y['新增确诊'] for y in x[-14:-7])) - 1]")
             ]
         },
         {
             "id": "weekly_death_growth_condition_1",
             "description": "Weekly death growth of each country",
             "process": "seq",
-            "operator": lambda x : [calculate_growth(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7]))],
+            "operator": "lambda x : [calculate_growth(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7]))]",
             "preprocess": [
                 WeeklyFilter(14,0),
                 ConfirmedConditionFilter(),
             ],
             "postprocess": [
                 Sort(),
-                InsertAverage( "global",lambda x : [calculate_rate(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7])) - 1])
+                InsertAverage( "global","lambda x : [calculate_rate(sum(y['新增死亡'] for y in x[-7:]), sum(y['新增死亡'] for y in x[-14:-7])) - 1]")
             ]
         },
     ]

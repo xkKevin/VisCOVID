@@ -21,7 +21,7 @@ class TopK(Component):
        "k": Parameter(IntType, 15) 
     }
     def get_func(self):
-        return build_topk(self.args['k'])
+        return build_topk(self.arg('k'))
 
 
 

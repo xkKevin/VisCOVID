@@ -1,6 +1,7 @@
 from ..interface.component import Component
 from ..interface.parameter import Parameter
 from ..interface.dtype import FuncType, IntType, StrType
+from functools import reduce
 
 
 def build_filter_nan():
@@ -38,7 +39,7 @@ class WeeklyFilter(Component):
         "daysEndToNow": Parameter(IntType, 0)
     }
     def get_func(self):
-        return build_filter_weekly(-self.args['daysStartToNow'], -self.args['daysEndToNow'])
+        return build_filter_weekly(-self.arg('daysStartToNow'), -self.arg('daysEndToNow'))
 
 
 def build_filter_records(f):
@@ -58,7 +59,7 @@ class RecordsFilter(Component):
         "f": Parameter(FuncType)
     }
     def get_func(self):
-        return build_filter_records(self.args['f'])
+        return build_filter_records(self.arg('f'))
 
 def build_confirmed_condition(condition=10000):
     def confirmed_condition(records, context):
@@ -71,7 +72,7 @@ class ConfirmedConditionFilter(Component):
         "condition": Parameter(IntType, 10000)
     }
     def get_func(self):
-        return build_confirmed_condition(self.args['condition'])
+        return build_confirmed_condition(self.arg('condition'))
 
 
 def build_filter_seq(l):
@@ -89,7 +90,7 @@ class SeqFilter(Component):
         "l": Parameter(IntType)
     }
     def get_func(self):
-        return build_filter_seq(self.args['l'])
+        return build_filter_seq(self.arg('l'))
 
 
 def build_filter_region(region):
@@ -103,7 +104,7 @@ class RegionFilter(Component):
         "region": Parameter(StrType)
     }
     def get_func(self):
-        return build_filter_region(self.args['region'])
+        return build_filter_region(self.arg('region'))
 
 def build_filter_stage(stage):
     def filter_stage(records, context):
@@ -115,4 +116,4 @@ class StageFilter(Component):
         "stage": Parameter(StrType)
     }
     def get_func(self):
-        return build_filter_stage(self.args['stage'])
+        return build_filter_stage(self.arg('stage'))

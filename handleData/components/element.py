@@ -28,7 +28,7 @@ class AppendOthers(Component):
         build_append_others_func(**self.args)   
     
     def get_func(self):
-        return build_append_others_func(self.args['f'])
+        return build_append_others_func(self.arg('f'))
 
 
 
@@ -81,6 +81,6 @@ class InsertAverage(Component):
         "f": Parameter(FuncType, None)
     }
     def get_func(self):
-        return build_insert_average(self.args['average'], self.args['f'])
+        return build_insert_average(self.arg('average'), self.arg('f'))
 
 

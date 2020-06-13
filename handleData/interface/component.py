@@ -28,6 +28,7 @@ class Component():
         for key, value in kwargs.items():
             _args[key] = value
         self.args = {}
+        self._args = {}
         self.set_args(_args)
         
     def set_args(self, args):
@@ -37,10 +38,14 @@ class Component():
                 value = parameter.dtype(value)
             else:
                 value = parameter.default
-            self.args[key] = value.value
-
+            self.args[key] = value
+    def arg(self, name):
+        return self.args[name].value
     def run(self):
         raise NotImplementedException
+
+    def get_args(self):
+        return self.args
     
         
 

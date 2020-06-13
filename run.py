@@ -21,12 +21,22 @@ if __name__ == "__main__":
     }
 
     parser = get_parser()
-    a = parser.jsonify_component_classes()
+    # a = parser.jsonify_component_classes()
     descriptions = get_default_descriptions()
-    with open("./main/static/json/componentClasses.json", "w") as fp:
-        json.dump(a, fp)
-    print(a)
-    compiler = Compiler(db, config)   
+    # parser.jsonify_description(descriptions[18])
+    
+    descriptions_json = list(map(parser.jsonify_description, descriptions))
+    json_obj = {
+        "name": "default",
+        "descriptions": descriptions_json
+    }
+    print(json_obj)
+    with open("./main/static/json/default2.json", "w") as fp:
+        json.dump(json_obj, fp)
+    # with open("./main/static/json/componentClasses.json", "w") as fp:
+    #     json.dump(a, fp)
+    # print(a)
+    # compiler = Compiler(db, config)   
 
     # with open("./handleData/parser/sample.json", "r") as fp:
     #     obj = json.load(fp)

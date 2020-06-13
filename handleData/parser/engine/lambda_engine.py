@@ -7,6 +7,7 @@ class LambdaEngine(Engine):
     def __init__(self):
         super(Engine, self).__init__()
         self.index = {}
+        self.rindex = {}
         self.load_module(calculations)
         self.load_module(operators)
 
@@ -30,3 +31,15 @@ class LambdaEngine(Engine):
             return "lambda"
         else:
             return "predefined"
+
+    def str_func(self, func):
+        if func in self.rindex.keys():
+            return self.rindex[func]
+        elif type(func) == str:
+            return func
+    
+    def str_functype(self, functype):
+        if functype.funcstr != "predefined":
+            return functype.funcstr
+        else:
+            return self.str_func(functype.value)

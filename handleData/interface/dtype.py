@@ -1,5 +1,7 @@
 import dateutil.parser
-
+from functools import reduce
+from ..process.calculations import * 
+from ..process.operators import * 
 class DType:
     def __init__(self):
         pass
@@ -8,10 +10,14 @@ class FuncType(DType):
     def __init__(self, func):
         if isinstance(func, FuncType):
             self.value = func.value
+            self.funcstr = func.funcstr
         else:
+            self.funcstr = "predefined"
             self.value = func
         if type(self.value) == str:
+            self.funcstr = self.value
             self.value = eval(self.value)
+            
         
 class StrType(DType):
     def __init__(self, value):

@@ -10,9 +10,9 @@ var CSS_STYLE = {
         fontWeight: "bold"
     },
     'fontSize': {
-        small: 20,
-        median: 22,
-        large: 28
+        small: 10,
+        median: 12,
+        large: 18
     },
     'lineStyle':{
         width:3
@@ -30,7 +30,7 @@ var CSS_STYLE = {
         height: "216px"
     },
     'pieChart':{
-        width: "700px",
+        width: "400px",
         height: "400px",
         radius: '50%',
         center: ['50%', '50%'],
@@ -166,6 +166,7 @@ function worldMap(data, name, div_id, num_max) {
 
 function pieChart(data, name, div_id) {
     // var myChart = echarts.init(document.getElementById(div_id), null, {renderer: 'svg'});  // 使用svg渲染
+    name = Object.keys(data[0])[1]
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
         width: CSS_STYLE.pieChart.width,
@@ -277,6 +278,7 @@ function pieChart(data, name, div_id) {
 }
 
 function barchart(data, name, div_id) {
+    name = Object.keys(data[0])[1]
     data = data.map((x)=> [x["国家"],x[name]]);
     let format_min = format_percent(data[20][1]);
     let format_fixed_num = format_min.length - format_min.indexOf('.') - 2;
@@ -526,7 +528,7 @@ function barchart_num(data, name, div_id, span) {
     });
 }
 
-function linechart(data, div_id) {
+function linechart(data, _, div_id) {
 
     let handle_data = {
         "week": [],
@@ -836,7 +838,7 @@ function bi_directional_barchart(data, name, div_id) {
     return countries.length;  // 返回有多少个国家数量（包括“各国平均”）
 }
 
-function linechart_num(data, div_id) {
+function linechart_num(data, _, div_id) {
     let handle_data = {value:[], date:[]};
     data.forEach(function (x) {
         let date = new Date(x[data.columns[0]]);
@@ -1026,7 +1028,7 @@ function linechart_num_week(data, div_id) {
     });
 }
 
-function linechart_rate(data, div_id) {
+function linechart_rate(data, _, div_id) {
     let handle_data = {value:[], date:[]};
     data.forEach(function (x) {
         let date = new Date(x[data.columns[0]]);
@@ -1122,7 +1124,8 @@ function linechart_rate(data, div_id) {
     });
 }
 
-function bi_yAxis_barchart(data, name, div_id, span) {
+function bi_yAxis_barchart(data, name, div_id) {
+    span = [50000, 50000, 10000]
     data = data.map((x)=> [x["日期"],x["新增确诊（左）"],x["新增治愈（右）"]]);
     let x_data = data.map(function(x) {
        let date = new Date(x[0]);

@@ -42,10 +42,11 @@
 
 <script>
   let parser = new lambdaDataprocessInterface.Parser("safe");
+  var descriptions = []
   var selectedDescription = null;
-  let compileDescription = (description) => {
+  let compileDescription = (description, visFunc) => {
     let descriptionJson = parser.jsonifyDescription(description)
-    console.log(descriptionJson)
+    console.log(descriptionJson);
     $.get({
       url: "/lambda/compile",
       data: {data: JSON.stringify(descriptionJson)},
@@ -55,13 +56,24 @@
         if(error){
             console.log(error);
         }else{
-            pieChart(csvdata, "本周新增确诊人数", 'result');
+            console.log(csvdata);
+            visFunc(csvdata, "确诊率", 'result');
         }
       });
       }
     })
   }
   let onClickCompilation = ()=>{
+      let visType = $("#visSelected").val();
+      console.log(visType);
+      let funcs = [
+          pieChart, barchart, linechart_rate, linechart_num, bi_yAxis_barchart
+      ]
+    //   if (visType === 0){
+    //       visType = 1;
+    //   }
+      let visFunc = funcs[visType];
+    console.log(visFunc);
     let description = selectedDescription;
     description.operator = $("#operator").val();
     description.postprocess = description.postprocess.map((component, i)=>{
@@ -75,12 +87,40 @@
         return component;
     })
     
-    compileDescription(description);
+    compileDescription(description, visFunc);
   }
   let displayDescritpion = (index, description) => {
      selectedDescription = description;
       let descriptionRowId = "description" + index.toString();
+      $("#descriptionMenuSelected").text(description.id);
       $("#description-list").append('<div id=' + descriptionRowId + ' class="row"></div>');
+      let visHTML = `
+        <li class="list-group-item">
+            <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    可视化选项
+                    </h5>
+                  
+
+                  <p class="card-text">
+                    <div class="input-group mb-3">
+                        <select id="visSelected" class="custom-select" id="inputGroupSelect01">
+                            <option value="0" selected>饼图</option>
+                            <option value="0">饼图</option>
+                            <option value="1">条形图</option>
+                            <option value="2">比率折线图</option>
+                            <option value="3">数字折线图</option>
+                            <option value="4">双y轴条形图</option>
+                        </select>
+                    </div>
+
+                  </p>
+                </div>
+            
+            </div>
+          </li>
+      `
       let postprocessHTML = description.postprocess.map(
         (c, i) => {
           let parameterHTML = Object.entries(c.componentClass.parameters).map( item =>{ 
@@ -114,6 +154,7 @@
           `
         }
       ).reduce((acc,c)=>acc+c, "");
+      console.log(description.operator);
       let descriptionHTML = `
         <div class="card">
           
@@ -134,23 +175,39 @@
             
           </div>
         </div>
-        <ul class="list-group justify-content-around">
-          ${postprocessHTML}
-        </ul>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">后处理</h5>
+            <ul class="list-group justify-content-around">
+                ${postprocessHTML}
+                ${visHTML}
+            </ul>
+          </div>
+        </div>
+        
         <div id="result" style="width: 700px;height:400px;">
         </div>
       `
       $("#" + descriptionRowId).append(descriptionHTML);
       
   }
+  let removeDescription = ()=>{
+        $("#description-list").empty();
+  }
+  let changeDisplayed = (index) => {
+    removeDescription();
+    let description = descriptions[index];
+    selectedDescription = description;
+    displayDescritpion(index, description)
+  }
   $.get("{% static 'json/componentClasses.json' %}", response =>{
     parser.loadComponentClasses(response);
     console.log(parser.componentClassIndex);
-    $.get("/static/json/default.json", (response)=>{
+    $.get("/static/json/default2.json", (response)=>{
       console.log(response);
-      let descriptions = response['descriptions'].map(parser.parseDescription);
-      descriptions.map(description =>{
-        $("#descriptionMenu").append('<a class="dropdown-item" href="#one">' + description['id'] + '</a>');
+      descriptions = response['descriptions'].map(parser.parseDescription);
+      descriptions.map((description, index) =>{
+        $("#descriptionMenu").append('<a class="dropdown-item" href="#one" onclick="changeDisplayed(' + index.toString() + ')">' + description['id'] + '</a>');
       })
       displayDescritpion(0, descriptions[0])
     })
@@ -169,7 +226,7 @@
               </div>
               <ul class="nav nav-pills">
                 <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                  <a id="descriptionMenuSelected" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
                   <div id="descriptionMenu" class="dropdown-menu">
                       
                     <div role="separator" class="dropdown-divider"></div>
@@ -212,7 +269,6 @@
     $("#excelSpinner").attr("style", "")
     $.each($(".attachment"), function(i, obj) {
         $.each(obj.files,function(j,file){
-          console.log("sss:")
             ajaxData.append(fileNames[i], file);
         });
     });

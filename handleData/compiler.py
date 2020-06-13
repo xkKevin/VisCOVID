@@ -135,11 +135,13 @@ def process_region_records(operator, preprocess=[], postprocess=[]):
         def process(acc, c):
             return c(acc, context)[0]
         data = reduce(process, preprocess, records)
+        print(data)
         data = reduce(operator, data, generate_default_seq())
+        print(data)
         data = reduce(process, postprocess, data)
+        print(data)
         return data
     return build_final_data
-
 
 
 def process_stage_records(operator, preprocess=[], postprocess=[]):
@@ -165,15 +167,20 @@ class Compiler():
         self.config = config
 
     def preprocess(self, description):
-        description['operator'] = FuncType(description['operator']).value
-        description['preprocess'] = list(map(lambda x: x.get_func(), description['preprocess']))
-        description['postprocess'] = list(map(lambda x: x.get_func(), description['postprocess']))
-        return description
+        _description = {
+            "id": description['id'],
+            "process": description['process']
+        }
+        _description['operator'] = FuncType(description['operator']).value
+        _description['preprocess'] = list(map(lambda x: x.get_func(), description['preprocess']))
+        _description['postprocess'] = list(map(lambda x: x.get_func(), description['postprocess']))
+        return _description
     
     def compile(self, description):
         db = self.db
         config = self.config
         description = self.preprocess(description)
+        print(description['id'])
         if description['process'] == "global":
             data = process_global_seq(description['operator'], description['preprocess'], description['postprocess'])(db, config)
         elif description['process'] == "last_day":

@@ -39,7 +39,7 @@ class Parser:
         parsed = {
             "id": json_obj['id'],
             "description": "Weekly confirmed data of each country",
-            "process": "seq",
+            "process": json_obj['process'],
             "operator": operator,
             "preprocess": preprocess,
             "postprocess": postprocess
@@ -52,6 +52,11 @@ class Parser:
             "descriptions": descriptions
         }
     
+    def jsonify_dtype(self, dtype):
+        if isinstance(dtype, FuncType):
+            return self.lambda_engine.str_functype(dtype)
+        else:
+            return dtype.value
     def jsonify_component_class(self, name, component_class):
         json_parameters = {}
         json_component_class = {}
@@ -76,7 +81,30 @@ class Parser:
             json_component_classes.append(json_component_class)
         return json_component_classes
 
+    def jsonify_component_instance(self, component):
+        component_class_name = self.component_engine.get_component_class_name(component)
+        args = component.get_args()
+        args_json = {}
+        for key, value in args.items():
+            args_json[key] = self.jsonify_dtype(value)
+        component_json = {
+            "name": self.component_engine.get_component_class_name(component),
+            "args": args_json
+        }
+        return component_json
 
+    
+    def jsonify_description(self, description):
+        description_json = {
+            "id": description['id'],
+            "process": description['process'],
+            "description": description['description'],
+        }
+        operator_name = self.lambda_engine.str_func(description['operator'])
+        description_json['operator'] = operator_name
+        description_json['preprocess'] = list(map(self.jsonify_component_instance, description['preprocess']))
+        description_json['postprocess'] = list(map(self.jsonify_component_instance, description['postprocess']))
+        return description_json
 def get_parser():
     lambda_engine = LambdaEngine()
     component_engine = ComponentEngine()
