@@ -4,6 +4,8 @@ from functools import reduce
 import numpy as np
 from .process.builders import build_filter_nan, build_filter_records
 from .interface.dtype import FuncType
+from .process.calculations import calculate_growth, calculate_rate
+
 
 def process_global_seq(operator, preprocess, postprocess):
     def build_final_seq(db, config):
@@ -135,11 +137,8 @@ def process_region_records(operator, preprocess=[], postprocess=[]):
         def process(acc, c):
             return c(acc, context)[0]
         data = reduce(process, preprocess, records)
-        print(data)
         data = reduce(operator, data, generate_default_seq())
-        print(data)
         data = reduce(process, postprocess, data)
-        print(data)
         return data
     return build_final_data
 
@@ -180,7 +179,6 @@ class Compiler():
         db = self.db
         config = self.config
         description = self.preprocess(description)
-        print(description['id'])
         if description['process'] == "global":
             data = process_global_seq(description['operator'], description['preprocess'], description['postprocess'])(db, config)
         elif description['process'] == "last_day":

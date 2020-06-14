@@ -649,6 +649,7 @@ function linechart(data, _, div_id) {
 }
 
 function bi_directional_barchart(data, name, div_id) {
+    name = Object.keys(data[0])[1];
     let num = 0;
     let handle_data = [];
     let countries = [];

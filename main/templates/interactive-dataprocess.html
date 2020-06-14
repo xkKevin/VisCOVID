@@ -18,6 +18,133 @@
     <script src="{% static 'js/d3.v4.min.js' %}"></script>
 
 <script>
+  let visConfigs = [
+    {
+      "id": "global_confirmed_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_death_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_confirmed_per_million_seq",
+      "chart":"linechart_rate" 
+    },
+    {
+      "id": "global_death_rate_seq",
+      "chart":"linechart_rate" 
+    },
+    {
+      "id": "global_confirmed_weekly_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_confirmed_death_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_death_weekly_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_newly_confirmed_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_newly_death_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "confirmed_data",
+      "chart":"piechart" 
+    },
+    {
+      "id": "death_data",
+      "chart":"piechart" 
+    },
+    {
+      "id": "test_rate_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "positive_rate_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "test_num_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "confirmed_rate_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "death_rate_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "recovery_rate_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "weekly_confirmed_data",
+      "chart":"piechart" 
+    },
+    {
+      "id": "weekly_death_data",
+      "chart":"piechart" 
+    },
+    {
+      "id": "weekly_confirmed_growth",
+      "chart":"bi_directional_barchart" 
+    },
+    {
+      "id": "weekly_death_growth",
+      "chart":"bi_directional_barchart" 
+    },
+    {
+      "id": "weekly_confirmed_growth_condition_1",
+      "chart":"bi_directional_barchart" 
+    },
+    {
+      "id": "weekly_death_growth_condition_1",
+      "chart":"bi_directional_barchart" 
+    },
+    {
+      "id": "regions_daily_confirmed_recovered_global",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "regions_daily_confirmed_recovered_tbr",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "regions_daily_confirmed_recovered_africa",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "regions_daily_confirmed_recovered_around",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "stage_daily_confirmed_recovered_upward",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "stage_daily_confirmed_recovered_downward",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "stage_daily_confirmed_recovered_vibration",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "stage_daily_confirmed_recovered_final",
+      "chart": "bi_yaxis_barchart"
+    },
+    
+  ]
   var imagesInfo = {};
   function checkServerReady(){
     let url = "{% url 'apiServerReady' %}";
@@ -64,15 +191,17 @@
     })
   }
   let onClickCompilation = ()=>{
-      let visType = $("#visSelected").val();
-      console.log(visType);
+      let visTypeName = $("#visSelected").val();
+      console.log(visTypeName);
+      let visType = visTypes.filter(v => v.id===visTypeName)[0];
+      let visFunc = visType.visFunc;
       let funcs = [
           pieChart, barchart, linechart_rate, linechart_num, bi_yAxis_barchart
       ]
     //   if (visType === 0){
     //       visType = 1;
     //   }
-      let visFunc = funcs[visType];
+      // let visFunc = funcs[visType];
     console.log(visFunc);
     let description = selectedDescription;
     description.operator = $("#operator").val();
@@ -89,11 +218,58 @@
     
     compileDescription(description, visFunc);
   }
+  let visTypes = [
+    {
+      "id": "piechart",
+      "chinese": "饼图",
+      "visFunc": pieChart,
+    },
+    {
+      "id": "barchart",
+      "chinese": "条形图",
+      "visFunc": barchart,
+    },
+    {
+      "id": "bi_directional_barchart",
+      "chinese": "双向条形图",
+      "visFunc": bi_directional_barchart
+    },
+    {
+      "id": "linechart_rate",
+      "chinese": "比率折线图",
+      "visFunc": linechart_rate,
+    },
+    {
+      "id": "linechart_num",
+      "chinese": "数字折线图",
+      "visFunc": linechart_num,
+    },
+    {
+      "id": "bi_yaxis_barchart",
+      "chinese": "双y轴条形图",
+      "visFunc": bi_yAxis_barchart,
+    },
+  ]
   let displayDescritpion = (index, description) => {
      selectedDescription = description;
       let descriptionRowId = "description" + index.toString();
       $("#descriptionMenuSelected").text(description.id);
       $("#description-list").append('<div id=' + descriptionRowId + ' class="row"></div>');
+      let descriptionVisConfig = visConfigs.filter(v=>v.id === description.id)[0];
+      console.log(visConfigs);
+      console.log(description)
+      
+      console.log(descriptionVisConfig)
+      let optionsHTML = visTypes.map(visType=>{
+        if(visType.id === descriptionVisConfig.chart){
+          return `
+            <option value=${visType.id} selected>${visType.chinese}</option>
+          `
+        }
+        return `
+          <option value=${visType.id}>${visType.chinese}</option>
+        `
+      })
       let visHTML = `
         <li class="list-group-item">
             <div class="card">
@@ -106,12 +282,8 @@
                   <p class="card-text">
                     <div class="input-group mb-3">
                         <select id="visSelected" class="custom-select" id="inputGroupSelect01">
-                            <option value="0" selected>饼图</option>
-                            <option value="0">饼图</option>
-                            <option value="1">条形图</option>
-                            <option value="2">比率折线图</option>
-                            <option value="3">数字折线图</option>
-                            <option value="4">双y轴条形图</option>
+                           
+                           ${optionsHTML}
                         </select>
                     </div>
 
@@ -121,8 +293,7 @@
             </div>
           </li>
       `
-      let postprocessHTML = description.postprocess.map(
-        (c, i) => {
+      let renderProcess = (c, i) => {
           let parameterHTML = Object.entries(c.componentClass.parameters).map( item =>{ 
             let pName = item[0];
             let parameter = item[1];
@@ -152,7 +323,12 @@
             </div>
           </li>
           `
-        }
+        };
+      let preprocessHTML = description.preprocess.map(
+        renderProcess
+      ).reduce((acc,c)=>acc+c, "");
+      let postprocessHTML = description.postprocess.map(
+        renderProcess
       ).reduce((acc,c)=>acc+c, "");
       console.log(description.operator);
       let descriptionHTML = `
@@ -167,6 +343,14 @@
         <ul class="list-group list-group-horizontal-xl">
         
         </ul>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">预处理</h5>
+            <ul class="list-group justify-content-around">
+                ${preprocessHTML}
+            </ul>
+          </div>
         </div>
         <div class="card">
           <div class="card-body">
@@ -185,7 +369,7 @@
           </div>
         </div>
         
-        <div id="result" style="width: 700px;height:400px;">
+        <div id="result" style="width: 600px;height:400px;">
         </div>
       `
       $("#" + descriptionRowId).append(descriptionHTML);

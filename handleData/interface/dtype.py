@@ -1,7 +1,7 @@
 import dateutil.parser
 from functools import reduce
 from ..process.calculations import * 
-from ..process.operators import * 
+from ..process.operators import *
 class DType:
     def __init__(self):
         pass

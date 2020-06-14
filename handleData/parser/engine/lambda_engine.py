@@ -2,6 +2,7 @@ from inspect import getmembers, isfunction
 from functools import reduce
 from ...process import calculations
 from ...process import operators
+from ...process.calculations import *
 from .engine import Engine
 class LambdaEngine(Engine):
     def __init__(self):

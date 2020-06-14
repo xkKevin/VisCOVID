@@ -10,3 +10,4 @@ def calculate_growth(a, b):
         else:
             return a/b- 1.
 
+
