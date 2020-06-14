@@ -231,6 +231,7 @@ function pieChart(data, name, div_id) {
             type: 'pie',
             radius: CSS_STYLE.pieChart.radius,
             center: CSS_STYLE.pieChart.center,
+            animationType: 'scale',  // 缩放效果，解决边框问题
             animation: false,
             data: data.map(function (x) {
                 return {"name": x["国家"], "value": x[name]}
@@ -847,6 +848,9 @@ function linechart_num(data, div_id) {
 
     let handle_data_len = handle_data.value.length;
     let precision_len = format_number(handle_data.value[handle_data_len-1]).length;
+    if (handle_data.value[handle_data_len-1] > 8000000){
+        precision_len = 10;
+    }
 
     var myChart = echarts.init(document.getElementById(div_id));
 
@@ -875,7 +879,7 @@ function linechart_num(data, div_id) {
                 showMaxLabel: true,
                 showMinLabel: false,
                 // splitNumber: 3
-                interval: Math.round((handle_data_len)/6)-1,
+                interval: Math.round((handle_data_len)/5)-1,
             },
             nameTextStyle: {
                 align: "left",
@@ -1036,7 +1040,8 @@ function linechart_rate(data, div_id) {
     });
 
     let handle_data_len = handle_data.value.length;
-    let precision_len = (handle_data.value[handle_data_len-1]*100).toPrecision(1).length;
+    let precision_len = div_id.includes('a') ? 4 : 1;
+    // let precision_len = (handle_data.value[handle_data_len-1]*100).toPrecision(1).length;
     // console.log(handle_data_len);
 
     var myChart = echarts.init(document.getElementById(div_id));
@@ -1067,7 +1072,7 @@ function linechart_rate(data, div_id) {
                 showMaxLabel: true,
                 showMinLabel: false,
                 // splitNumber: 3
-                interval: Math.round((handle_data_len)/6)-1,
+                interval: Math.round((handle_data_len)/5)-1,
             },
             nameTextStyle: {
                 align: "left",

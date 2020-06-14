@@ -18,13 +18,21 @@ report_data_path = "./main/static/report/"
 #     word.Quit()
 
 def renew_text(p, text):
-    if "“" in text:
+    if "“" in text or "增速=" in text:
         return
+    p.clear()
+    p_text = p.add_run(text)
+    p_text.font.name = 'Times New Roman'
+    '''
+    if "增速=" in text:
+        print(p)
+        print(text)
+        
     p.clear()
     p.add_run()
     p.runs[0].text = text
     p.runs[0].font.name = 'Times New Roman'
-
+    '''
 
 def replace_pic(p, pic_list, width=None, height=None):
     p.clear()
@@ -103,6 +111,7 @@ def createReport(num=33, compress_threshold=33):
         paragraphs[102],
         paragraphs[103],
         paragraphs[106],
+        paragraphs[107],
         paragraphs[109],
         paragraphs[111],
         paragraphs[113],
