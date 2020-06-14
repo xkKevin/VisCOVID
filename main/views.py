@@ -73,6 +73,8 @@ def lambda_api_description_empty(request):
         return JsonResponse({"success": False, "message": "GET Not Supported"})
 
 def lambda_api_compile(request):
+    if not os.path.exists("./main/static/tmp"):
+        os.mkdir("./main/static/tmp")
     data = lambda_process.compile_description(request.GET.get("data"))
     data.to_csv("./main/static/tmp/compiled.csv", index=False, quoting=csv.QUOTE_NONE)
     response = None
