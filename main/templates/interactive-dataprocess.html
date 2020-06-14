@@ -171,15 +171,38 @@
   let parser = new lambdaDataprocessInterface.Parser("safe");
   var descriptions = []
   var selectedDescription = null;
-  let createDescription = (description) => {
+  let onClickReport = () => {
+    window.location.href = "/report2";
+  }
+  let onClickEmpty = ()=>{
     $.post({
-      url: "/lambda/description",
-      data: {data: JSON.stringify(description)},
+      url: "/lambda/description/empty",
       success: response => {
         console.log(response);
-        return "2";
+        if (response.success){
+          alert("清空成功");
+        }else{
+          alert("清空失败");
+        }
+        
       }
     })
+  }
+  let createDescription = (description) => {
+    let descriptionJson = parser.jsonifyDescription(description)
+    $.post({
+      url: "/lambda/description",
+      data: {data: JSON.stringify(descriptionJson)},
+      success: response => {
+        console.log(response);
+         if (response.success){
+          alert("保存成功");
+        }else{
+          alert("保存失败");
+        }
+    }
+  }
+    )
   }
   
   
@@ -429,6 +452,12 @@
               </div>
               <div class="btn btn-primary" onclick="onClickSave()">
                   保存
+              </div>
+              <div class="btn btn-primary" onclick="onClickEmpty()">
+                  清空
+              </div>
+              <div class="btn btn-primary" onclick="onClickReport()">
+                  报告
               </div>
               <ul class="nav nav-pills">
                 <li class="nav-item dropdown">

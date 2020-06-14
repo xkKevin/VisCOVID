@@ -14,6 +14,7 @@ from .process.descriptions import global_data_descriptions, country_data_descrip
 from .compiler import Compiler
 from .world_map import build_world_map
 from .descriptions.default import get_default_descriptions
+from .descriptions.mongo import load_descriptions
 client = MongoClient()
 db = client['coronavirus_analysis']
 
@@ -29,8 +30,21 @@ db = client['coronavirus_analysis']
 #     return 
 
 
-def extract_wxb_data(db, config):
-    descriptions = get_default_descriptions()
+def extract_wxb_data(db, config, descsrc="default"):
+    if descsrc == "default":
+        descriptions = get_default_descriptions()
+    else:
+        descriptions = get_default_descriptions()
+        ids = list(map(lambda x: x['id'], descriptions))
+        _descriptions, _ids = load_descriptions(ids, db, config)
+        # _ids = list(map(lambda x: x['id'], _descriptions))
+        def update_description(description):
+            if description['id'] in _ids:
+                return _descriptions[description['id']]
+            else:
+                return description
+        descriptions = list(map(update_description, descriptions))
+        # descriptions = get_default_descriptions()
     compiler = Compiler(db, config)
     compile_func = compiler.get_compile_func()
     data = list(map(compile_func, descriptions))
@@ -53,12 +67,12 @@ def analyze_country(chinese, data,config):
     return r
 
 
-def build_not_world(db, config):
+def build_not_world(db, config, descsrc="default"):
     export_path = config['export']['root']
     def get_export_path( name, ext='.json'):
         return os.path.join(export_path, name + ext)
     
-    r = extract_wxb_data(db, config)
+    r = extract_wxb_data(db, config, descsrc)
     due = db.due.find_one()
     r['due'] = due
     report = build_report(r, config)
@@ -79,11 +93,11 @@ def build_not_world(db, config):
     # list(map(f, key_countries))
 
 
-def analyze(export_dir, config_path = "./handleData/config.json"):
+def analyze(export_dir, config_path = "./handleData/config.json", descsrc="default"):
     config = load_config(config_path)
     # pa
     config['export']['root'] = export_dir
-    build_not_world(db, config)
+    build_not_world(db, config, descsrc)
     build_world_map(db, config)
 
 def get_missing_countries():

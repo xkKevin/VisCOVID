@@ -25,7 +25,9 @@ class LambdaProcess:
         # description = self.parser.parse_description(description)
         description['seq'] = self.db.descriptions.count()
         self.db.descriptions.insert_one(description) 
-
+    
+    def empty_descriptions(self):
+        self.db.descriptions.remove({})
 
 def lambda_api_compile():
     description = json.loads(description_str)

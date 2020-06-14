@@ -50,6 +50,26 @@ def random_string(stringLength=8):
 def index(request):
     return render(request, "index.html")
 
+def lambda_page_report(request):
+    client = MongoClient()
+    db = client['coronavirus_analysis']
+    last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
+    missing_countries = get_missing_countries()
+    export_dir = export_path + "/tmp/" 
+    analyze(export_dir, descsrc="mongo")
+    context = {
+        "export_dir": "export/" + "tmp" + "/",
+        "missing_countries": missing_countries
+    }
+    return render(request, "report.html", context)
+
+def lambda_api_description_empty(request):
+    if request.method == 'POST':
+        lambda_process.empty_descriptions()
+        return JsonResponse({"success": True})
+    else:
+        return JsonResponse({"success": False, "message": "GET Not Supported"})
+
 def lambda_api_compile(request):
     data = lambda_process.compile_description(request.GET.get("data"))
     data.to_csv("./main/static/tmp/compiled.csv", index=False, quoting=csv.QUOTE_NONE)

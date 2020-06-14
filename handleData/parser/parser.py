@@ -13,9 +13,9 @@ class Parser:
         else:
             return desc
     def parse_component(self, json_component):
+        print(json_component)
         component_class = self.component_engine.parse(json_component['name'])
         args = {}
-
         for key, parameter in component_class.parameters.items():
             if key in json_component['args'].keys():
                 value = json_component['args'][key]
