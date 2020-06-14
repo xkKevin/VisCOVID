@@ -59,7 +59,12 @@ def lambda_api_compile(request):
     #     response['Content-Disposition'] = 'attachment; filename=stockitems_misuper.csv'
     return JsonResponse({"success": True})
 
-
+def lambda_api_description_create(request):
+    if request.method == 'POST':
+        lambda_process.create_description(request.POST.get("data"))
+        return JsonResponse({"success": True})
+    else:
+        return JsonResponse({"success": False, "message": "GET Not Supported"})
 def apiServerReady(request):
     client = MongoClient()
     db = client['coronavirus_analysis']

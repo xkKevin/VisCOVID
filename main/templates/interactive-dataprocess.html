@@ -171,9 +171,38 @@
   let parser = new lambdaDataprocessInterface.Parser("safe");
   var descriptions = []
   var selectedDescription = null;
+  let createDescription = (description) => {
+    $.post({
+      url: "/lambda/description",
+      data: {data: JSON.stringify(description)},
+      success: response => {
+        console.log(response);
+        return "2";
+      }
+    })
+  }
+  
+  
+  let updateDescriptionClient = ()=>{
+    let description = selectedDescription;
+    description.operator = $("#operator").val();
+    description.postprocess = description.postprocess.map((component, i)=>{
+        for (let pName of Object.keys(component.componentClass.parameters)){
+          let parameterId = "#post-" + i.toString() + "-" + pName;
+          component.args[pName] = $(parameterId).val();
+          console.log($(parameterId).val())
+        }
+        return component;
+    })
+    return description;
+  }
+  
+  let onClickSave = ()=>{
+    let description = updateDescriptionClient();
+    createDescription(description)
+  }
   let compileDescription = (description, visFunc) => {
     let descriptionJson = parser.jsonifyDescription(description)
-    console.log(descriptionJson);
     $.get({
       url: "/lambda/compile",
       data: {data: JSON.stringify(descriptionJson)},
@@ -203,18 +232,8 @@
     //   }
       // let visFunc = funcs[visType];
     console.log(visFunc);
-    let description = selectedDescription;
-    description.operator = $("#operator").val();
-    description.postprocess = description.postprocess.map((component, i)=>{
-        for (let pName of Object.keys(component.componentClass.parameters)){
-          let parameterId = "#post-" + i.toString() + "-" + pName;
-          
-        
-          component.args[pName] = $(parameterId).val();
-          console.log($(parameterId).val())
-        }
-        return component;
-    })
+    let description = updateDescriptionClient();
+    console.log(description)
     
     compileDescription(description, visFunc);
   }
@@ -369,7 +388,7 @@
           </div>
         </div>
         
-        <div id="result" style="width: 600px;height:400px;">
+        <div id="result" style="width: 600px;height:900px;">
         </div>
       `
       $("#" + descriptionRowId).append(descriptionHTML);
@@ -406,7 +425,10 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="btn btn-primary" onclick="onClickCompilation()">
-                  编译
+                  运行
+              </div>
+              <div class="btn btn-primary" onclick="onClickSave()">
+                  保存
               </div>
               <ul class="nav nav-pills">
                 <li class="nav-item dropdown">

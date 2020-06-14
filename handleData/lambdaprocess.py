@@ -16,13 +16,16 @@ class LambdaProcess:
     
     def compile_description(self, description_str):
         description = json.loads(description_str)
-        print(description)
         description = self.parser.parse_description(description)
         data = self.compiler.compile(description)
-        print(data)
         return format_data( data['id'], data['data'])[0]
-    
-    
+
+    def create_description(self, description_str):
+        description = json.loads(description_str)
+        # description = self.parser.parse_description(description)
+        description['seq'] = self.db.descriptions.count()
+        self.db.descriptions.insert_one(description) 
+
 
 def lambda_api_compile():
     description = json.loads(description_str)
