@@ -56,6 +56,8 @@ def lambda_page_report(request):
     last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
     missing_countries = get_missing_countries()
     export_dir = export_path + "/tmp/" 
+    if not os.path.exists(export_dir):
+        os.mkdir(export_dir)
     analyze(export_dir, descsrc="mongo")
     context = {
         "export_dir": "export/" + "tmp" + "/",
