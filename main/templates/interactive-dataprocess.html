@@ -170,6 +170,7 @@
 <script>
   let parser = new lambdaDataprocessInterface.Parser("safe");
   var descriptions = []
+  var index = 0;
   var selectedDescription = null;
   let onClickReport = () => {
     window.location.href = "/report2";
@@ -178,7 +179,6 @@
     $.post({
       url: "/lambda/description/empty",
       success: response => {
-        console.log(response);
         if (response.success){
           alert("清空成功");
         }else{
@@ -189,12 +189,12 @@
     })
   }
   let createDescription = (description) => {
+    console.log(description)
     let descriptionJson = parser.jsonifyDescription(description)
     $.post({
       url: "/lambda/description",
       data: {data: JSON.stringify(descriptionJson)},
       success: response => {
-        console.log(response);
          if (response.success){
           alert("保存成功");
         }else{
@@ -205,7 +205,13 @@
     )
   }
   
-  
+  let removeComponentInstance = (index, listId) => {
+    selectedDescription.postprocess = selectedDescription.postprocess.filter((c, i)=> i!==index);
+    console.log(selectedDescription);
+    removeDescription();
+    displayDescription(index);
+    // $("#" + listId).children()[index].remove();
+  }
   let updateDescriptionClient = ()=>{
     let description = selectedDescription;
     description.operator = $("#operator").val();
@@ -213,7 +219,6 @@
         for (let pName of Object.keys(component.componentClass.parameters)){
           let parameterId = "#post-" + i.toString() + "-" + pName;
           component.args[pName] = $(parameterId).val();
-          console.log($(parameterId).val())
         }
         return component;
     })
@@ -225,17 +230,15 @@
     createDescription(description)
   }
   let compileDescription = (description, visFunc) => {
+    console.log(description)
     let descriptionJson = parser.jsonifyDescription(description)
     $.get({
       url: "/lambda/compile",
       data: {data: JSON.stringify(descriptionJson)},
       success: response => {
-        console.log(response);
         d3.csv("{% static 'tmp/compiled.csv' %}", function (error, csvdata) {
         if(error){
-            console.log(error);
         }else{
-            console.log(csvdata);
             visFunc(csvdata, "确诊率", 'result');
         }
       });
@@ -244,20 +247,12 @@
   }
   let onClickCompilation = ()=>{
       let visTypeName = $("#visSelected").val();
-      console.log(visTypeName);
       let visType = visTypes.filter(v => v.id===visTypeName)[0];
       let visFunc = visType.visFunc;
       let funcs = [
           pieChart, barchart, linechart_rate, linechart_num, bi_yAxis_barchart
       ]
-    //   if (visType === 0){
-    //       visType = 1;
-    //   }
-      // let visFunc = funcs[visType];
-    console.log(visFunc);
     let description = updateDescriptionClient();
-    console.log(description)
-    
     compileDescription(description, visFunc);
   }
   let visTypes = [
@@ -292,16 +287,14 @@
       "visFunc": bi_yAxis_barchart,
     },
   ]
-  let displayDescritpion = (index, description) => {
-     selectedDescription = description;
+  let displayDescription = (index) => {
+    let description = selectedDescription;
+    //  selectedDescription = description;
       let descriptionRowId = "description" + index.toString();
       $("#descriptionMenuSelected").text(description.id);
       $("#description-list").append('<div id=' + descriptionRowId + ' class="row"></div>');
       let descriptionVisConfig = visConfigs.filter(v=>v.id === description.id)[0];
-      console.log(visConfigs);
-      console.log(description)
       
-      console.log(descriptionVisConfig)
       let optionsHTML = visTypes.map(visType=>{
         if(visType.id === descriptionVisConfig.chart){
           return `
@@ -335,11 +328,13 @@
             </div>
           </li>
       `
-      let renderProcess = (c, i) => {
+      let buildRenderProcess = (listId)=>{ return (c, i) => {
+        let instanceId = i.toString();
           let parameterHTML = Object.entries(c.componentClass.parameters).map( item =>{ 
             let pName = item[0];
             let parameter = item[1];
             let parameterId = "post-" + i.toString() + "-" + pName;
+            
             return `
               <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend">
@@ -349,9 +344,12 @@
               </div>
           `})
           return `
-          <li class="list-group-item">
+          <li id=${instanceId} class="list-group-item">
             <div class="card">
                 <div class="card-body">
+                  <button type="button" class="close" aria-label="Close" onClick="removeComponentInstance(${i}, '${listId}')">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
                   <h5 class="card-title">
                     ${c.componentClass.name}
                   </h5>
@@ -365,14 +363,13 @@
             </div>
           </li>
           `
-        };
+        }};
       let preprocessHTML = description.preprocess.map(
-        renderProcess
+        buildRenderProcess("preprocess")
       ).reduce((acc,c)=>acc+c, "");
       let postprocessHTML = description.postprocess.map(
-        renderProcess
+        buildRenderProcess("postprocess")
       ).reduce((acc,c)=>acc+c, "");
-      console.log(description.operator);
       let descriptionHTML = `
         <div class="card">
           
@@ -389,7 +386,7 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">预处理</h5>
-            <ul class="list-group justify-content-around">
+            <ul class="list-group justify-content-around" id="preprocess">
                 ${preprocessHTML}
             </ul>
           </div>
@@ -404,7 +401,7 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">后处理</h5>
-            <ul class="list-group justify-content-around">
+            <ul class="list-group justify-content-around" id="postprocess">
                 ${postprocessHTML}
                 ${visHTML}
             </ul>
@@ -420,22 +417,23 @@
   let removeDescription = ()=>{
         $("#description-list").empty();
   }
-  let changeDisplayed = (index) => {
+  let changeDisplayed = (localIndex) => {
     removeDescription();
+    index = localIndex;
     let description = descriptions[index];
     selectedDescription = description;
-    displayDescritpion(index, description)
+    displayDescription(index)
   }
   $.get("{% static 'json/componentClasses.json' %}", response =>{
     parser.loadComponentClasses(response);
-    console.log(parser.componentClassIndex);
     $.get("/static/json/default2.json", (response)=>{
-      console.log(response);
       descriptions = response['descriptions'].map(parser.parseDescription);
       descriptions.map((description, index) =>{
         $("#descriptionMenu").append('<a class="dropdown-item" href="#one" onclick="changeDisplayed(' + index.toString() + ')">' + description['id'] + '</a>');
       })
-      displayDescritpion(0, descriptions[0])
+      selectedDescription = descriptions[0]
+      index = 0;
+      displayDescription(0)
     })
   })
   
@@ -507,7 +505,6 @@
             ajaxData.append(fileNames[i], file);
         });
     });
-    // console.log($("#wxb"))
     // ajaxData.append('wxb_file', $("#wxbFile").files[0])
     // ajaxData.append('wxb_file', $("#owdFile").files[0])
     $.ajax({
@@ -517,7 +514,6 @@
       contentType: false,
       processData: false,
       success: data => {
-        console.log(data);
         $("#excelSpinner").attr('style',"display:none;")
         $("#analyzeButton").addClass("btn-primary");
         $("#analyzeButton").disabled = false;
@@ -534,7 +530,6 @@
       type: "POST",
       data: {},
       success: data => {
-        console.log(data);
         window.location.href = "/report";
       }
     })
