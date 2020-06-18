@@ -174,8 +174,22 @@
   var descriptions = []
   var index = 0;
   var selectedDescription = null;
+  function download(content, fileName, contentType) {
+    var a = document.createElement("a");
+    var file = new Blob([content], {type: contentType});
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+  }
+
   let onClickReport = () => {
     window.location.href = "/report2";
+  }
+  let onClickOutput = () =>{
+    let desc = updateDescriptionClient();
+    let descJson = parser.jsonifyDescription(desc);    
+    descJson = JSON.stringify(descJson);
+    download(descJson, 'output.json', 'text/plain');
   }
   let onClickEmpty = ()=>{
     $.post({
@@ -207,8 +221,12 @@
     )
   }
   
-  let removeComponentInstance = (index, listId) => {
-    selectedDescription.postprocess = selectedDescription.postprocess.filter((c, i)=> i!==index);
+  let removeComponentInstance = (index, processOp) => {
+    if (processOp === "postprocess"){
+      selectedDescription.postprocess = selectedDescription.postprocess.filter((c, i)=> i!==index);
+    }else if(processOp === "preprocess"){
+      selectedDescription.preprocess = selectedDescription.preprocess.filter((c, i)=> i!==index);
+    }
     console.log(selectedDescription);
     removeDescription();
     displayDescription(index);
@@ -268,7 +286,6 @@
       selectedDescription.postprocess.push(new lambdaDataprocessInterface.ComponentInstance(componentClass));
     }else if(processOp === "preprocess"){
       selectedDescription.preprocess.push(new lambdaDataprocessInterface.ComponentInstance(componentClass));
-
     }
     console.log(selectedDescription);
     // if(processOp === "postprocess"){
@@ -317,8 +334,9 @@
   }}
 
   let displayDescription = (index) => {
+    let preprocessComponentClassesHTML = Object.entries(parser.componentClassIndex).map(c=>buildRenderComponentClass("preprocess")(c[1])).join(" ");
 
-    let availebleComponentClassesHTML = Object.entries(parser.componentClassIndex).map(c=>buildRenderComponentClass("postprocess")(c[1])).join(" ");
+    let postprocessComponentClassesHTML = Object.entries(parser.componentClassIndex).map(c=>buildRenderComponentClass("postprocess")(c[1])).join(" ");
     let description = selectedDescription;
     //  selectedDescription = description;
       let descriptionRowId = "description" + index.toString();
@@ -416,7 +434,20 @@
         </div>
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">预处理</h5>
+            <div class="row d-flex align-self-center">
+              <h5 class="card-title">预处理</h5>
+
+              <div class="btn-group" class="list-add">
+                  
+                  <button type="button" class="close col-md-4 offset-md-4 list-add" data-toggle="dropdown" aria-label="Close">
+                      <span aria-hidden="true">+</span>
+                  </button>
+                  
+                  <div class="dropdown-menu">
+                    ${preprocessComponentClassesHTML}
+                  </div>
+                </div>
+                </div>
             <ul class="list-group justify-content-around" id="preprocess">
                 ${preprocessHTML}
             </ul>
@@ -443,7 +474,7 @@
                 </button>
                 
                 <div class="dropdown-menu">
-                  ${availebleComponentClassesHTML}
+                  ${postprocessComponentClassesHTML}
                 </div>
               </div>
               
@@ -498,16 +529,21 @@
   <div class="btn btn-primary" onclick="onClickCompilation()">
                   运行
               </div>
-              <div class="btn btn-primary" onclick="onClickSave()">
+              <div class="btn btn-primary nav-btn" onclick="onClickSave()">
                   保存
               </div>
-              <div class="btn btn-primary" onclick="onClickEmpty()">
+              
+              <div class="btn btn-primary nav-btn" onclick="onClickEmpty()">
                   清空
               </div>
-              <div class="btn btn-primary" onclick="onClickReport()">
+              <div class="btn btn-primary nav-btn" onclick="onClickReport()">
                   报告
               </div>
-              <ul class="nav nav-pills">
+              <div class="btn btn-primary nav-btn" onclick="onClickOutput()">
+                  导出
+              </div>
+
+              <ul class="nav nav-pills nav-btn">
                 <li class="nav-item dropdown">
                   <a id="descriptionMenuSelected" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
                   <div id="descriptionMenu" class="dropdown-menu">
@@ -600,5 +636,8 @@
   }
   .list-add {
     margin-left: 40px
+  }
+  .nav-btn {
+    margin-left: 10px
   }
 </style>
