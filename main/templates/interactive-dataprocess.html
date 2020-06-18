@@ -7,9 +7,10 @@
     <title>疫情数据</title>
     <script src="{% static 'js/dataprocess-interface.bundle.js' %}"></script>
     <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <script src="{% static 'js/bootstrap.min.js' %}"></script> 
-    <script src="{% static 'js/popper.min.js' %}"></script>
+    
     <script src="{% static 'js/echarts.js' %}"></script>
     <script src="{% static 'js/interactive-charts.js' %}"></script>
     <script src="{% static 'js/handle_data.js' %}"></script>
@@ -168,6 +169,7 @@
 </script>
 
 <script>
+
   let parser = new lambdaDataprocessInterface.Parser("safe");
   var descriptions = []
   var index = 0;
@@ -255,6 +257,27 @@
     let description = updateDescriptionClient();
     compileDescription(description, visFunc);
   }
+  let reloadDescription = ()=>{
+    removeDescription();
+    displayDescription(index);
+  }
+  let onClickAppendComponent = (componentClassName, processOp)=>{
+    let processes; 
+    let componentClass = parser.componentClassIndex[componentClassName];
+    if(processOp === "postprocess"){
+      selectedDescription.postprocess.push(new lambdaDataprocessInterface.ComponentInstance(componentClass));
+    }else if(processOp === "preprocess"){
+      selectedDescription.preprocess.push(new lambdaDataprocessInterface.ComponentInstance(componentClass));
+
+    }
+    console.log(selectedDescription);
+    // if(processOp === "postprocess"){
+    //   selectedDescription.postprocess = processes;
+    // }else if(processOp === "preprocess"){
+    //   selectedDescription.preprocess = processes;
+    // }
+    reloadDescription();
+  }
   let visTypes = [
     {
       "id": "piechart",
@@ -286,8 +309,16 @@
       "chinese": "双y轴条形图",
       "visFunc": bi_yAxis_barchart,
     },
-  ]
+  ];
+  let buildRenderComponentClass = (processOp) =>{ return  (componentClass) =>{
+    return `
+      <button class="dropdown-item" onClick="onClickAppendComponent('${componentClass.name}', '${processOp}')">${componentClass.name}</button>
+    `
+  }}
+
   let displayDescription = (index) => {
+
+    let availebleComponentClassesHTML = Object.entries(parser.componentClassIndex).map(c=>buildRenderComponentClass("postprocess")(c[1])).join(" ");
     let description = selectedDescription;
     //  selectedDescription = description;
       let descriptionRowId = "description" + index.toString();
@@ -400,11 +431,30 @@
         </div>
         <div class="card">
           <div class="card-body">
+            <div class="row d-flex align-self-center">
+            
             <h5 class="card-title">后处理</h5>
+            
+
+              <div class="btn-group" class="list-add">
+                
+                <button type="button" class="close col-md-4 offset-md-4 list-add" data-toggle="dropdown" aria-label="Close">
+                    <span aria-hidden="true">+</span>
+                </button>
+                
+                <div class="dropdown-menu">
+                  ${availebleComponentClassesHTML}
+                </div>
+              </div>
+              
+
+            
+            </div>
             <ul class="list-group justify-content-around" id="postprocess">
                 ${postprocessHTML}
                 ${visHTML}
             </ul>
+            
           </div>
         </div>
         
@@ -547,5 +597,8 @@
     margin-left: 50px;
     margin-right: 50px;
     margin-top: 30px;
+  }
+  .list-add {
+    margin-left: 40px
   }
 </style>
