@@ -89,16 +89,26 @@ def extract_sheet(excel, check_date, sheet_name=None):
     columns = ['累计确诊', '新增确诊', '累计死亡', '新增死亡', '百万人口确诊率', '百万人口死亡率']
     # print(sheet_name)
     # necessary_columns = ['累计确诊', '新增确诊', '累计死亡', "新增死亡", '累计治愈',  '百万人口确诊率'， '百万人口死亡率' ]
+    print(sheet_name)
+    base_date = datetime.datetime(2020, 2, 1)
     for index, row in df.iterrows():
         # print(row)
         obj = dict(row)
         obj['sheet_name'] = sheet_name
         if '日期' not in obj.keys():
             pass
-            # print(sheet_name)
         date = obj['日期']
-        date = datetime.datetime(date.year, date.month, date.day)
+        
+        if type(date) == int:
+            # print(date)
+            date = base_date + datetime.timedelta(days = date - 43862)
+            print(date)
+            # continue
+            # pass
+        else:
+            date = datetime.datetime(date.year, date.month, date.day)
         # print(type(check_date))
+        obj['日期'] = date
         check_datetime = dateutil.parser.parse(check_date) - datetime.timedelta(days=1)
         c = datetime.datetime(check_datetime.year, check_datetime.month, check_datetime.day)
         if date >  c:
