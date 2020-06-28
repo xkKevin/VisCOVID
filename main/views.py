@@ -3,7 +3,7 @@ import os
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from handleData.prepare import prepare
-from handleData.analyze import analyze, get_missing_countries
+from handleData.analyze import analyze, get_missing_countries, get_ineffective_countries
 from handleData.compiler import Compiler
 from handleData.parser.parser import get_parser
 from handleData.lambdaprocess import LambdaProcess
@@ -55,13 +55,15 @@ def lambda_page_report(request):
     db = client['coronavirus_analysis']
     last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
     missing_countries = get_missing_countries()
+    ineffective_countries = get_ineffective_countries()
     export_dir = export_path + "/tmp/" 
     if not os.path.exists(export_dir):
         os.mkdir(export_dir)
     analyze(export_dir, descsrc="mongo")
     context = {
         "export_dir": "export/" + "tmp" + "/",
-        "missing_countries": missing_countries
+        "missing_countries": missing_countries,
+        "effective_countries": ineffective_countries
     }
     return render(request, "report.html", context)
 
@@ -233,9 +235,11 @@ def report(request):
         return render(request, "report.html", {"export_dir": ""})
     last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
     missing_countries = get_missing_countries()
+    ineffective = get_ineffective_countries()
     context = {
         "export_dir": "export/" + last_version['name'] + "/",
-        "missing_countries": missing_countries
+        "missing_countries": missing_countries,
+        "ineffective_countries": ineffective
     }
     return render(request, "report.html", context)
 

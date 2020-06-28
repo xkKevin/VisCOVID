@@ -104,6 +104,9 @@ def get_missing_countries():
     missing_countries = list(map(lambda x: x['chinese'], db.missing_countries.find()))
     return missing_countries
 
+def get_ineffective_countries():
+    countries = list(map(lambda x: x['chinese'], db.ineffective_countries.find()))
+    return countries
 if __name__ == "__main__":
     analyze(export_dir="../main/static/export/run", config_path = "./config.json") 
     

@@ -73,7 +73,13 @@ def store_region_records(db, config):
             db.stage_records.insert_many(objs)
 
 
+def store_ineffective_countries(db, ineffective):
+    db['ineffective_countries'].remove({})
+    if len(ineffective) == 0:
+        return False
 
+    ineffective = list(map(lambda x: {"chinese": x}, ineffective))
+    db['ineffective_countries'].insert_many(ineffective)
 def store_selected_countries(db, selected):
     selected_countries = db["selected_countries"]
     selected_countries.remove({})
@@ -191,6 +197,7 @@ def store_excel_data(db, config):
     config['time']['start'] = start_date.isoformat()
     save_config(config)
     effective_countries = []
+    error_countries = []
     for sheet_name in excel_df.keys():
         sheet_type = get_sheet_type(db, sheet_name)
         if sheet_type == "Sheet" or sheet_type == "Excluded":
@@ -199,14 +206,19 @@ def store_excel_data(db, config):
             db.missing_countries.insert_one({"chinese": sheet_name})
             continue
         else:
-            records = extract_sheet(excel_df, config['time']['end'], sheet_name)
             if sheet_type == "Global":
+                records = extract_sheet(excel_df, config['time']['end'], sheet_name)
                 global_records.insert_many(records)
             else:
-                effective_countries.append(sheet_name)
-                country_records.insert_many(records)
+                try: 
+                    records = extract_sheet(excel_df, config['time']['end'], sheet_name)
+                    country_records.insert_many(records)
+                    effective_countries.append(sheet_name)
+                except:
+                    error_countries.append(sheet_name)
+
     store_selected_countries(db, effective_countries)
-            
+    store_ineffective_countries(db, error_countries)
 
 def store_country_info(db, config):
     path = config['path']['conrties_info']

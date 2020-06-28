@@ -191,11 +191,19 @@
 
 <script>
     var countries = [];
+    var ineffectiveCountries = [];
     {% for country in missing_countries %}
         countries.push("{{country}}");
     {% endfor %}
-    if (countries.length){
-        alert("缺失国家：" + countries);
+    {% for country in ineffective_countries %}
+        ineffectiveCountries.push("{{country}}");
+    {% endfor %}
+    var alertInfo = `
+        缺失国家：${countries}
+        错误国家：${ineffectiveCountries}
+    `
+    if (countries.length || ineffectiveCountries.length){
+        alert(alertInfo);
     }
     var rate_countries_num = 0;
     var imagesInfo = {};
@@ -536,8 +544,8 @@
     }
 
     function showMissingCountries() {
-        if (countries.length){
-            alert("缺失国家：" + countries);
+        if (countries.length || ineffectiveCountries.length){
+            alert(alertInfo);
         }else{
             alert("暂无缺失国家");
         }
