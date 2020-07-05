@@ -35,7 +35,7 @@ class IntType(DType):
             self.value = value
         else:
             self.value = int(value)
-
+lambda x : [calculate_rate(x[-1]['累计确诊'] - x[-8]['累计确诊'], x[-8]['累计确诊'] - x[-14]['累计确诊'] + x[-14]['新增确诊']) - 1]
 
 class FloatType(DType):
     def __init__(self, value):
