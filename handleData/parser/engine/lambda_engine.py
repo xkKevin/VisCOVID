@@ -17,6 +17,8 @@ class LambdaEngine(Engine):
         self.add_to_index(functions_list)
 
     def parse(self, funcstr, functype = None):
+        # if funcstr.startswith("lambda"):
+        #     functype = "lambda"
         if not functype:
             functype = LambdaEngine.extract_functype(funcstr)
         if functype == "lambda":

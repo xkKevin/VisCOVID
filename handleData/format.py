@@ -137,6 +137,8 @@ def format_data(name, data):
         return t, '2-14.csv'
     
     def format_weekly_confirmed_growth(data):
+        
+        print(data)
         t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "本周较上周新增确诊人数增速"]
         return t, '2-15.csv'

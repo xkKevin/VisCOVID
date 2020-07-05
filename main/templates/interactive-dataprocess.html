@@ -237,7 +237,8 @@
     description.operator = $("#operator").val();
     description.postprocess = description.postprocess.map((component, i)=>{
         for (let pName of Object.keys(component.componentClass.parameters)){
-          let parameterId = "#post-" + i.toString() + "-" + pName;
+          let parameterId = "#postprocess-" + i.toString() + "-" + pName;
+          console.log(parameterId);
           component.args[pName] = $(parameterId).val();
         }
         return component;
@@ -382,7 +383,7 @@
           let parameterHTML = Object.entries(c.componentClass.parameters).map( item =>{ 
             let pName = item[0];
             let parameter = item[1];
-            let parameterId = "post-" + i.toString() + "-" + pName;
+            let parameterId = listId + "-" + i.toString() + "-" + pName;
             
             return `
               <div class="input-group input-group-sm mb-3">

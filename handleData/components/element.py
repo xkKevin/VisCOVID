@@ -81,6 +81,7 @@ class InsertAverage(Component):
         "f": Parameter(FuncType, None)
     }
     def get_func(self):
+        print(self.arg("f"))
         return build_insert_average(self.arg('average'), self.arg('f'))
 
 
