@@ -24,7 +24,6 @@ def extract_region_sheet(sheet, name):
             "新增治愈": row[2],
             "地区": name
         }
-        # print(obj)
         objs.append(obj)
     return objs
 
@@ -60,7 +59,6 @@ def store_region_records(db, config):
     db.stage_records.remove({})
     # region_files = os.listdir(config['path']['regions'])
     # for filename in region_files:
-        # print(filename)
     fp = open(config['path']['regions'], "rb")
     excel_df = pd.read_excel(fp, None)
     region_names = ["全球", "非洲", "周边", "一带一路"]
@@ -93,12 +91,9 @@ def extract_sheet(excel, check_date, sheet_name=None):
     objs = []
     df = df.replace(pd.NaT, np.nan)
     columns = ['累计确诊', '新增确诊', '累计死亡', '新增死亡', '百万人口确诊率', '百万人口死亡率']
-    # print(sheet_name)
     # necessary_columns = ['累计确诊', '新增确诊', '累计死亡', "新增死亡", '累计治愈',  '百万人口确诊率'， '百万人口死亡率' ]
-    print(sheet_name)
     base_date = datetime.datetime(2020, 2, 1)
     for index, row in df.iterrows():
-        # print(row)
         obj = dict(row)
         obj['sheet_name'] = sheet_name
         if '日期' not in obj.keys():
@@ -106,14 +101,11 @@ def extract_sheet(excel, check_date, sheet_name=None):
         date = obj['日期']
         
         if type(date) == int:
-            # print(date)
             date = base_date + datetime.timedelta(days = date - 43862)
-            print(date)
             # continue
             # pass
         else:
             date = datetime.datetime(date.year, date.month, date.day)
-        # print(type(check_date))
         obj['日期'] = date
         check_datetime = dateutil.parser.parse(check_date) - datetime.timedelta(days=1)
         c = datetime.datetime(check_datetime.year, check_datetime.month, check_datetime.day)
@@ -122,7 +114,6 @@ def extract_sheet(excel, check_date, sheet_name=None):
         for key in obj.keys():
             if type(obj[key]) ==  pd._libs.tslibs.nattype.NaTType:
                 obj[key] = np.nan
-        # print(type(row['重症病例']))
         for column in columns:
             if column not in obj.keys():
                 if sheet_name == "全球":
@@ -182,13 +173,27 @@ def store_excel_data(db, config):
 
         # reduce(lambda x: )
         def f(acc, c):
-            all_fields = list(filter(lambda x:not np.isnan(x), list(c.values())[2:]))
+            all_fields = list(filter(lambda x:not np.isnan(x) and x!=0
+            , list(c.values())[2:]))
             if len(all_fields) == 0:
                 return acc
             else:
                 return c
         t = reduce(f, t, {})
         return t['日期']
+    # def extract_end_date(excel):
+    #     usa_sheet = excel['美国']
+    #     usa_end = extract_sheet_end_date(usa_sheet)
+    #     global_sheet = excel['全球']
+    #     global_end = extract_sheet_end_date(global_sheet)
+        
+    #     return global_end
+    #     print(global_end)
+    #     print(usa_end)
+    #     if global_end < usa_end:
+    #         return global_end
+    #     else:
+    #         return usa_end
     
     end_date = extract_end_date(excel_df)
     end_date += datetime.timedelta(days=1)
@@ -232,7 +237,6 @@ def store_country_info(db, config):
             elif item['phone_code'] == "688":
                 item['country_code3'] = "SRB"
             elif item['phone_code'] == "191":
-                # print(item)
                 item['country_code3'] = "HRV"
         
         db.countries.insert_one(item)

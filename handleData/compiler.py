@@ -87,11 +87,11 @@ def process_country_seq( operator, preprocess=[], postprocess=[]):
         countries = db.selected_countries.find({})
         check_date = dateutil.parser.parse(config['time']['end'])
         check_date -= timedelta(days=1)
-        found = list(map(lambda x: list(db.country_records.find({"国家地区": x['chinese'], "日期":{"$lte": check_date, "$gt": check_date - timedelta(days=14)}})), countries))
+        found = list(map(lambda x: list(db.country_records.find({"国家地区": x['chinese'], "日期":{"$lte": check_date, "$gt": check_date - timedelta(days=18)}})), countries))
         def extract_weekly_global():
-            global_records = list(db.global_records.find({"日期":{"$lte": check_date, "$gt": check_date - timedelta(days=14)}}))
+            global_records = list(db.global_records.find({"日期":{"$lte": check_date, "$gt": check_date - timedelta(days=15)}}))
             return global_records
-            global_last_records = list(db.global_records.find({"日期":{"$lte": check_date - timedelta(days=7), "$gt": check_date - timedelta(days=14)}}))
+            global_last_records = list(db.global_records.find({"日期":{"$lte": check_date - timedelta(days=7), "$gt": check_date - timedelta(days=15)}}))
             def build_sum_func(key):
                 def f_global(acc, c):
                     acc += c[key]
@@ -114,9 +114,15 @@ def process_country_seq( operator, preprocess=[], postprocess=[]):
             return c(acc, context)[0]
         preprocess.insert(0,build_filter_records(lambda x: x[-1]['累计确诊']>=2000) )
         mfound = reduce(process, preprocess, found)
+        # print(mfound)
+        # print(len(mfound[0]))
         # mfound = list(filter(filter_country, mfound))
         # Process on the records
-
+        # print(mfound[0])
+        for x in mfound:
+            print(len(x))
+        #     print(x[0])
+        #     operator(x)
         data = list(map(lambda x: {"name": x[0]['国家地区'], "values": operator(x)}, mfound))
         data = reduce(process, postprocess, data) 
 
@@ -177,6 +183,7 @@ class Compiler():
     
     def compile(self, description):
         db = self.db
+        print(description['id'])
         config = self.config
         description = self.preprocess(description)
         if description['process'] == "global":

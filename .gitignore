@@ -7,3 +7,6 @@ main/static/report/*.txt
 __py
 __pycache__/
 tmp/
+handleData/data/owd.csv
+handleData/data/wang.xlsx
+handleData/data/regions.xlsx

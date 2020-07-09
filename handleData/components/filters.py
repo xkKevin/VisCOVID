@@ -39,6 +39,8 @@ class WeeklyFilter(Component):
         "daysEndToNow": Parameter(IntType, 0)
     }
     def get_func(self):
+        print(self.arg("daysStartToNow"))
+        print("=======")
         return build_filter_weekly(-self.arg('daysStartToNow'), -self.arg('daysEndToNow'))
 
 

@@ -184,28 +184,28 @@ country_seq_descriptions = [
             "id": "weekly_confirmed_data",
             "description": "Weekly confirmed data of each country",
             "process": "seq",
-            "operator": "lambda x : [sum(y['新增确诊'] for y in x)]",
+            "operator": "lambda x: [x[-1]['累计确诊'] -  x[-8]['累计确诊']]",
             "preprocess": [
-                WeeklyFilter(7)
+                WeeklyFilter(10)
             ],
             "postprocess": [
                 Sort(),
                 TopK(),
-                AppendOthers("lambda x: [sum(y['新增确诊'] for y in x[len(x)-7:])]")
+                AppendOthers("lambda x: [x[-1]['累计确诊'] -  x[-8]['累计确诊']]")
             ]
         },
         {
             "id": "weekly_death_data",
             "description": "Weekly death data of each country",
             "process": "seq",
-            "operator": "lambda x : [sum(y['新增死亡'] for y in x)]",
+            "operator": "lambda x: [x[-1]['累计死亡'] -  x[-8]['累计死亡']]",
             "preprocess": [
-                WeeklyFilter()
+                WeeklyFilter(10)
             ],
             "postprocess": [
                 Sort(),
                 TopK(),
-                AppendOthers("lambda x: [sum(y['新增死亡'] for y in x[len(x)-7:])]")
+                AppendOthers("lambda x: [x[-1]['累计死亡'] -  x[-8]['累计死亡']]")
             ]
         },
         # TBD: 死亡累计大于100
@@ -213,24 +213,24 @@ country_seq_descriptions = [
             "id": "weekly_confirmed_growth",
             "description": "Weekly confirmed growth of each country",
             "process": "seq",
-            "operator": "lambda x: [calculate_growth(x[-1]['累计确诊'] - x[-8]['累计确诊'], x[-8]['累计确诊'] - x[-14]['累计确诊'] + x[-14]['新增确诊']) ]",
+            "operator": "lambda x: [calculate_growth(x[-1]['累计确诊'] - x[-8]['累计确诊'], x[-8]['累计确诊'] - x[-15]['累计确诊']) ]",
             "preprocess": [
-                WeeklyFilter(14,0),
-                RecordsFilter("lambda x: reduce(lambda acc, c: acc + c['新增确诊'], x[-7:], 0)>500 and x[-1]['累计确诊'] > 10000")
+                WeeklyFilter(15,0),
+                RecordsFilter("lambda x: x[-1]['累计确诊'] - x[-8]['累计确诊']>500 and x[-1]['累计确诊'] > 10000")
             ],
             "postprocess": [
                 Sort(),
-                InsertAverage( "global","lambda x: [calculate_growth(x[-1]['累计确诊'] - x[-8]['累计确诊'], x[-8]['累计确诊'] - x[-14]['累计确诊'] + x[-14]['新增确诊']) ]")
+                InsertAverage( "global","lambda x: [calculate_growth(x[-1]['累计确诊'] - x[-8]['累计确诊'], x[-8]['累计确诊'] - x[-15]['累计确诊'] ) ]")
             ]
         },
         {
             "id": "weekly_death_growth",
             "description": "Weekly death growth of each country",
             "process": "seq",
-            "operator": "lambda x: [calculate_growth(x[-1]['累计死亡'] - x[-8]['累计死亡'], x[-8]['累计死亡'] - x[-14]['累计死亡'] + x[-14]['新增死亡']) ]",
+            "operator": "lambda x: [calculate_growth(x[-1]['累计死亡'] - x[-8]['累计死亡'], x[-8]['累计死亡'] - x[-15]['累计死亡']) ]",
             "preprocess": [
-                WeeklyFilter(14,0),
-                RecordsFilter("lambda x: reduce(lambda acc, c: acc + c['新增死亡'], x[-7:], 0)>100 and x[-1]['累计死亡'] > 300" )
+                WeeklyFilter(15,0),
+                RecordsFilter("lambda x: x[-1]['累计死亡'] - x[-8]['累计死亡'] >100 and x[-1]['累计死亡'] > 300" )
             ],
             "postprocess": [
                 Sort(),
