@@ -7,11 +7,82 @@ import datetime
 import dateutil.parser
 import urllib.request
 from functools import reduce
+import os
 
-def store_selected_countries(db, excel):
+
+
+def extract_region_sheet(sheet, name):
+    sheet = sheet[2:]
+    objs = []
+    sheet = sheet.replace(pd.NaT, np.nan)
+    for index, row in sheet.iterrows():
+        if type(row[1]) == pd._libs.tslibs.nattype.NaTType:
+            break
+        obj = {
+            "日期": row[0],
+            "新增确诊": row[1],
+            "新增治愈": row[2],
+            "地区": name
+        }
+        objs.append(obj)
+    return objs
+
+def extract_stage_sheet(sheet):
+    sheet = sheet[1:]
+    stages = ["上行", "下行", "震荡", "尾期"]
+    def f(acc, c):
+        acc[c] = [],
+        return acc
+    stage_records_index = reduce(f, stages, {})
+    
+    def build_obj(item):
+        # index = item[0]
+        # stage = item[1]
+        obj = {
+            "日期": item['split'][0],
+            "新增确诊": item['split'][1],
+            "新增治愈": item['split'][2],
+            "阶段": item['stage'] 
+        }
+        return obj
+    all_stages = []
+    for index, row in sheet.iterrows():
+        if type(row[1]) == pd._libs.tslibs.nattype.NaTType:
+            break
+        splits = list(map(lambda i: {"split": row[3*i: 3*i+3], "stage": stages[i]}, range(4)))
+        objs = list(map(build_obj, splits))
+        all_stages.extend(objs)
+    return all_stages
+
+def store_region_records(db, config):
+    db.region_records.remove({})
+    db.stage_records.remove({})
+    # region_files = os.listdir(config['path']['regions'])
+    # for filename in region_files:
+    fp = open(config['path']['regions'], "rb")
+    excel_df = pd.read_excel(fp, None)
+    region_names = ["全球", "非洲", "周边", "一带一路"]
+    for sheet_name in excel_df.keys():
+        if sheet_name in region_names:
+            objs = extract_region_sheet(excel_df[sheet_name], sheet_name)
+            db.region_records.insert_many(objs)
+        elif sheet_name == "四个阶段分别合计":
+            objs = extract_stage_sheet(excel_df[sheet_name])
+            db.stage_records.insert_many(objs)
+
+
+def store_ineffective_countries(db, ineffective):
+    db['ineffective_countries'].remove({})
+    if len(ineffective) == 0:
+        return False
+
+    ineffective = list(map(lambda x: {"chinese": x}, ineffective))
+    db['ineffective_countries'].insert_many(ineffective)
+def store_selected_countries(db, selected):
     selected_countries = db["selected_countries"]
     selected_countries.remove({})
-    selected = list(filter(lambda x:  x not in ["全球", "全球2", "法国CDC", "澳门", "台湾", "香港", "中国大陆", "Sheet1"],excel.keys()))
+    # selected = list(filter(lambda x:  x not in ["全球", "全球2", "法国CDC", "澳门", "台湾", "香港", "中国大陆", "Sheet1"] and x[:2]!='Sh',excel.keys()))
+    # selected = list(filter(lambda x: x not in excluded, selected))
     selected = list(map(lambda x: {"chinese": x}, selected))
     selected_countries.insert_many(selected)
 
@@ -20,17 +91,22 @@ def extract_sheet(excel, check_date, sheet_name=None):
     objs = []
     df = df.replace(pd.NaT, np.nan)
     columns = ['累计确诊', '新增确诊', '累计死亡', '新增死亡', '百万人口确诊率', '百万人口死亡率']
-    
     # necessary_columns = ['累计确诊', '新增确诊', '累计死亡', "新增死亡", '累计治愈',  '百万人口确诊率'， '百万人口死亡率' ]
+    base_date = datetime.datetime(2020, 2, 1)
     for index, row in df.iterrows():
-        # print(row)
         obj = dict(row)
         obj['sheet_name'] = sheet_name
         if '日期' not in obj.keys():
-            print(sheet_name)
+            pass
         date = obj['日期']
-        date = datetime.datetime(date.year, date.month, date.day)
-        # print(type(check_date))
+        
+        if type(date) == int:
+            date = base_date + datetime.timedelta(days = date - 43862)
+            # continue
+            # pass
+        else:
+            date = datetime.datetime(date.year, date.month, date.day)
+        obj['日期'] = date
         check_datetime = dateutil.parser.parse(check_date) - datetime.timedelta(days=1)
         c = datetime.datetime(check_datetime.year, check_datetime.month, check_datetime.day)
         if date >  c:
@@ -38,7 +114,6 @@ def extract_sheet(excel, check_date, sheet_name=None):
         for key in obj.keys():
             if type(obj[key]) ==  pd._libs.tslibs.nattype.NaTType:
                 obj[key] = np.nan
-        # print(type(row['重症病例']))
         for column in columns:
             if column not in obj.keys():
                 if sheet_name == "全球":
@@ -53,11 +128,37 @@ def extract_sheet(excel, check_date, sheet_name=None):
         objs.append(obj)
     return objs
 
+
+def check_country_missing(db, country):
+    t = db.chinese_conversion.find_one({"sheet": country})
+    chinese = country
+    if t:
+        chinese = t['formal']
+    country = db.countries.find_one({"country_name_chinese_short": chinese})
+    if not country:
+        return False
+    else:
+        return True
+
+
+def get_sheet_type(db, sheet_name):
+    if sheet_name == "Sheet1" or sheet_name[:2] == "Sh" or sheet_name[0] == "S":
+        return "Sheet" 
+    elif sheet_name in ["全球2","法国CDC", "澳门", "台湾", "香港", "中国大陆" , "Sheet1"]:
+        return "Excluded"
+    elif sheet_name == "全球":
+        return "Global"
+    elif not check_country_missing(db, sheet_name):
+        return "Missing"
+    else:
+        return "Country"
+
 def store_excel_data(db, config):
     country_records = db["country_records"]
     global_records = db["global_records"]
     country_records.remove({})
     global_records.remove({})
+    db.missing_countries.remove({})
     fp = open(config['path']['excel'], "rb")
     excel_df = pd.read_excel(fp, None)
     
@@ -72,13 +173,27 @@ def store_excel_data(db, config):
 
         # reduce(lambda x: )
         def f(acc, c):
-            all_fields = list(filter(lambda x:not np.isnan(x), list(c.values())[2:]))
+            all_fields = list(filter(lambda x:not np.isnan(x) and x!=0
+            , list(c.values())[2:]))
             if len(all_fields) == 0:
                 return acc
             else:
                 return c
         t = reduce(f, t, {})
         return t['日期']
+    # def extract_end_date(excel):
+    #     usa_sheet = excel['美国']
+    #     usa_end = extract_sheet_end_date(usa_sheet)
+    #     global_sheet = excel['全球']
+    #     global_end = extract_sheet_end_date(global_sheet)
+        
+    #     return global_end
+    #     print(global_end)
+    #     print(usa_end)
+    #     if global_end < usa_end:
+    #         return global_end
+    #     else:
+    #         return usa_end
     
     end_date = extract_end_date(excel_df)
     end_date += datetime.timedelta(days=1)
@@ -86,18 +201,29 @@ def store_excel_data(db, config):
     config['time']['end'] = end_date.isoformat()
     config['time']['start'] = start_date.isoformat()
     save_config(config)
+    effective_countries = []
+    error_countries = []
     for sheet_name in excel_df.keys():
-        if sheet_name == "Sheet1":
+        sheet_type = get_sheet_type(db, sheet_name)
+        if sheet_type == "Sheet" or sheet_type == "Excluded":
             continue
-        records = extract_sheet(excel_df, config['time']['end'], sheet_name)
-        if sheet_name == "全球":
-            global_records.insert_many(records)
-        elif sheet_name in ["全球2","法国CDC", "澳门", "台湾", "香港", "中国大陆" , "Sheet1"]:
+        elif sheet_type == "Missing":
+            db.missing_countries.insert_one({"chinese": sheet_name})
             continue
         else:
-            country_records.insert_many(records)
-    store_selected_countries(db, excel_df)
-            
+            if sheet_type == "Global":
+                records = extract_sheet(excel_df, config['time']['end'], sheet_name)
+                global_records.insert_many(records)
+            else:
+                try: 
+                    records = extract_sheet(excel_df, config['time']['end'], sheet_name)
+                    country_records.insert_many(records)
+                    effective_countries.append(sheet_name)
+                except:
+                    error_countries.append(sheet_name)
+
+    store_selected_countries(db, effective_countries)
+    store_ineffective_countries(db, error_countries)
 
 def store_country_info(db, config):
     path = config['path']['conrties_info']
@@ -111,7 +237,6 @@ def store_country_info(db, config):
             elif item['phone_code'] == "688":
                 item['country_code3'] = "SRB"
             elif item['phone_code'] == "191":
-                print(item)
                 item['country_code3'] = "HRV"
         
         db.countries.insert_one(item)
@@ -183,7 +308,7 @@ def store_population(db, config, check=False):
 # 
 
 def prepare_country_chinese_conversion(db, config):
-
+    db.chinese_conversion.insert_one({"sheet": "刚果", "formal": "刚果(金)"})
     db.chinese_conversion.insert_one({"sheet": "孟加拉", "formal": "孟加拉国"})
 
 def prepare_dxy_data(db ,config):
@@ -223,15 +348,20 @@ def prepare(config_path="./handleData/config.json"):
     db = client['coronavirus_analysis']
     # fetch_owd_data(db, config)
     
-    store_excel_data(db, config)
-    prepare_owd_data(db, config)
-    # store_selected_countries(db, config)
-    
-    
-    
+    store_region_records(db, config)
+
     store_country_info(db, config)
     store_population(db, config)
     prepare_country_chinese_conversion(db, config)
+
+    store_excel_data(db, config)
+    prepare_owd_data(db, config)
+    # store_selected_countries(db, config)
+
+    
+    
+    
+    
     # check_populations(db, config)
     # prepare_dxy_data(db, config)
 

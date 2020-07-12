@@ -24,7 +24,12 @@ urlpatterns = [
     path('saveImage/', views.saveImage, name="saveImage"),
     path('export/<file_name>/', views.csvFile, name='csvFile'),
     path('dataprocess/', views.dataprocess_index, name="dataprocess"),
+    path('dataprocess/interactive', views.dataprocess_interactive, name="interactiveDataprocess"),
     path('api/prepare', views.apiPrepare, name="apiPrepare"),
     path('api/analyze', views.apiAnalyze, name="apiAnalyze"),
-    path('api/serverReady', views.apiServerReady, name="apiServerReady")
+    path('api/serverReady', views.apiServerReady, name="apiServerReady"),
+    path('lambda/compile', views.lambda_api_compile, name="lambdaApiCompile"),
+    path('lambda/description', views.lambda_api_description_create, name="lambdaApiDescriptionCreate"),
+    path('report2/', views.lambda_page_report, name="lambdaPageReport"),
+    path('lambda/description/empty', views.lambda_api_description_empty, name="lambdaApiDescriptionEmpty")
 ]

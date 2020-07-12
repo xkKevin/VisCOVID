@@ -3,7 +3,10 @@ import os
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from handleData.prepare import prepare
-from handleData.analyze import analyze
+from handleData.analyze import analyze, get_missing_countries, get_ineffective_countries
+from handleData.compiler import Compiler
+from handleData.parser.parser import get_parser
+from handleData.lambdaprocess import LambdaProcess
 import base64, json
 from main.createReport import createReport
 from pymongo import MongoClient, DESCENDING
@@ -13,13 +16,15 @@ import os
 import traceback
 from shutil import copyfile
 import re
+import csv
 # Create your views here.
 wxb_name = "./handleData/data/wang.xlsx"
 world_name = "./handleData/data/owd.csv"
+regions_name = "./handleData/data/regions.xlsx"
 export_path = "./main/static/export"
 report_path = "./main/static/report"
 
-
+lambda_process = LambdaProcess()
 def extract_excel_time(name):
     pattern = "全球及重点国家疫情主要指数数据-(\d*)-(\d*)-(\d*)-(\d*)H(\d*)(.*).xlsx"
     matched = re.match(pattern, name)
@@ -30,6 +35,8 @@ def extract_excel_time(name):
     day = matched.group(3)
     hour = matched.group(4)
     minute = matched.group(5)
+    if not minute:
+        minute = 0
     return {
         "hour": hour,
         "minute": minute
@@ -43,6 +50,47 @@ def random_string(stringLength=8):
 def index(request):
     return render(request, "index.html")
 
+def lambda_page_report(request):
+    client = MongoClient()
+    db = client['coronavirus_analysis']
+    last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
+    missing_countries = get_missing_countries()
+    ineffective_countries = get_ineffective_countries()
+    export_dir = export_path + "/tmp/" 
+    if not os.path.exists(export_dir):
+        os.mkdir(export_dir)
+    analyze(export_dir, descsrc="mongo")
+    context = {
+        "export_dir": "export/" + "tmp" + "/",
+        "missing_countries": missing_countries,
+        "effective_countries": ineffective_countries
+    }
+    return render(request, "report.html", context)
+
+def lambda_api_description_empty(request):
+    if request.method == 'POST':
+        lambda_process.empty_descriptions()
+        return JsonResponse({"success": True})
+    else:
+        return JsonResponse({"success": False, "message": "GET Not Supported"})
+
+def lambda_api_compile(request):
+    if not os.path.exists("./main/static/tmp"):
+        os.mkdir("./main/static/tmp")
+    data = lambda_process.compile_description(request.GET.get("data"))
+    data.to_csv("./main/static/tmp/compiled.csv", index=False, quoting=csv.QUOTE_NONE)
+    response = None
+    # with open('./tmp/compiled.csv') as myfile:
+    #     response = HttpResponse(myfile, content_type='text/csv')
+    #     response['Content-Disposition'] = 'attachment; filename=stockitems_misuper.csv'
+    return JsonResponse({"success": True})
+
+def lambda_api_description_create(request):
+    if request.method == 'POST':
+        lambda_process.create_description(request.POST.get("data"))
+        return JsonResponse({"success": True})
+    else:
+        return JsonResponse({"success": False, "message": "GET Not Supported"})
 def apiServerReady(request):
     client = MongoClient()
     db = client['coronavirus_analysis']
@@ -163,11 +211,14 @@ def report(request):
                     db.due.remove({})
                     db.due.insert_one(due)
                 ourworldindata = request.FILES.get("ourworldindata")
-                with open(wxb_name, "wb") as f1, open(world_name, "wb") as f2:
+                regionsdata = request.FILES.get("regionsdata")
+                with open(wxb_name, "wb") as f1, open(world_name, "wb") as f2, open(regions_name, "wb") as f3:
                     for i in wxb_file.chunks():
                         f1.write(i)
                     for i in ourworldindata.chunks():
                         f2.write(i)
+                    for i in regionsdata.chunks():
+                        f3.write(i)
                 prepare()
                 analyze(export_dir=export_dir)
             db.csv.insert({
@@ -183,9 +234,12 @@ def report(request):
     if db.csv.count() == 0:
         return render(request, "report.html", {"export_dir": ""})
     last_version = list(db.csv.find().sort([("_id", DESCENDING)]).limit(1))[0]
-    
+    missing_countries = get_missing_countries()
+    ineffective = get_ineffective_countries()
     context = {
-        "export_dir": "export/" + last_version['name'] + "/"
+        "export_dir": "export/" + last_version['name'] + "/",
+        "missing_countries": missing_countries,
+        "ineffective_countries": ineffective
     }
     return render(request, "report.html", context)
 
@@ -215,7 +269,8 @@ def saveImage(request):
     if request.method == "POST":
         try:
             baseimg = json.loads(request.POST.get("baseimg"))
-            text = request.POST.get("text","")
+            text = request.POST.get("text", "")
+            num = int(request.POST.get("num", "50"))
 
             for key, value in baseimg.items():
                 with open("%s/%s.png" % (report_path, key),'wb') as f:
@@ -230,7 +285,7 @@ def saveImage(request):
                     if len(line) > 3:
                         with open(path, 'a', encoding='utf-8') as f:
                             f.write(line+"\n")
-            createReport()
+            createReport(num)
         except Exception as e:
             return JsonResponse({"error": "Error!\n"+repr(e)})
 
@@ -242,3 +297,6 @@ def saveImage(request):
 
 def dataprocess_index(request):
     return render( request, "dataprocess.html")
+
+def dataprocess_interactive(request):
+    return render(request, "interactive-dataprocess.html")

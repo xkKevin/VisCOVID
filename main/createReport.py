@@ -18,11 +18,21 @@ report_data_path = "./main/static/report/"
 #     word.Quit()
 
 def renew_text(p, text):
+    if "“" in text or "增速=" in text:
+        return
+    p.clear()
+    p_text = p.add_run(text)
+    p_text.font.name = 'Times New Roman'
+    '''
+    if "增速=" in text:
+        print(p)
+        print(text)
+        
     p.clear()
     p.add_run()
     p.runs[0].text = text
     p.runs[0].font.name = 'Times New Roman'
-
+    '''
 
 def replace_pic(p, pic_list, width=None, height=None):
     p.clear()
@@ -35,7 +45,7 @@ def replace_pic(p, pic_list, width=None, height=None):
             p.runs[0].add_picture(pic, height=height)
 
 
-def createReport():
+def createReport(num=33, compress_threshold=33):
     document = Document(report_data_path + '模板.docx')
     style = document.styles['Normal']
     style.font.name = 'Times New Roman'
@@ -101,7 +111,16 @@ def createReport():
         paragraphs[102],
         paragraphs[103],
         paragraphs[106],
-        paragraphs[109]
+        paragraphs[107],
+        paragraphs[109],
+        paragraphs[111],
+        paragraphs[113],
+        paragraphs[115],
+        paragraphs[117],
+        paragraphs[119],
+        paragraphs[121],
+        paragraphs[123],
+        paragraphs[125]
     ]
     if len(to_replace_text_paragraphs) != len(texts):
         print('error: inconsistent texts')
@@ -142,6 +161,14 @@ def createReport():
     pic_2_16 = ['2_16.png']
     pic_2_17 = ['2_17_a.png', '2_17_b.png']
     pic_2_18 = ['2_18.png']
+    pic_2_19 = ['2_19.png']
+    pic_2_20 = ['2_20.png']
+    pic_2_21 = ['2_21.png']
+    pic_2_22 = ['2_22.png']
+    pic_2_23 = ['2_23.png']
+    pic_2_24 = ['2_24.png']
+    pic_2_25 = ['2_25.png']
+    pic_2_26 = ['2_26.png']
 
     replace_pic(paragraphs[60], pic_2_1, height=Cm(8.6))
     replace_pic(paragraphs[62], pic_2_2, height=Cm(8.6))
@@ -157,10 +184,18 @@ def createReport():
     replace_pic(paragraphs[87], pic_2_12, height=Cm(4))
     replace_pic(paragraphs[91], pic_2_13, height=Cm(5.7))
     replace_pic(paragraphs[94], pic_2_14, height=Cm(5.7))
-    replace_pic(paragraphs[97], pic_2_15, width=Cm(14.5))
-    replace_pic(paragraphs[100], pic_2_16, width=Cm(14.5))
+    replace_pic(paragraphs[97], pic_2_15, width=Cm(10.9 if num <= compress_threshold else 14.5))
+    replace_pic(paragraphs[100], pic_2_16, width=Cm(10.9 if num <= compress_threshold else 14.5))
     replace_pic(paragraphs[104], pic_2_17, width=Cm(7.3))
-    replace_pic(paragraphs[108], pic_2_18, width=Cm(14.5))
+    replace_pic(paragraphs[108], pic_2_18, width=Cm(12.6 if num <= compress_threshold else 14.5))
+    replace_pic(paragraphs[110], pic_2_19, height=Cm(10))
+    replace_pic(paragraphs[112], pic_2_20, height=Cm(10))
+    replace_pic(paragraphs[114], pic_2_21, height=Cm(10))
+    replace_pic(paragraphs[116], pic_2_22, height=Cm(10))
+    replace_pic(paragraphs[118], pic_2_23, height=Cm(10))
+    replace_pic(paragraphs[120], pic_2_24, height=Cm(10))
+    replace_pic(paragraphs[122], pic_2_25, height=Cm(10))
+    replace_pic(paragraphs[124], pic_2_26, height=Cm(10))
 
     file_name = report_data_path + 'report.docx'
 
@@ -173,4 +208,5 @@ def createReport():
 
 
 if __name__ == "__main__":
+    # 33 10.7
     createReport()

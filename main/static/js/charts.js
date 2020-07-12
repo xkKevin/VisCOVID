@@ -30,14 +30,15 @@ var CSS_STYLE = {
         height: "216px"
     },
     'pieChart':{
-        width: "800px",
+        width: "850px",
         height: "600px",
         radius: '50%',
-        center: ['48%', '35%'],
+        center: ['47%', '35%'],
         fontSizeText: 18,
         fontSizeNum: 20
     }
 };
+var case_scale = [0, 1000, 5000, 10000, 50000, 100000, 200000, 500000, 1000000];
 
 function worldMap(data, name, div_id, num_max) {
     var myChart = echarts.init(document.getElementById(div_id));
@@ -48,17 +49,31 @@ function worldMap(data, name, div_id, num_max) {
     }
 
     let pieces = [];
-    let color = name === "累计病死人数"? CSS_STYLE.color9_blue : CSS_STYLE.color9_red;
-    for (let i = 0; i > -9; i--) {
-        let min = pieces_map(data_max, i);
-        let label_min = i>-8 ? min === 500000 ? 200000 : min :0;
-        pieces.push({
-            min: label_min,
-            max: pieces_map(min, 1) === 500000 ? 200000 : pieces_map(min, 1),
-            color: color[8+i],
-            label: String(label_min)
-        })
+    let color = CSS_STYLE.color9_red;
+
+    if (name === "累计病死人数"){
+        color = CSS_STYLE.color9_blue;
+        for (let i = 0; i > -9; i--) {
+            let min = pieces_map(data_max, i);
+            let label_min = i > -8 ? min :0;
+            pieces.push({
+                min: label_min,
+                max: pieces_map(min, 1),
+                color: color[8 + i],
+                label: String(label_min)
+            })
+        }
+    }else {
+        for (let i = 0; i < 9; i++) {
+            pieces.push({
+                min: case_scale[i],
+                max: case_scale[i + 1],
+                color: color[i],
+                label: String(case_scale[i])
+            })
+        }
     }
+
     var option = {
         backgroundColor: CSS_STYLE.backgroundColor,
         width: CSS_STYLE.bigChart.width,
@@ -80,7 +95,7 @@ function worldMap(data, name, div_id, num_max) {
                 fontFamily: "楷体",
                 fontWeight: "bold"
             },
-            left: '60px',
+            left: '40px',
             bottom: '40px'
         },
         /* tooltip: {
@@ -114,7 +129,7 @@ function worldMap(data, name, div_id, num_max) {
             // ],
             orient: 'horizontal',
             bottom: 15,
-            left: '60px',
+            left: '40px',
             itemGap: 10,
             textStyle: {
                 color: '#000',
@@ -169,7 +184,7 @@ function pieChart(data, name, div_id) {
                         }
                         table += `</textarea><h5>系统配置</h5>
                                 radius: <input type="text" value="${opt.series[0].radius}">（圆半径相对于整个图的大小）<br>
-                                center: <input type="text" value="${opt.series[0].center}">（圆心在图中的位置(x,y)）`;
+                                center: <input type="text" value="${opt.series[0].center}" class="last">（圆心在图中的位置(x,y)）`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -216,6 +231,7 @@ function pieChart(data, name, div_id) {
             type: 'pie',
             radius: CSS_STYLE.pieChart.radius,
             center: CSS_STYLE.pieChart.center,
+            animationType: 'scale',  // 缩放效果，解决边框问题
             animation: false,
             data: data.map(function (x) {
                 return {"name": x["国家"], "value": x[name]}
@@ -276,7 +292,7 @@ function barchart(data, name, div_id) {
                 dataView: {
                     readOnly: false,
                     optionToContent: function(opt) {
-                        console.log(opt);
+                        // console.log(opt);
                         let xAxis_max = opt.xAxis[0].max ? opt.xAxis[0].max : "";
                         let xAxis_interval = opt.xAxis[0].interval ? opt.xAxis[0].interval : "";
                         let data_len = opt.series[0].data.length;
@@ -287,7 +303,7 @@ function barchart(data, name, div_id) {
                         }
                         table += `</textarea><h5>系统配置</h5>
                                 max: <input type="text" value="${xAxis_max}"><br>
-                                interval: <input type="text" value="${xAxis_interval}">`;
+                                interval: <input type="text" value="${xAxis_interval}" class="last">`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -386,7 +402,7 @@ function barchart(data, name, div_id) {
     });
 }
 
-function barchart_num(data, name, div_id) {
+function barchart_num(data, name, div_id, span) {
     data = data.map((x)=> [x["国家"],x[name]]);
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
@@ -399,7 +415,7 @@ function barchart_num(data, name, div_id) {
                 dataView: {
                     readOnly: false,
                     optionToContent: function(opt) {
-                        console.log(opt);
+                        // console.log(opt);
                         let xAxis_max = opt.xAxis[0].max ? opt.xAxis[0].max : "";
                         let xAxis_interval = opt.xAxis[0].interval ? opt.xAxis[0].interval : "";
                         let data_len = opt.series[0].data.length;
@@ -410,7 +426,7 @@ function barchart_num(data, name, div_id) {
                         }
                         table += `</textarea><h5>系统配置</h5>
                                 max: <input type="text" value="${xAxis_max}"><br>
-                                interval: <input type="text" value="${xAxis_interval}">`;
+                                interval: <input type="text" value="${xAxis_interval}" class="last">`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -473,8 +489,8 @@ function barchart_num(data, name, div_id) {
         xAxis: {
             type: 'value',
             position: 'top',
-            interval: 4000000,
-            max: 16000000,
+            max: span[0], // 16000000,
+            interval: span[1], // 4000000,
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.median,
                 // formatter: function(param) {
@@ -687,7 +703,7 @@ function bi_directional_barchart(data, name, div_id) {
                         var axisData = opt.xAxis[0].data;
                         var series = opt.series;
                         let data_len = opt.yAxis[0].data.length;
-                        console.log(opt);
+                        // console.log(opt);
                         var table = `<h5>表格数据</h5>
                         <textarea rows='${data_len+1}' style="width: 100%">国家,${opt.series[0].name}`;
                         for (let i =0;i<data_len;i++){
@@ -736,7 +752,7 @@ function bi_directional_barchart(data, name, div_id) {
                          });
                          opt.series[0].data = handle_data;
                          opt.yAxis[0].data = countries;
-                        console.log(opt);
+                        // console.log(opt);
                         myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
                         return opt;
                     }
@@ -818,6 +834,7 @@ function bi_directional_barchart(data, name, div_id) {
         pixelRatio: 2,
         excludeComponents: ['toolbox'],
     });
+    return countries.length;  // 返回有多少个国家数量（包括“各国平均”）
 }
 
 function linechart_num(data, div_id) {
@@ -831,6 +848,9 @@ function linechart_num(data, div_id) {
 
     let handle_data_len = handle_data.value.length;
     let precision_len = format_number(handle_data.value[handle_data_len-1]).length;
+    if (handle_data.value[handle_data_len-1] > 8000000){
+        precision_len = 10;
+    }
 
     var myChart = echarts.init(document.getElementById(div_id));
 
@@ -859,7 +879,7 @@ function linechart_num(data, div_id) {
                 showMaxLabel: true,
                 showMinLabel: false,
                 // splitNumber: 3
-                interval: Math.round((handle_data_len)/6)-1,
+                interval: Math.round((handle_data_len)/5)-1,
             },
             nameTextStyle: {
                 align: "left",
@@ -1020,7 +1040,8 @@ function linechart_rate(data, div_id) {
     });
 
     let handle_data_len = handle_data.value.length;
-    let precision_len = (handle_data.value[handle_data_len-1]*100).toPrecision(1).length;
+    let precision_len = div_id.includes('a') ? 4 : 1;
+    // let precision_len = (handle_data.value[handle_data_len-1]*100).toPrecision(1).length;
     // console.log(handle_data_len);
 
     var myChart = echarts.init(document.getElementById(div_id));
@@ -1051,7 +1072,7 @@ function linechart_rate(data, div_id) {
                 showMaxLabel: true,
                 showMinLabel: false,
                 // splitNumber: 3
-                interval: Math.round((handle_data_len)/6)-1,
+                interval: Math.round((handle_data_len)/5)-1,
             },
             nameTextStyle: {
                 align: "left",
@@ -1098,6 +1119,169 @@ function linechart_rate(data, div_id) {
             color: CSS_STYLE.color3[0],
             animation: false,
         }]
+    };
+    myChart.setOption(option);
+    imagesInfo[div_id] = myChart.getDataURL({
+        pixelRatio: 2,
+        excludeComponents: ['toolbox'],
+    });
+}
+
+function bi_yAxis_barchart(data, name, div_id, span) {
+    data = data.map((x)=> [x["日期"],x["新增确诊（左）"],x["新增治愈（右）"]]);
+    let x_data = data.map(function(x) {
+       let date = new Date(x[0]);
+       return String(date.getMonth()+1)+'/'+String(date.getDate());
+    });
+    var myChart = echarts.init(document.getElementById(div_id));
+    let option = {
+        title: {
+            text: name,
+            left: 'center',
+            textStyle: {
+                color: CSS_STYLE.color3[0],
+                fontSize: 26,
+                fontWeight: "bold"
+            }
+        },
+        toolbox: {
+            feature: {
+                dataView: {
+                    readOnly: false,
+                    optionToContent: function(opt) {
+                        // console.log(opt.title);
+                        let data_len = opt.series[0].data.length;
+                        var table = `<h5>表格数据</h5>
+                        <textarea rows='${data_len+1}' style="width: 100%">日期,${opt.series[0].name},${opt.series[1].name}`;
+                        for (let i =0;i<data_len;i++){
+                            table += "\n" + opt.xAxis[0].data[i] + "," + opt.series[0].data[i] + "," + opt.series[1].data[i];
+                        }
+                        table += `</textarea><h5>系统配置</h5>
+                                title: <input type="text" value="${opt.title[0].text}" style="width: 60%"><br>
+                                left max: <input type="text" value="${opt.yAxis[0].max}"><br>
+                                right max: <input type="text" value="${opt.yAxis[1].max}"><br>
+                                interval: <input type="text" value="${opt.yAxis[0].interval}" class="last">`;
+                        return table
+                    },
+                    contentToOption: function(html, opt) {
+                        let content = $(html).children("textarea").val().split("\n");
+                        let handle_data = {data:[[],[]],xAxis:[]};
+                        content.slice(1).forEach(function(x, index){
+                            let data = x.split(',');
+                            handle_data.xAxis.push(data[0]);
+                            handle_data.data[0].push(data[1]);
+                            handle_data.data[1].push(data[2]);
+                         });
+                         opt.series[0].data = handle_data.data[0];
+                         opt.series[1].data = handle_data.data[1];
+                         opt.xAxis[0].data = handle_data.xAxis;
+                        let inputs = $(html).children("input");
+                        opt.title[0].text = inputs.eq(0).val();
+                        opt.yAxis[0].max = parseFloat(inputs.eq(1).val());
+                        opt.yAxis[1].max = parseFloat(inputs.eq(2).val());
+                        opt.yAxis[0].min = -opt.yAxis[1].max;
+                        opt.yAxis[1].min = -opt.yAxis[0].max;
+                        opt.yAxis[0].interval = opt.yAxis[1].interval = parseFloat(inputs.eq(3).val());
+                        myChart.clear(); // 清空当前绘制的图形，要不然只会数据更新，样式不更新
+                        return opt;
+                    }
+                },
+                // restore: {},
+                saveAsImage: {
+                    name: div_id
+                }
+            }
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            },
+            formatter: function(param){
+                return param[0].name +"<br>" + param[0].marker + param[0].seriesName + ": " + param[0].value
+                        + "<br>" + param[1].marker + param[1].seriesName + ": " + (param[1].value);
+            }
+        },
+        legend:{
+            itemGap: 120,
+            top: 43,
+            textStyle: {
+                fontSize: CSS_STYLE.fontSize.small,
+            },
+        },
+        grid: {
+            top: 95,
+            bottom: 46,
+            left: 92,
+            right: 92
+        },
+        yAxis: [{
+            type: 'value',
+            splitLine: {
+                lineStyle: {
+                    type: 'dashed'
+                }
+            },
+            axisLine: {show: false},
+            axisTick: {show: false},
+            axisLabel: {
+                fontSize: CSS_STYLE.fontSize.small-2,
+            },
+            max:span[0],
+            min:-span[1],
+            interval: span[2]
+        },{
+            type: 'value',
+            position: 'right',
+            inverse: true,
+            axisLine: {show: false},
+            axisTick: {show: false},
+            axisLabel: {
+                fontSize: CSS_STYLE.fontSize.small-2,
+            },
+            max:span[1],
+            min:-span[0],
+            interval: span[2]
+        }],
+        xAxis: [{
+            type: 'category',
+            axisLine: {onZero: false},
+            axisTick: {alignWithLabel: true},
+            axisLabel: {
+                // rotate: 90,
+                // showMaxLabel: true,
+                margin: 17, // default: 8 label与x轴刻度的距离
+                fontSize: CSS_STYLE.fontSize.small-3,
+
+            },
+            data: x_data,
+        },{
+            type: 'category',
+            axisLine: {show: false},
+            axisTick: {show: false},
+            axisLabel: {show: false},
+            data: x_data,
+        }],
+        series: [
+            {
+                yAxisIndex: 0,
+                xAxisIndex: 0,
+                name: '新增确诊（左）',
+                // color: 'red',//CSS_STYLE.color3[0],
+                type: 'bar',
+                data: data.map((x) => x[1]),
+                animation: false,
+            },{
+                yAxisIndex: 1,
+                xAxisIndex: 1,
+                // stack: 'new',
+                name: '新增治愈（右）',
+                color: 'green',//CSS_STYLE.color3[1],
+                type: 'bar',
+                data: data.map((x) => x[2]),
+                animation: false,
+            }
+        ]
     };
     myChart.setOption(option);
     imagesInfo[div_id] = myChart.getDataURL({

@@ -28,7 +28,7 @@
 
 ——上周死亡增速最快国家：加纳（700%）、厄瓜多尔（563%）
 
-
+`python main/createReport.py`
 
 ## Deploy on Windows
 ### Reference

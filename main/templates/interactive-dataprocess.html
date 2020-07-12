@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>疫情数据</title>
+    <script src="{% static 'js/dataprocess-interface.bundle.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <script src="{% static 'js/bootstrap.min.js' %}"></script> 
+    
+    <script src="{% static 'js/echarts.js' %}"></script>
+    <script src="{% static 'js/interactive-charts.js' %}"></script>
+    <script src="{% static 'js/handle_data.js' %}"></script>
+    
+    
+    <script src="{% static 'js/d3.v4.min.js' %}"></script>
+
+<script>
+  let visConfigs = [
+    {
+      "id": "global_confirmed_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_death_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_confirmed_per_million_seq",
+      "chart":"linechart_rate" 
+    },
+    {
+      "id": "global_death_rate_seq",
+      "chart":"linechart_rate" 
+    },
+    {
+      "id": "global_confirmed_weekly_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_confirmed_death_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_death_weekly_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_newly_confirmed_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "global_newly_death_seq",
+      "chart":"linechart_num" 
+    },
+    {
+      "id": "confirmed_data",
+      "chart":"piechart" 
+    },
+    {
+      "id": "death_data",
+      "chart":"piechart" 
+    },
+    {
+      "id": "test_rate_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "positive_rate_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "test_num_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "confirmed_rate_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "death_rate_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "recovery_rate_data",
+      "chart":"barchart" 
+    },
+    {
+      "id": "weekly_confirmed_data",
+      "chart":"piechart" 
+    },
+    {
+      "id": "weekly_death_data",
+      "chart":"piechart" 
+    },
+    {
+      "id": "weekly_confirmed_growth",
+      "chart":"bi_directional_barchart" 
+    },
+    {
+      "id": "weekly_death_growth",
+      "chart":"bi_directional_barchart" 
+    },
+    {
+      "id": "weekly_confirmed_growth_condition_1",
+      "chart":"bi_directional_barchart" 
+    },
+    {
+      "id": "weekly_death_growth_condition_1",
+      "chart":"bi_directional_barchart" 
+    },
+    {
+      "id": "regions_daily_confirmed_recovered_global",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "regions_daily_confirmed_recovered_tbr",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "regions_daily_confirmed_recovered_africa",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "regions_daily_confirmed_recovered_around",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "stage_daily_confirmed_recovered_upward",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "stage_daily_confirmed_recovered_downward",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "stage_daily_confirmed_recovered_vibration",
+      "chart": "bi_yaxis_barchart"
+    },
+    {
+      "id": "stage_daily_confirmed_recovered_final",
+      "chart": "bi_yaxis_barchart"
+    },
+    
+  ]
+  var imagesInfo = {};
+  function checkServerReady(){
+    let url = "{% url 'apiServerReady' %}";
+    $.ajax({
+      url: url,
+      method: "GET",
+      success: data => {
+        if(!data.ready){
+            $("#analyzeButton").addClass("btn-secondary");
+            $("#analyzeButton").prop("disabled", true);
+            $("#analyzeButton").text("请先上传数据")
+
+        }else{
+            $("#analyzeButton").addClass("btn-primary");
+            $("#analyzeButton").disabled = false;
+        }
+      }
+    })
+  }
+  checkServerReady();
+</script>
+
+<script>
+
+  let parser = new lambdaDataprocessInterface.Parser("safe");
+  var descriptions = []
+  var index = 0;
+  var selectedDescription = null;
+  function download(content, fileName, contentType) {
+    var a = document.createElement("a");
+    var file = new Blob([content], {type: contentType});
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+  }
+
+  let onClickReport = () => {
+    window.location.href = "/report2";
+  }
+  let onClickOutput = () =>{
+    let desc = updateDescriptionClient();
+    let descJson = parser.jsonifyDescription(desc);    
+    descJson = JSON.stringify(descJson);
+    download(descJson, 'output.json', 'text/plain');
+  }
+  let onClickEmpty = ()=>{
+    $.post({
+      url: "/lambda/description/empty",
+      success: response => {
+        if (response.success){
+          alert("清空成功");
+        }else{
+          alert("清空失败");
+        }
+        
+      }
+    })
+  }
+  let createDescription = (description) => {
+    console.log(description)
+    let descriptionJson = parser.jsonifyDescription(description)
+    $.post({
+      url: "/lambda/description",
+      data: {data: JSON.stringify(descriptionJson)},
+      success: response => {
+         if (response.success){
+          alert("保存成功");
+        }else{
+          alert("保存失败");
+        }
+    }
+  }
+    )
+  }
+  
+  let removeComponentInstance = (index, processOp) => {
+    if (processOp === "postprocess"){
+      selectedDescription.postprocess = selectedDescription.postprocess.filter((c, i)=> i!==index);
+    }else if(processOp === "preprocess"){
+      selectedDescription.preprocess = selectedDescription.preprocess.filter((c, i)=> i!==index);
+    }
+    console.log(selectedDescription);
+    removeDescription();
+    displayDescription(index);
+    // $("#" + listId).children()[index].remove();
+  }
+  let updateDescriptionClient = ()=>{
+    let description = selectedDescription;
+    description.operator = $("#operator").val();
+    description.postprocess = description.postprocess.map((component, i)=>{
+        for (let pName of Object.keys(component.componentClass.parameters)){
+          let parameterId = "#postprocess-" + i.toString() + "-" + pName;
+          console.log(parameterId);
+          component.args[pName] = $(parameterId).val();
+        }
+        return component;
+    })
+    return description;
+  }
+  
+  let onClickSave = ()=>{
+    let description = updateDescriptionClient();
+    createDescription(description)
+  }
+  let compileDescription = (description, visFunc) => {
+    console.log(description)
+    let descriptionJson = parser.jsonifyDescription(description)
+    $.get({
+      url: "/lambda/compile",
+      data: {data: JSON.stringify(descriptionJson)},
+      success: response => {
+        d3.csv("{% static 'tmp/compiled.csv' %}", function (error, csvdata) {
+        if(error){
+        }else{
+            visFunc(csvdata, "确诊率", 'result');
+        }
+      });
+      }
+    })
+  }
+  let onClickCompilation = ()=>{
+      let visTypeName = $("#visSelected").val();
+      let visType = visTypes.filter(v => v.id===visTypeName)[0];
+      let visFunc = visType.visFunc;
+      let funcs = [
+          pieChart, barchart, linechart_rate, linechart_num, bi_yAxis_barchart
+      ]
+    let description = updateDescriptionClient();
+    compileDescription(description, visFunc);
+  }
+  let reloadDescription = ()=>{
+    removeDescription();
+    displayDescription(index);
+  }
+  let onClickAppendComponent = (componentClassName, processOp)=>{
+    let processes; 
+    let componentClass = parser.componentClassIndex[componentClassName];
+    if(processOp === "postprocess"){
+      selectedDescription.postprocess.push(new lambdaDataprocessInterface.ComponentInstance(componentClass));
+    }else if(processOp === "preprocess"){
+      selectedDescription.preprocess.push(new lambdaDataprocessInterface.ComponentInstance(componentClass));
+    }
+    console.log(selectedDescription);
+    // if(processOp === "postprocess"){
+    //   selectedDescription.postprocess = processes;
+    // }else if(processOp === "preprocess"){
+    //   selectedDescription.preprocess = processes;
+    // }
+    reloadDescription();
+  }
+  let visTypes = [
+    {
+      "id": "piechart",
+      "chinese": "饼图",
+      "visFunc": pieChart,
+    },
+    {
+      "id": "barchart",
+      "chinese": "条形图",
+      "visFunc": barchart,
+    },
+    {
+      "id": "bi_directional_barchart",
+      "chinese": "双向条形图",
+      "visFunc": bi_directional_barchart
+    },
+    {
+      "id": "linechart_rate",
+      "chinese": "比率折线图",
+      "visFunc": linechart_rate,
+    },
+    {
+      "id": "linechart_num",
+      "chinese": "数字折线图",
+      "visFunc": linechart_num,
+    },
+    {
+      "id": "bi_yaxis_barchart",
+      "chinese": "双y轴条形图",
+      "visFunc": bi_yAxis_barchart,
+    },
+  ];
+  let buildRenderComponentClass = (processOp) =>{ return  (componentClass) =>{
+    return `
+      <button class="dropdown-item" onClick="onClickAppendComponent('${componentClass.name}', '${processOp}')">${componentClass.name}</button>
+    `
+  }}
+
+  let displayDescription = (index) => {
+    let preprocessComponentClassesHTML = Object.entries(parser.componentClassIndex).map(c=>buildRenderComponentClass("preprocess")(c[1])).join(" ");
+
+    let postprocessComponentClassesHTML = Object.entries(parser.componentClassIndex).map(c=>buildRenderComponentClass("postprocess")(c[1])).join(" ");
+    let description = selectedDescription;
+    //  selectedDescription = description;
+      let descriptionRowId = "description" + index.toString();
+      $("#descriptionMenuSelected").text(description.id);
+      $("#description-list").append('<div id=' + descriptionRowId + ' class="row"></div>');
+      let descriptionVisConfig = visConfigs.filter(v=>v.id === description.id)[0];
+      
+      let optionsHTML = visTypes.map(visType=>{
+        if(visType.id === descriptionVisConfig.chart){
+          return `
+            <option value=${visType.id} selected>${visType.chinese}</option>
+          `
+        }
+        return `
+          <option value=${visType.id}>${visType.chinese}</option>
+        `
+      })
+      let visHTML = `
+        <li class="list-group-item">
+            <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    可视化选项
+                    </h5>
+                  
+
+                  <p class="card-text">
+                    <div class="input-group mb-3">
+                        <select id="visSelected" class="custom-select" id="inputGroupSelect01">
+                           
+                           ${optionsHTML}
+                        </select>
+                    </div>
+
+                  </p>
+                </div>
+            
+            </div>
+          </li>
+      `
+      let buildRenderProcess = (listId)=>{ return (c, i) => {
+        let instanceId = i.toString();
+          let parameterHTML = Object.entries(c.componentClass.parameters).map( item =>{ 
+            let pName = item[0];
+            let parameter = item[1];
+            let parameterId = listId + "-" + i.toString() + "-" + pName;
+            
+            return `
+              <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="inputGroup-sizing-sm">${pName}</span>
+                    </div>
+                    <input id=${parameterId} type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" value="${c.getArg(pName)}">
+              </div>
+          `})
+          return `
+          <li id=${instanceId} class="list-group-item">
+            <div class="card">
+                <div class="card-body">
+                  <button type="button" class="close" aria-label="Close" onClick="removeComponentInstance(${i}, '${listId}')">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h5 class="card-title">
+                    ${c.componentClass.name}
+                  </h5>
+                  
+
+                  <p class="card-text">
+                    ${parameterHTML}
+                  </p>
+                </div>
+            
+            </div>
+          </li>
+          `
+        }};
+      let preprocessHTML = description.preprocess.map(
+        buildRenderProcess("preprocess")
+      ).reduce((acc,c)=>acc+c, "");
+      let postprocessHTML = description.postprocess.map(
+        buildRenderProcess("postprocess")
+      ).reduce((acc,c)=>acc+c, "");
+      let descriptionHTML = `
+        <div class="card">
+          
+          <div class="card-body">
+            <h5 class="card-title">数据源</h5>
+            <p class="card-text">
+              各国数据
+            </p>
+          </div>
+        <ul class="list-group list-group-horizontal-xl">
+        
+        </ul>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="row d-flex align-self-center">
+              <h5 class="card-title">预处理</h5>
+
+              <div class="btn-group" class="list-add">
+                  
+                  <button type="button" class="close col-md-4 offset-md-4 list-add" data-toggle="dropdown" aria-label="Close">
+                      <span aria-hidden="true">+</span>
+                  </button>
+                  
+                  <div class="dropdown-menu">
+                    ${preprocessComponentClassesHTML}
+                  </div>
+                </div>
+                </div>
+            <ul class="list-group justify-content-around" id="preprocess">
+                ${preprocessHTML}
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">lambda算子</h5>
+            <input id="operator" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" value="${description.operator}">
+            
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="row d-flex align-self-center">
+            
+            <h5 class="card-title">后处理</h5>
+            
+
+              <div class="btn-group" class="list-add">
+                
+                <button type="button" class="close col-md-4 offset-md-4 list-add" data-toggle="dropdown" aria-label="Close">
+                    <span aria-hidden="true">+</span>
+                </button>
+                
+                <div class="dropdown-menu">
+                  ${postprocessComponentClassesHTML}
+                </div>
+              </div>
+              
+
+            
+            </div>
+            <ul class="list-group justify-content-around" id="postprocess">
+                ${postprocessHTML}
+                ${visHTML}
+            </ul>
+            
+          </div>
+        </div>
+        
+        <div id="result" style="width: 600px;height:900px;">
+        </div>
+      `
+      $("#" + descriptionRowId).append(descriptionHTML);
+      
+  }
+  let removeDescription = ()=>{
+        $("#description-list").empty();
+  }
+  let changeDisplayed = (localIndex) => {
+    removeDescription();
+    index = localIndex;
+    let description = descriptions[index];
+    selectedDescription = description;
+    displayDescription(index)
+  }
+  $.get("{% static 'json/componentClasses.json' %}", response =>{
+    parser.loadComponentClasses(response);
+    $.get("/static/json/default2.json", (response)=>{
+      descriptions = response['descriptions'].map(parser.parseDescription);
+      descriptions.map((description, index) =>{
+        $("#descriptionMenu").append('<a class="dropdown-item" href="#one" onclick="changeDisplayed(' + index.toString() + ')">' + description['id'] + '</a>');
+      })
+      selectedDescription = descriptions[0]
+      index = 0;
+      displayDescription(0)
+    })
+  })
+  
+</script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">疫情数据控制面板</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="btn btn-primary" onclick="onClickCompilation()">
+                  运行
+              </div>
+              <div class="btn btn-primary nav-btn" onclick="onClickSave()">
+                  保存
+              </div>
+              
+              <div class="btn btn-primary nav-btn" onclick="onClickEmpty()">
+                  清空
+              </div>
+              <div class="btn btn-primary nav-btn" onclick="onClickReport()">
+                  报告
+              </div>
+              <div class="btn btn-primary nav-btn" onclick="onClickOutput()">
+                  导出
+              </div>
+
+              <ul class="nav nav-pills nav-btn">
+                <li class="nav-item dropdown">
+                  <a id="descriptionMenuSelected" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                  <div id="descriptionMenu" class="dropdown-menu">
+                      
+                    <div role="separator" class="dropdown-divider"></div>
+                    
+                  </div>
+                </li>
+              </ul>
+</nav>
+
+<div id="description-list" class="container-fluid"></div>
+
+  <!-- <div class="container">
+
+          <nav id="navbar-example2" class="navbar navbar-light bg-light">
+              <a class="navbar-brand" href="#">数据生成控制</a>
+              <div class="btn btn-primary" onclick="onClickCompilation()">
+                  编译
+              </div>
+              <ul class="nav nav-pills">
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                  <div id="descriptionMenu" class="dropdown-menu">
+                      
+                    <div role="separator" class="dropdown-divider"></div>
+                    
+                  </div>
+                </li>
+              </ul>
+          </nav>
+    <div id="description-list" class="container">
+      
+    </div>
+       
+  </div> -->
+<script>
+  function prepareExcel(){
+    let url = "{% url 'apiPrepare' %}";
+    let ajaxData = new FormData();
+    let fileNames = ["wxb_file", "ourworldindata"]
+    $("#excelSpinner").attr("style", "")
+    $.each($(".attachment"), function(i, obj) {
+        $.each(obj.files,function(j,file){
+            ajaxData.append(fileNames[i], file);
+        });
+    });
+    // ajaxData.append('wxb_file', $("#wxbFile").files[0])
+    // ajaxData.append('wxb_file', $("#owdFile").files[0])
+    $.ajax({
+      url: url,
+      data: ajaxData,
+      type: "POST",
+      contentType: false,
+      processData: false,
+      success: data => {
+        $("#excelSpinner").attr('style',"display:none;")
+        $("#analyzeButton").addClass("btn-primary");
+        $("#analyzeButton").disabled = false;
+        $("#analyzeButton").text = "生成报告"
+      }
+    })
+  }
+
+  function analyzeData(){
+    let url = "{% url 'apiAnalyze' %}";
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: {},
+      success: data => {
+        window.location.href = "/report";
+      }
+    })
+
+  }
+</script>
+
+</body>
+
+<style>
+  .my-button{
+    margin-left: 15px
+  }
+  #description-list {
+    margin-left: 50px;
+    margin-right: 50px;
+    margin-top: 30px;
+  }
+  .list-add {
+    margin-left: 40px
+  }
+  .nav-btn {
+    margin-left: 10px
+  }
+</style>

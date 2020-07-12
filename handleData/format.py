@@ -99,7 +99,6 @@ def format_data(name, data):
 
 
     def format_global_confirmed_weekly_seq(data):
-        print(data)
         x_seq = data['x'][-7:]
         y_seq = data['y'][-7:]
         t = map(lambda x: [x_seq[x], y_seq[x]], range(len(x_seq)))
@@ -108,7 +107,6 @@ def format_data(name, data):
         t['日期'] = t["日期"].apply(lambda x: x.strftime('"%Y-%m-%d"'))
         return t, '2-12-a.csv'
     def format_global_death_weekly_seq(data):
-        print(data)
         x_seq = data['x'][-7:]
         y_seq = data['y'][-7:]
         t = map(lambda x: [x_seq[x], y_seq[x]], range(len(x_seq)))
@@ -127,6 +125,7 @@ def format_data(name, data):
         return t, '2-12.csv'
     
     def format_weekly_confirmed_data(data):
+        print(data)
         t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "本周新增确诊人数"]
 
@@ -138,6 +137,8 @@ def format_data(name, data):
         return t, '2-14.csv'
     
     def format_weekly_confirmed_growth(data):
+        
+        print(data)
         t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "本周较上周新增确诊人数增速"]
         return t, '2-15.csv'
@@ -160,13 +161,56 @@ def format_data(name, data):
     def format_test_num_data(data):
         t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "累计检测数"]
-        return t, 'appendix-3.csv'
+        return t, '2-18.csv'
 
 
     def format_recovery_rate_data(data):
         t = pd.DataFrame(map(lambda x: [x['name'], x['values'][0]], data))
         t.columns = ['国家', "治愈率"]
         return t, '2-9.csv'
+
+    def format_regions_daily_global(data):
+        length = len(data['x'])
+        t = pd.DataFrame(map(lambda i: [data['x'][i], data['y'][0][i], data['y'][1][i]], range(length)))
+        t.columns = ['日期', "新增确诊（左）", "新增治愈（右）"]
+        return t, "2-19.csv"
+    
+    def format_regions_daily_tbr(data):
+        length = len(data['x'])
+        t = pd.DataFrame(map(lambda i: [data['x'][i], data['y'][0][i], data['y'][1][i]], range(length)))
+        t.columns = ['日期', "新增确诊（左）", "新增治愈（右）"]
+        return t, "2-20.csv"
+
+    def format_regions_daily_africa(data):
+        length = len(data['x'])
+        t = pd.DataFrame(map(lambda i: [data['x'][i], data['y'][0][i], data['y'][1][i]], range(length)))
+        t.columns = ['日期', "新增确诊（左）", "新增治愈（右）"]
+        return t, "2-21.csv"
+    def format_regions_daily_around(data):
+        length = len(data['x'])
+        t = pd.DataFrame(map(lambda i: [data['x'][i], data['y'][0][i], data['y'][1][i]], range(length)))
+        t.columns = ['日期', "新增确诊（左）", "新增治愈（右）"]
+        return t, "2-22.csv"
+
+    def build_daily_confirmed_recovered_dataframe(data):
+        length = len(data['x'])
+        t = pd.DataFrame(map(lambda i: [data['x'][i], data['y'][0][i], data['y'][1][i]], range(length)))
+        t.columns = ['日期', "新增确诊（左）", "新增治愈（右）"]
+        return t
+    def format_stages_daily_upward(data):
+        t = build_daily_confirmed_recovered_dataframe(data)
+        return t, "2-23.csv"
+    def format_stages_daily_downward(data):
+        t = build_daily_confirmed_recovered_dataframe(data)
+        return t, "2-25.csv"
+    def format_stages_daily_vibration(data):
+        t = build_daily_confirmed_recovered_dataframe(data)
+        return t, "2-24.csv"
+    def format_stages_daily_final(data):
+        t = build_daily_confirmed_recovered_dataframe(data)
+        return t, "2-26.csv"
+    
+
 
     if name == "confirmed_data":
         return format_confirmed(data)
@@ -219,5 +263,21 @@ def format_data(name, data):
         return format_global_newly_confirmed_seq(data)
     elif name == "global_newly_death_seq":
         return format_global_newly_death_seq(data)
+    elif name == "regions_daily_confirmed_recovered_global":
+        return format_regions_daily_global(data)
+    elif name == "regions_daily_confirmed_recovered_africa":
+        return format_regions_daily_africa(data)
+    elif name == "regions_daily_confirmed_recovered_tbr":
+        return format_regions_daily_tbr(data)
+    elif name == "regions_daily_confirmed_recovered_around":
+        return format_regions_daily_around(data)
+    elif name == "stage_daily_confirmed_recovered_upward":
+        return format_stages_daily_upward(data)
+    elif name == "stage_daily_confirmed_recovered_downward":
+        return format_stages_daily_downward(data)
+    elif name == "stage_daily_confirmed_recovered_vibration":
+        return format_stages_daily_vibration(data)
+    elif name == "stage_daily_confirmed_recovered_final":
+        return format_stages_daily_final(data)
     else:
         return None, None
