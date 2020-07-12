@@ -308,7 +308,8 @@ def store_population(db, config, check=False):
 # 
 
 def prepare_country_chinese_conversion(db, config):
-    db.chinese_conversion.insert_one({"sheet": "刚果", "formal": "刚果(金)"})
+    db.chinese_conversion.insert_one({"sheet": "刚果民主共和国", "formal": "刚果(金)"})
+    db.chinese_conversion.insert_one({"sheet": "刚果", "formal": "刚果(布)"})
     db.chinese_conversion.insert_one({"sheet": "孟加拉", "formal": "孟加拉国"})
 
 def prepare_dxy_data(db ,config):
