@@ -99,9 +99,8 @@ def extract_sheet(excel, check_date, sheet_name=None):
         if '日期' not in obj.keys():
             pass
         date = obj['日期']
-        print(type(date))
         if(pd.isnull(date)):
-            print("dddd")
+            print("NAT Detected")
             continue
         
         if type(date) == int:
