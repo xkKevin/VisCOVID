@@ -21,7 +21,6 @@ def extract_region_sheet(sheet, name):
     for index, row in sheet.iterrows():
         if type(row[1]) == pd._libs.tslibs.nattype.NaTType:
             break
-        # print("rorrrrrrrrrr")
         print(row[1])
         obj = {
             "日期": row[0],

@@ -25,7 +25,9 @@ export_path = "./main/static/export"
 report_path = "./main/static/report"
 
 lambda_process = LambdaProcess()
-def extract_excel_time(name):
+
+
+def extract_excel_time_old(name):
     pattern = "全球及重点国家疫情主要指数数据-(\d*)-(\d*)-(\d*)-(\d*)H(\d*)(.*).xlsx"
     matched = re.match(pattern, name)
     if not matched:
@@ -41,6 +43,31 @@ def extract_excel_time(name):
         "hour": hour,
         "minute": minute
     }
+
+def extract_excel_time_new(name):
+    pattern = "(\d*)-(\d*)-----(\d*)H(\d*)----全球"
+    matched = re.match(pattern, name)
+    if not matched:
+        return None
+    month = matched.group(1)
+    day = matched.group(2)
+    hour = matched.group(3)
+    minute = matched.group(4)
+    
+    if not minute:
+        minute = 0
+    return {
+        "hour": hour,
+        "minute": minute
+    }
+
+
+def extract_excel_time(name):
+    obj = extract_excel_time_new(name)
+    if not obj:
+        return extract_excel_time_old(name)
+    else:
+        return obj
 
 
 def random_string(stringLength=8):
