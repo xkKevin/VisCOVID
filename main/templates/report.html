@@ -435,23 +435,7 @@
         }
     });
 
-    // d3.csv("{% static export_dir|add:'appendix-1.csv' %}", function (error, csvdata) {
-    //     if(error){
-    //         console.log(error);
-    //     }else{
-    //         bi_directional_barchart(csvdata, "本周较上周新增确诊人数增速", "2_18");
-    //     }
-    // });
-
-    // d3.csv("{% static export_dir|add:'appendix-2.csv' %}", function (error, csvdata) {
-    //     if(error){
-    //         console.log(error);
-    //     }else{
-    //         bi_directional_barchart(csvdata, "本周较上周新增病死人数增速", "2_19");
-    //     }
-    // });
-
-    d3.csv("{% static export_dir|add:'2-18.csv' %}", function (error, csvdata) {
+        d3.csv("{% static export_dir|add:'2-18.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -463,7 +447,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "全球（215个国家地区合计）", '2_19',[250000, 300000, 50000]);
+            bi_yAxis_barchart(csvdata, "全球（215个国家地区合计）", '2_19',[350000, 350000, 70000]);
         }
     });
 
@@ -471,7 +455,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "“一带一路”国家（65个国家地区合计）", '2_20',[100000, 80000, 20000]);
+            bi_yAxis_barchart(csvdata, "“一带一路”国家（65个国家地区合计）", '2_20',[100000, 100000, 20000]);
         }
     });
 
@@ -479,7 +463,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "非洲国家（52个国家地区合计）", '2_21',[18000, 12000, 3000]);
+            bi_yAxis_barchart(csvdata, "非洲国家（52个国家地区合计）", '2_21',[25000, 30000, 5000]);
         }
     });
 
@@ -487,7 +471,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22',[60000, 50000, 10000]);
+            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22',[75000, 75000, 15000]);
         }
     });
 
@@ -495,7 +479,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "上行阶段（26个国家地区合计）", '2_23',[160000, 200000, 40000]);
+            bi_yAxis_barchart(csvdata, "上行阶段（26个国家地区合计）", '2_23',[200000, 250000, 50000]);
         }
     });
 
@@ -503,7 +487,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "震荡阶段（28个国家地区合计）", '2_24',[25000, 30000, 5000]);
+            bi_yAxis_barchart(csvdata, "震荡阶段（28个国家地区合计）", '2_24',[35000, 28000, 7000]);
         }
     });
 
@@ -511,7 +495,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "下行阶段（28个国家地区合计）", '2_25',[80000, 80000, 20000]);
+            bi_yAxis_barchart(csvdata, "下行阶段（28个国家地区合计）", '2_25',[100000, 80000, 20000]);
         }
     });
 
@@ -519,7 +503,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "尾期阶段（27个国家地区合计）", '2_26',[4000, 5000, 1000]);
+            bi_yAxis_barchart(csvdata, "尾期阶段（27个国家地区合计）", '2_26',[5000, 5000, 1000]);
         }
     });
 
