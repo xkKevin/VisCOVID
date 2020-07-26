@@ -15,7 +15,7 @@ def extract_region_sheet(sheet, name):
     sheet = sheet[1:]
     objs = []
     print("here")
-    sheet = sheet.replace(np.nan, 0)
+    sheet[0:1] = sheet[0:1].replace(np.nan, 0)
     sheet = sheet.replace(pd.NaT, np.nan)
     
     for index, row in sheet.iterrows():
