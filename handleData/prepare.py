@@ -102,7 +102,7 @@ def extract_sheet(excel, check_date, sheet_name=None):
         if(pd.isnull(date)):
             print(sheet_name)
             print("NAT Detected")
-            # continue
+            continue
         
         if type(date) == int:
             date = base_date + datetime.timedelta(days = date - 43862)
