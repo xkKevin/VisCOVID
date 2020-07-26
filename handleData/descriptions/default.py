@@ -277,7 +277,7 @@ region_data_descriptions = [
                 RegionFilter("全球")
             ],
             "postprocess": [
-                SeqFilter(97)
+                # SeqFilter(97)
             ]
         },
         {
@@ -289,7 +289,7 @@ region_data_descriptions = [
                 RegionFilter("一带一路")
             ],
             "postprocess": [
-                SeqFilter(97)
+                # SeqFilter(97)
             ]
         },
         {
@@ -301,7 +301,7 @@ region_data_descriptions = [
                 RegionFilter("非洲")
             ],
             "postprocess": [
-                SeqFilter(97)
+                # SeqFilter(97)
             ]
         },
         {
@@ -313,7 +313,7 @@ region_data_descriptions = [
                 RegionFilter("周边")
             ],
             "postprocess": [
-                SeqFilter(97)
+                # SeqFilter(97)
             ]
         }
     ]
@@ -328,7 +328,7 @@ stage_data_descriptions = [
                 StageFilter("上行")
             ],
             "postprocess": [
-                SeqFilter(97)
+                # SeqFilter(97)
             ]
         },
         {
@@ -340,7 +340,7 @@ stage_data_descriptions = [
                 StageFilter("下行")
             ],
             "postprocess": [
-                SeqFilter(97)
+                # SeqFilter(197)
             ]
         },
         {
@@ -352,7 +352,7 @@ stage_data_descriptions = [
                 StageFilter("震荡")
             ],
             "postprocess": [
-                SeqFilter(97)
+                # SeqFilter(97)
             ]
         },
         {
@@ -364,7 +364,7 @@ stage_data_descriptions = [
                 StageFilter("尾期")
             ],
             "postprocess": [
-                SeqFilter(97)
+                # SeqFilter(97)
             ]
         },
     ]

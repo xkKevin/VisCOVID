@@ -877,7 +877,7 @@ function linechart_num(data, div_id) {
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.small-4,
                 showMaxLabel: true,
-                showMinLabel: false,
+                showMinLabel: true,
                 // splitNumber: 3
                 interval: Math.round((handle_data_len)/5)-1,
             },
@@ -1070,7 +1070,7 @@ function linechart_rate(data, div_id) {
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.small-4,
                 showMaxLabel: true,
-                showMinLabel: false,
+                showMinLabel: true,
                 // splitNumber: 3
                 interval: Math.round((handle_data_len)/5)-1,
             },
@@ -1238,6 +1238,7 @@ function bi_yAxis_barchart(data, name, div_id, span) {
             axisTick: {show: false},
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.small-2,
+                
             },
             max:span[1],
             min:-span[0],
@@ -1252,6 +1253,11 @@ function bi_yAxis_barchart(data, name, div_id, span) {
                 // showMaxLabel: true,
                 margin: 17, // default: 8 label与x轴刻度的距离
                 fontSize: CSS_STYLE.fontSize.small-3,
+                showMaxLabel: true,
+                showMinLabel: true,
+                // align: "center",
+                interval: 15
+
 
             },
             data: x_data,

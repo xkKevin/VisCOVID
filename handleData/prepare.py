@@ -12,12 +12,17 @@ import os
 
 
 def extract_region_sheet(sheet, name):
-    sheet = sheet[2:]
+    sheet = sheet[1:]
     objs = []
+    print("here")
+    sheet = sheet.replace(np.nan, 0)
     sheet = sheet.replace(pd.NaT, np.nan)
+    
     for index, row in sheet.iterrows():
         if type(row[1]) == pd._libs.tslibs.nattype.NaTType:
             break
+        # print("rorrrrrrrrrr")
+        print(row[1])
         obj = {
             "日期": row[0],
             "新增确诊": row[1],
@@ -38,6 +43,7 @@ def extract_stage_sheet(sheet):
     def build_obj(item):
         # index = item[0]
         # stage = item[1]
+        print( item['split'][0])
         obj = {
             "日期": item['split'][0],
             "新增确诊": item['split'][1],
