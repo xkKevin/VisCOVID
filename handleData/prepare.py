@@ -101,6 +101,7 @@ def extract_sheet(excel, check_date, sheet_name=None):
     for index, row in df.iterrows():
         obj = dict(row)
         obj['sheet_name'] = sheet_name
+        obj['国家地区'] = sheet_name
         if '日期' not in obj.keys():
             pass
         date = obj['日期']
