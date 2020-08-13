@@ -74,3 +74,16 @@ deploy-dev:
     - envsubst < deployment-dev.yaml | kubectl apply -f -
   only:
     - development
+
+deploy-new:
+  stage: deploy
+  image: lachlanevenson/k8s-kubectl
+  allow_failure: false
+  environment:
+    name: production
+  script:
+    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories && apk update --no-cache && apk add gettext curl
+    - kubectl -n $KUBE_NAMESPACE create secret docker-registry ${CI_PROJECT_NAME}-pull-secret --docker-server="$CI_REGISTRY" --docker-username="$GITLAB_DEPLOY_USER" --docker-password="$GITLAB_DEPLOY_TOKEN" --docker-email="$GITLAB_USER_EMAIL" -o yaml --dry-run | kubectl apply -f -
+    - envsubst < deployment-new.yaml | kubectl apply -f -
+  only:
+    - new

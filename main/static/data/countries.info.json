@@ -259,7 +259,7 @@
     "capital_name": "Dhaka",
     "country_type": "Member State",
     "country_name_chinese": "孟加拉人民共和国",
-    "country_name_chinese_short": "孟加拉国",
+    "country_name_chinese_short": "孟加拉",
     "country_name_chinese_UN": "孟加拉国",
     "country_name_english_abbreviation": "Bangladesh",
     "country_name_english_formal": "People Republic of Bangladesh",
@@ -1811,7 +1811,7 @@
     "capital_name": "Skopje",
     "country_type": "Member State",
     "country_name_chinese": "马其顿共和国",
-    "country_name_chinese_short": "马其顿",
+    "country_name_chinese_short": "北马其顿",
     "country_name_chinese_UN": "前南斯拉夫的马其顿共和国",
     "country_name_english_abbreviation": "Macedonia",
     "country_name_english_formal": "Republic of Macedonia",
@@ -2315,7 +2315,7 @@
     "continent_name": "Europe",
     "subregion_name": "Eastern Europe",
     "country_code2": "RO",
-    "country_code3": "ROM",
+    "country_code3": "ROU",
     "phone_code": "642"
   },
   {
@@ -2539,7 +2539,7 @@
     "continent_name": "Europe",
     "subregion_name": "Southern Europe",
     "country_code2": "RS",
-    "country_code3": "RSB",
+    "country_code3": "SRB",
     "phone_code": "688"
   },
   {
@@ -3105,18 +3105,6 @@
 	"continent_name": "Europe"
   },
   {
-    "country_name_chinese_short": "罗马尼亚",
-    "country_name_english_abbreviation": "Romania",
-    "country_code3": "ROU",
-	"continent_name": "Europe"
-  },
-  {
-    "country_name_chinese_short": "塞尔维亚",
-    "country_name_english_abbreviation": "Serbia",
-    "country_code3": "SRB",
-	"continent_name": "Europe"
-  },
-  {
 	"country_name_chinese_short": "关岛",
     "country_name_english_abbreviation": "Guam",
     "country_code3": "GUM",
@@ -3137,6 +3125,6 @@
  {
 	"country_name_chinese_short": "全球",
     "country_name_english_abbreviation": "World",
-    "country_code3": "OWID_WRL"
+    "country_code3": "WLD"
   }
 ]

@@ -1,12 +1,11 @@
 # You should 'git rm' folders or files after modifying .gitignore
 .idea
 main/static/export/*.csv
-main/static/export/**/*.csv
 main/static/report/*.png
 main/static/report/*.txt
 __py
 __pycache__/
 tmp/
-handleData/data/owd.csv
-handleData/data/wang.xlsx
-handleData/data/regions.xlsx
+main/static/data/owd.csv
+main/static/data/wang.xlsx
+main/static/data/regions.xlsx
