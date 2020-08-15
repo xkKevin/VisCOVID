@@ -46,6 +46,8 @@
     <button id="create_btn" class="btn btn-info ladda-button" data-style="zoom-out" onclick="createReport()">生成疫情周报</button>
     <br>
     <button class="btn btn-warning" style="margin-top: 10px;" onclick="showMissingCountries()">查看忽略国家</button>
+    <br>
+    <button class="btn btn-primary" style="margin-top: 10px;" onclick="deleteFiles()">清空后端文件</button>
 </div>
 <div class="container">
     <div>
@@ -169,13 +171,13 @@
         <div>图2-22&nbsp;周边20个国家地区单日新增确诊和新增治愈走势</div>
 
         <div id="2_23" style="width: 800px;height:550px;"></div>
-        <div>图2-23&nbsp;上行阶段26个国家地区单日新增确诊和新增治愈走势</div>
+        <div>图2-23&nbsp;截至4月底处于上行阶段26个国家单日新增确诊和新增治愈走势</div>
         <div id="2_24" style="width: 800px;height:550px;"></div>
-        <div>图2-24&nbsp;震荡阶段28个国家地区单日新增确诊和新增治愈走势</div>
+        <div>图2-24&nbsp;截至4月底处于震荡阶段28个国家单日新增确诊和新增治愈走势</div>
         <div id="2_25" style="width: 800px;height:550px;"></div>
-        <div>图2-25&nbsp;下行阶段28个国家地区单日新增确诊和新增治愈走势</div>
+        <div>图2-25&nbsp;截至4月底处于下行阶段28个国家单日新增确诊和新增治愈走势</div>
         <div id="2_26" style="width: 800px;height:550px;"></div>
-        <div>图2-26&nbsp;尾期阶段27个国家地区单日新增确诊和新增治愈走势</div>
+        <div>图2-26&nbsp;截至4月底处于尾期阶段27个国家单日新增确诊和新增治愈走势</div>
         <!-- <div id="2_18" style="width: 800px;"></div>
         <div>
             图2-18&nbsp;本周较上周新增确诊人数增速（仅显示累计确诊人数超过1万的国家中增速绝对值大于等于20%的国家）<br>
@@ -192,6 +194,7 @@
 <script>
     var countries = [];
     var ineffectiveCountries = [];
+    var error_info = "{{ error_info }}";
     {% for country in missing_countries %}
         countries.push("{{country}}");
     {% endfor %}
@@ -201,9 +204,12 @@
     var alertInfo = `
         缺失国家：${countries}
         错误国家：${ineffectiveCountries}
-    `
+    `;
     if (countries.length || ineffectiveCountries.length){
         alert(alertInfo);
+    }
+    if (error_info){
+        alert(error_info);
     }
     var rate_countries_num = 0;
     var imagesInfo = {};
@@ -261,24 +267,24 @@
                 }
                 $("."+index).text(data);
             });
+            $(".2_1_countries").text(cases_3.join("、"));
+        }
+    });
 
-            d3.csv("{% static export_dir|add:'2-1.csv' %}", function (error, csvdata) {
-                if(error){
-                    console.log(error);
-                }else{
-                    $(".2_1_countries").text(cases_3.join("、"));
-                    worldMap(csvdata, '累计确诊人数', '2_1', $(".7").text().replace(/,/g,""));
-                }
-            });
+    d3.csv("{% static export_dir|add:'2-1.csv' %}", function (error, csvdata) {
+        if(error){
+            console.log(error);
+        }else{
+            worldMap(csvdata, '累计确诊人数', '2_1', $(".7").text().replace(/,/g,""));
+        }
+    });
 
-            d3.csv("{% static export_dir|add:'2-2.csv' %}", function (error, csvdata) {
-                if(error){
-                    console.log(error);
-                }else{
-                    worldMap(csvdata, '累计病死人数', '2_2', $(".11").text().replace(/,/g,""));
-                    text = $(".text_to_save").text();
-                }
-            });
+    d3.csv("{% static export_dir|add:'2-2.csv' %}", function (error, csvdata) {
+        if(error){
+            console.log(error);
+        }else{
+            worldMap(csvdata, '累计病死人数', '2_2', $(".11").text().replace(/,/g,""));
+            text = $(".text_to_save").text();
         }
     });
 
@@ -479,7 +485,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "上行阶段（26个国家地区合计）", '2_23',[200000, 250000, 50000]);
+            bi_yAxis_barchart(csvdata, "4月底处于上行阶段26个国家的合计数据", '2_23',[200000, 250000, 50000]);
         }
     });
 
@@ -487,7 +493,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "震荡阶段（28个国家地区合计）", '2_24',[35000, 28000, 7000]);
+            bi_yAxis_barchart(csvdata, "4月底处于震荡阶段28个国家的合计数据", '2_24',[35000, 28000, 7000]);
         }
     });
 
@@ -495,7 +501,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "下行阶段（28个国家地区合计）", '2_25',[100000, 80000, 20000]);
+            bi_yAxis_barchart(csvdata, "4月底处于下行阶段28个国家的合计数据", '2_25',[100000, 80000, 20000]);
         }
     });
 
@@ -503,7 +509,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "尾期阶段（27个国家地区合计）", '2_26',[16000, 16000, 4000]);
+            bi_yAxis_barchart(csvdata, "4月底处于尾期阶段27个国家的合计数据", '2_26',[16000, 16000, 4000]);
         }
     });
 
@@ -533,6 +539,21 @@
         }else{
             alert("暂无缺失国家");
         }
+        if (error_info){
+            alert(error_info);
+        }
+    }
+
+    function deleteFiles() {
+        $.get('{% url "deleteFiles" %}', function(result, statue){
+            if (result.error){
+                alert("删除过程中出现错误！\n" + result.error);
+            }else{
+                alert("删除成功！");
+                // location.reload();
+                location.href="/report";
+            }
+        })
     }
 </script>
 </body>

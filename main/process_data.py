@@ -10,7 +10,7 @@ import pandas as pd, datetime
 import xlrd
 import xlsxwriter
 
-def process_data(file_name):
+def process_data(time_data):
 
     data_file = "./main/static/data/wang.xlsx"
     four_area_data_file = "./main/static/data/regions.xlsx"
@@ -18,11 +18,10 @@ def process_data(file_name):
     countries_json_data = "./main/static/data/countries.info.json"
     data_extract = "./main/static/data/Data_Extract_From_World_Development_Indicators.csv"
 
-    export_path = "./main/static/export/"
+    path = "./main/static/export/"
 
-    tarfile = data_file[0:data_file.rfind('.')] + '_1' + '.xlsx'
-    tarfile_csv = data_file[0:data_file.rfind('.')] + '.xlsx'
-    end_date = pd.to_datetime(file_name[file_name.find('-') + 1: file_name.rfind('-')])
+    tarfile = data_file[0: data_file.rfind('.')] + '_1' + '.xlsx'
+    end_date = pd.to_datetime(time_data[time_data.find('-') + 1: time_data.rfind('-')])
     start_date = end_date - pd.Timedelta('13 days')
     date_range = pd.date_range(start_date, end_date)
     last_monday = date_range[0]
@@ -114,13 +113,11 @@ def process_data(file_name):
     df_yq['国家地区'] = country_lst
     df_yq = df_yq.rename(columns={'日期': '日期戳'})
 
-
     # 将日期戳变成"pandas._libs.tslibs.timestamps.Timestamp"
     def date(dates):  # 定义转化日期戳的函数,dates为日期戳
         delta = datetime.timedelta(days=dates)
         today = datetime.datetime.strptime('1899-12-30', '%Y-%m-%d') + delta
         return pd.to_datetime(datetime.datetime.strftime(today, '%Y-%m-%d'))
-
 
     t_list = []
     for i in df_yq['日期戳']:
@@ -135,26 +132,31 @@ def process_data(file_name):
     df_data = df_data[['国家地区', '日期', '累计确诊', '新增确诊', '累计死亡', '新增死亡', '累计治愈', '仍在治疗', '重症病例',
                        '百万人口确诊率', '百万人口死亡率', '总检测数', '百万人口检测率', '2018人口', '3编码']]
     df_data = df_data[df_data['日期'] <= end_date]  # 只保留当前日期前的所有数据
-    # df_data.to_csv(export_path + tarfile_csv,index=False,encoding="gbk")   # 保存清洗后的数据
+    # df_data.to_csv(tarfile_csv,index=False,encoding="gbk")   # 保存清洗后的数据
 
     # 判断未匹配上人口的国家
     df_data1 = df_data[df_data['2018人口'].isnull()]
     country_list = list(set(list(df_data1['国家地区'])))
-    if len(country_list) == 0:
-        pass
-    else:
+    if len(country_list) > 0:
         print('未匹配上人口的国家为%s，已删除' % country_list)
 
     # 判断是否所有国家的最后日期一致
     data_test = df_data[['国家地区', '日期', '累计确诊']]
-    data_test = data_test[data_test['日期'] == this_sunday]
-    data_test = data_test[data_test['累计确诊'].isnull()]
-    country_list1 = list(set(list(data_test['国家地区'])))
-    if len(country_list1) == 0:
-        pass
-    else:
-        print('缺少当天数据的国家为%s，已删除' % country_list1)
-    del_country_list = list(set(country_list + country_list1))
+    dd1 = data_test.loc[data_test[data_test.日期 == this_sunday].index.tolist()][["国家地区", "累计确诊"]].rename(
+        columns={'累计确诊': '2'})
+    countries_null = dd1[dd1['2'].isnull()]["国家地区"].tolist()
+    dd2 = data_test.loc[data_test[data_test.日期 == date_range[12]].index.tolist()][["国家地区", "累计确诊"]].rename(
+        columns={'累计确诊': '1'})
+
+    merge_result = pd.merge(dd1, dd2, on="国家地区")
+    countries_error = merge_result[merge_result["2"] < merge_result["1"]]["国家地区"].tolist()
+
+    countries_error.extend(countries_null)
+
+    if len(countries_error) > 0:
+        print('缺少当天数据的国家为%s，已删除' % countries_error)
+
+    del_country_list = list(set(country_list + countries_error))
     df_data = df_data[-df_data.国家地区.isin(del_country_list)]  # 删除未匹配上人口和缺少当天数据的国家
 
     ## part5：条件参数设置
@@ -179,13 +181,6 @@ def process_data(file_name):
     lst3 = country.values.tolist()
     # print(lst3)
 
-    # 累计确诊<=10000的国家
-    df4 = df_data[df_data['日期'] == this_sunday]
-    df4 = df4[df4['累计确诊'] <= 20000]
-    country = df4['国家地区']
-    lst4 = country.values.tolist()
-    # print(lst4)
-
     # 本周新增确诊<=500国家
     df5 = df_data[(df_data['日期'] >= this_monday) & (df_data['日期'] <= this_sunday)]
     df5 = df5[['国家地区', '新增确诊']]
@@ -204,27 +199,38 @@ def process_data(file_name):
     lst6 = country.values.tolist()
     # print(lst6)
 
-
     ## part6：正文图表数据导出
+    ## 2-1和2-2世界地图数据
+    df = pd.read_csv(world_map_data)
+    df = df[df['location'] != 'World']
+    select_date = date_range[12].date()
+    df = df[df['date'] == str(select_date)]
+    df = df[['location', 'total_cases', 'total_deaths']]
+    df.columns = [['国家', '累计确诊人数', '累计病死人数']]
+    df_2_1 = df[['国家', '累计确诊人数']]
+    df_2_2 = df[['国家', '累计病死人数']]
+    df_2_1.to_csv(path + '2-1.csv', index=False, encoding='utf-8')
+    df_2_2.to_csv(path + '2-2.csv', index=False, encoding='utf-8')
+
     # 2-3-a 全球累计确诊人数
     data_wld_confirmed = df_data[df_data['国家地区'] == '全球']
     data_wld_confirmed = data_wld_confirmed[['日期', '累计确诊']]
     data_wld_confirmed = data_wld_confirmed[data_wld_confirmed['累计确诊'].notna()]
     data_wld_confirmed = data_wld_confirmed.rename(columns={'累计确诊': '全球累计确诊人数'})
-    data_wld_confirmed.to_csv(export_path + '2-3-a.csv', index=False, encoding='utf-8')
+    data_wld_confirmed.to_csv(path + '2-3-a.csv', index=False, encoding='utf-8')
 
     # 2-3-b 全球累计病死人数
     data_wld_death = df_data[df_data['国家地区'] == '全球']
     data_wld_death = data_wld_death[['日期', '累计死亡']]
     data_wld_death = data_wld_death[data_wld_death['累计死亡'].notna()]
     data_wld_death = data_wld_death.rename(columns={'累计死亡': '全球累计病死人数'})
-    data_wld_death.to_csv(export_path + '2-3-b.csv', index=False, encoding='utf-8')
+    data_wld_death.to_csv(path + '2-3-b.csv', index=False, encoding='utf-8')
 
     # 2-4-a 全球确诊率
     data_wld_confirmed_rate = df_data[df_data['国家地区'] == '全球']
     data_wld_confirmed_rate['全球确诊率'] = data_wld_confirmed_rate['百万人口确诊率'].astype(float) / 1000000
     data_wld_confirmed_rate = data_wld_confirmed_rate[['日期', '全球确诊率']]
-    data_wld_confirmed_rate.to_csv(export_path + '2-4-a.csv', index=False, encoding='utf-8')
+    data_wld_confirmed_rate.to_csv(path + '2-4-a.csv', index=False, encoding='utf-8')
 
     # 2-4-b 全球病死率
     data_wld_death_rate = df_data[df_data['国家地区'] == '全球']
@@ -234,7 +240,7 @@ def process_data(file_name):
     data_wld_death_rate['累计确诊'] = data_wld_death_rate['累计确诊'].astype(float)
     data_wld_death_rate['全球病死率'] = data_wld_death_rate['累计死亡'] / data_wld_death_rate['累计确诊']
     data_wld_death_rate = data_wld_death_rate[['日期', '全球病死率']]
-    data_wld_death_rate.to_csv(export_path + '2-4-b.csv', index=False, encoding='utf-8')
+    data_wld_death_rate.to_csv(path + '2-4-b.csv', index=False, encoding='utf-8')
 
     # 2-5 累计确诊人数-周末数据，前15名
     wld_confirmed_data = df_data[df_data['国家地区'] == '全球']
@@ -254,7 +260,7 @@ def process_data(file_name):
     df = pd.DataFrame(data)
     # print(df)
     data_confirmed_result = data_confirmed.append(df).reset_index(drop=True)  # 合并到一张表中
-    data_confirmed_result.to_csv(export_path + '2-5.csv', index=False, encoding='utf-8')
+    data_confirmed_result.to_csv(path + '2-5.csv', index=False, encoding='utf-8')
 
     # 2-6 累计病死人数-周末数据，前15名
     wld_death_data = df_data[df_data['国家地区'] == '全球']
@@ -273,8 +279,7 @@ def process_data(file_name):
     df = pd.DataFrame(data)
     # print(df)
     data_death_result = data_death.append(df).reset_index(drop=True)  # 合并到一张表中
-    data_death_result.to_csv(export_path + '2-6.csv', index=False, encoding='utf-8')
-
+    data_death_result.to_csv(path + '2-6.csv', index=False, encoding='utf-8')
 
     # 设置函数
     def rate5(df, column1, column2):
@@ -304,59 +309,79 @@ def process_data(file_name):
             df = df[df['阳性率'] <= 1]
             return df
         else:
-            print('标题有改动!')
-
+            print('excel标题有改动!')
+            return False
 
     # 2-7 确诊率---/1000000算
     df_qzl = rate5(df_data, '百万人口确诊率', '百万人口确诊率')
+
+    if isinstance(df_qzl, bool):
+        return [False, 'excel标题有改动!']
+
     # print(df_qzl)
     df_qzl = df_qzl[df_qzl['国家'] == '全球'].append(df_qzl[df_qzl['国家'] != '全球'].sort_values(['确诊率'], ascending=False))[
         ['国家', '确诊率']].reset_index(drop=True)
     df_qzl.replace('全球', '各国平均', inplace=True)
-    df_qzl.to_csv(export_path + '2-7.csv', index=False, encoding='utf-8')
+    df_qzl.to_csv(path + '2-7.csv', index=False, encoding='utf-8')
 
     # 2-8 病死率--累计死亡/累计确诊
     df_bsl = rate5(df_data, '累计死亡', '累计确诊')
+
+    if isinstance(df_bsl, bool):
+        return [False, 'excel标题有改动!']
+
     df_bsl = df_bsl[df_bsl['国家'] == '全球'].append(df_bsl[df_bsl['国家'] != '全球'].sort_values(['病死率'], ascending=False))[
         ['国家', '病死率']].reset_index(drop=True)
     df_bsl.replace('全球', '各国平均', inplace=True)
-    df_bsl.to_csv(export_path + '2-8.csv', index=False, encoding='utf-8')
+    df_bsl.to_csv(path + '2-8.csv', index=False, encoding='utf-8')
 
     # 2-9 治愈率
     df_zyl = rate5(df_data, '累计确诊', '累计治愈')
+
+    if isinstance(df_zyl, bool):
+        return [False, 'excel标题有改动!']
+
     df_zyl = df_zyl[df_zyl['国家'] == '全球'].append(df_zyl[df_zyl['国家'] != '全球'].sort_values(['治愈率'], ascending=False))[
         ['国家', '治愈率']].reset_index(drop=True)
     df_zyl.replace('全球', '各国平均', inplace=True)
-    df_zyl.to_csv(export_path + '2-9.csv', index=False, encoding='utf-8')
+    df_zyl.to_csv(path + '2-9.csv', index=False, encoding='utf-8')
 
     # 2-10 检测率---/1000000算,各国平均根据所有国家求和计算
     df_jcl = rate5(df_data, '百万人口检测率', '百万人口检测率')
+
+    if isinstance(df_jcl, bool):
+        return [False, 'excel标题有改动!']
+
     jcl_word = pd.DataFrame({'国家': '各国平均',
-                             '检测率': (df_jcl['总检测数'].astype(float).sum() / df_jcl['2018人口'].astype(float).sum())}, index=[0])
+                             '检测率': (df_jcl['总检测数'].astype(float).sum() / df_jcl['2018人口'].astype(float).sum())},
+                            index=[0])
     # print(jcl_word)
-    df_jcl = jcl_word.append(df_jcl[df_jcl['国家'] != '全球'].sort_values(['检测率'], ascending=False)[['国家', '检测率']]).reset_index(
-        drop=True)
-    df_jcl.to_csv(export_path + '2-10.csv', index=False, encoding='utf-8')
+    df_jcl = jcl_word.append(
+        df_jcl[df_jcl['国家'] != '全球'].sort_values(['检测率'], ascending=False)[['国家', '检测率']]).reset_index(drop=True)
+    df_jcl.to_csv(path + '2-10.csv', index=False, encoding='utf-8')
 
     # 2-11 阳性率---累计确诊/总检测数，各国平均根据所有国家求和计算
     df_yxl = rate5(df_data, '累计确诊', '总检测数')
+
+    if isinstance(df_yxl, bool):
+        return [False, 'excel标题有改动!']
+
+
     yxl_word = pd.DataFrame({'国家': '各国平均',
-                             '阳性率': (df_yxl['累计确诊'].astype(float).sum() / df_yxl['总检测数'].astype(float).sum())}, index=[0])
+                             '阳性率': (df_yxl['累计确诊'].astype(float).sum() / df_yxl['总检测数'].astype(float).sum())},
+                            index=[0])
     # print(yxl_word)
-    df_yxl = yxl_word.append(df_yxl[df_yxl['国家'] != '全球'].sort_values(['阳性率'], ascending=False)[['国家', '阳性率']]).reset_index(
-        drop=True)
-    df_yxl.to_csv(export_path + '2-11.csv', index=False, encoding='utf-8')
+    df_yxl = yxl_word.append(
+        df_yxl[df_yxl['国家'] != '全球'].sort_values(['阳性率'], ascending=False)[['国家', '阳性率']]).reset_index(drop=True)
+    df_yxl.to_csv(path + '2-11.csv', index=False, encoding='utf-8')
 
     # 2-12 新增死亡人数-全球7日
     data_wld_new = df_data[df_data['国家地区'] == '全球']
     data_wld_new = data_wld_new[(data_wld_new['日期'] >= this_monday) & (data_wld_new['日期'] <= this_sunday)]
     data_wld_new = data_wld_new.rename(columns={'新增确诊': '新增确诊人数', '新增死亡': '新增病死人数'})
     data_wld_new = data_wld_new[['日期', '新增确诊人数', '新增病死人数']].reset_index(drop=True)
-    df_sum = pd.DataFrame({'日期': '本周总计', '新增确诊人数': format(data_wld_new['新增确诊人数'].sum(), ','),
-                           '新增病死人数': format(data_wld_new['新增病死人数'].sum(), ',')}, index=[0])
-    # print(df_sum)
-    data_wld_new[['日期', '新增确诊人数']].to_csv(export_path + '2-12-a.csv', index=False, encoding='utf-8')
-    data_wld_new[['日期', '新增病死人数']].to_csv(export_path + '2-12-b.csv', index=False, encoding='utf-8')
+    data_wld_new[['日期', '新增确诊人数']].to_csv(path + '2-12-a.csv', index=False, encoding='utf-8')
+    data_wld_new[['日期', '新增病死人数']].to_csv(path + '2-12-b.csv', index=False, encoding='utf-8')
 
     # 2-13 本周新增确诊人数，前15名
     wld_confirmed_new = df_data[df_data['国家地区'] == '全球']
@@ -380,7 +405,7 @@ def process_data(file_name):
     df = pd.DataFrame(data, index=[0])
     # print(df)
     data_confirmed_new1_result = data_confirmed_new1.append(df).reset_index(drop=True)  # 合并到一张表中
-    data_confirmed_new1_result.to_csv(export_path + '2-13.csv', index=False, encoding='utf-8')
+    data_confirmed_new1_result.to_csv(path + '2-13.csv', index=False, encoding='utf-8')
 
     # 2-14 本周新增死亡人数，前15名
     wld_death_new = df_data[df_data['国家地区'] == '全球']
@@ -403,8 +428,7 @@ def process_data(file_name):
     df = pd.DataFrame(data, index=[0])
     # print(df)
     data_death_new1_result = data_death_new1.append(df).reset_index(drop=True)  # 合并到一张表中
-    data_death_new1_result.to_csv(export_path + '2-14.csv', index=False, encoding='utf-8')
-
+    data_death_new1_result.to_csv(path + '2-14.csv', index=False, encoding='utf-8')
 
     # 定义增速函数
     def growth_rate(df, column):
@@ -424,19 +448,19 @@ def process_data(file_name):
         data['本周较上周' + column + '人数增速' + '_%'] = rate_lst
         return data.sort_values(['本周较上周' + column + '人数增速'], ascending=False)
 
-
     # 2-15 本周较上周新增确诊人数增速，全部国家
     confirmed = df_data[-df_data.国家地区.isin(lst2)]  # 剔除累计确诊小于10000的国家
     confirmed = confirmed[-confirmed.国家地区.isin(lst5)]  # 剔除本周新增确诊少于500的国家
     confirmed_growth_rate = growth_rate(confirmed, '新增确诊')
     confirmed_growth_rate = confirmed_growth_rate[confirmed_growth_rate['国家地区'] == '全球'].append(confirmed_growth_rate \
-                                                                                                    [confirmed_growth_rate[
-                                                                                                         '国家地区'] != '全球']).reset_index(
+                                                                                                    [
+                                                                                                    confirmed_growth_rate[
+                                                                                                        '国家地区'] != '全球']).reset_index(
         drop=True) \
         [['国家地区', '本周较上周新增确诊人数增速_%', '本周较上周新增确诊人数增速', '上周新增', '本周新增']]
     confirmed_growth_rate.replace('全球', '各国平均', inplace=True)
     confirmed_growth_rate = confirmed_growth_rate.rename(columns={'国家地区': '国家'})
-    confirmed_growth_rate[['国家', '本周较上周新增确诊人数增速']].to_csv(export_path + '2-15.csv', index=False, encoding='utf-8')
+    confirmed_growth_rate[['国家', '本周较上周新增确诊人数增速']].to_csv(path + '2-15.csv', index=False, encoding='utf-8')
 
     # 2-16 本周较上周新增病死人数增速，全部国家
     death = df_data[-df_data.国家地区.isin(lst3)]  # 剔除累计死亡小于300的国家
@@ -449,17 +473,17 @@ def process_data(file_name):
         [['国家地区', '本周较上周新增病死人数增速_%', '本周较上周新增病死人数增速', '上周新增', '本周新增']]
     death_growth_rate.replace('全球', '各国平均', inplace=True)
     death_growth_rate = death_growth_rate.rename(columns={'国家地区': '国家'})
-    death_growth_rate[['国家', '本周较上周新增病死人数增速']].to_csv(export_path + '2-16.csv', index=False, encoding='utf-8')
+    death_growth_rate[['国家', '本周较上周新增病死人数增速']].to_csv(path + '2-16.csv', index=False, encoding='utf-8')
 
     # 2-17-a 全球新增确诊人数
     data_wld_confirmed_new = df_data[df_data['国家地区'] == '全球']
     data_wld_confirmed_new = data_wld_confirmed_new.rename(columns={'新增确诊': '新增确诊人数'})
-    data_wld_confirmed_new[['日期', '新增确诊人数']].to_csv(export_path + '2-17-a.csv', index=False, encoding='utf-8')
+    data_wld_confirmed_new[['日期', '新增确诊人数']].to_csv(path + '2-17-a.csv', index=False, encoding='utf-8')
 
     # 2-17-b 全球新增死亡人数
     data_wld_death_new = df_data[df_data['国家地区'] == '全球']
     data_wld_death_new = data_wld_death_new.rename(columns={'新增死亡': '新增病死人数'})
-    data_wld_death_new[['日期', '新增病死人数']].to_csv(export_path + '2-17-b.csv', index=False, encoding='utf-8')
+    data_wld_death_new[['日期', '新增病死人数']].to_csv(path + '2-17-b.csv', index=False, encoding='utf-8')
 
     # part7: 附录
     # 2-18 累计检测数
@@ -470,7 +494,7 @@ def process_data(file_name):
     data_test_all = data_test_all.rename(columns={'国家地区': '国家', '总检测数': '累计检测数'})
     data_test_all = data_test_all[data_test_all['累计检测数'].notna()]
     data_test_all = data_test_all.sort_values(['累计检测数'], ascending=False).reset_index(drop=True)
-    data_test_all.to_csv(export_path + '2-18.csv', index=False, encoding='utf-8')
+    data_test_all.to_csv(path + '2-18.csv', index=False, encoding='utf-8')
 
     # 四大区域数据
     data = xlrd.open_workbook(four_area_data_file)
@@ -479,9 +503,9 @@ def process_data(file_name):
     name = [False for i in sheet_names_use if i not in sheet_names]
     if name:
         print('四大区域数据文件sheetname有改动！')
+        return [False, '四大区域数据文件sheetname有改动！']
     else:
         pass
-
 
     def four_area_data(sheet_name):
         df = pd.read_excel(four_area_data_file, sheet_name=sheet_name)
@@ -489,15 +513,14 @@ def process_data(file_name):
         df.columns = ['日期', '新增确诊（左）', '新增治愈（右）']
         df = df[df['日期'] <= end_date]
         if sheet_name == '全球':
-            i = '2-19.csv'
+            i = path + '2-19.csv'
         elif sheet_name == '一带一路':
-            i = '2-20.csv'
+            i = path + '2-20.csv'
         elif sheet_name == '非洲':
-            i = '2-21.csv'
+            i = path + '2-21.csv'
         elif sheet_name == '周边':
-            i = '2-22.csv'
-        df.to_csv(export_path + i, index=False, encoding='utf-8')
-
+            i = path + '2-22.csv'
+        df.to_csv(i, index=False, encoding='utf-8')
 
     four_area_data('全球')
     four_area_data('一带一路')
@@ -512,12 +535,14 @@ def process_data(file_name):
     if len(col) % 3 == 0:
         pass
     else:
-        print('四阶段数据列数不正确！')
+        print('四个阶段数据列数不正确！')
+        return [False, '四个阶段数据列数不正确！']
 
-    col_list = ['上行', '上行', '下行', '尾期']
+    col_list = ['上行', '震荡', '下行', '尾期']
     name = [False for i in col_list if i not in col]
     if name:
         print('四个阶段数据标题有变动！')
+        return [False, '四个阶段数据标题有变动！']
     else:
         pass
 
@@ -527,35 +552,64 @@ def process_data(file_name):
         df_select.columns = ['日期', '新增确诊（左）', '新增治愈（右）']
         df_select = df_select[df_select['日期'] <= end_date]
         if '上行' in col[i:j]:
-            df_select.to_csv(export_path + '2-23.csv', index=False, encoding='utf-8')
+            df_select.to_csv(path + '2-23.csv', index=False, encoding='utf-8')
         elif '震荡' in col[i:j]:
-            df_select.to_csv(export_path + '2-24.csv', index=False, encoding='utf-8')
+            df_select.to_csv(path + '2-24.csv', index=False, encoding='utf-8')
         elif '下行' in col[i:j]:
-            df_select.to_csv(export_path + '2-25.csv', index=False, encoding='utf-8')
+            df_select.to_csv(path + '2-25.csv', index=False, encoding='utf-8')
         elif '尾期' in col[i:j]:
-            df_select.to_csv(export_path + '2-26.csv', index=False, encoding='utf-8')
+            df_select.to_csv(path + '2-26.csv', index=False, encoding='utf-8')
 
-    ## part8：读取世界地图的数据
-    df = pd.read_csv(world_map_data)
-    df = df[df['location'] != 'World']
-    year = date_range[12].year
-    month = date_range[12].month
-    day = date_range[12].day
-    if len(str(month)) == 1:
-        month = '0' + str(month)
-    else:
-        month = str(month)
-    if len(str(day)) == 1:
-        day = '0' + str(day)
-    else:
-        day = str(day)
-    string = str(year) + '-' + month + '-' + day
-    df = df[df['date'] == string]
-    df = df[['location', 'total_cases', 'total_deaths']]
-    df.columns = [['国家', '累计确诊人数', '累计病死人数']]
-    df_2_1 = df[['国家', '累计确诊人数']]
-    df_2_2 = df[['国家', '累计病死人数']]
-    df_2_1.to_csv(export_path + '2-1.csv', index=False, encoding='utf-8')
-    df_2_2.to_csv(export_path + '2-2.csv', index=False, encoding='utf-8')
+    ## part8: basic info
+    basic_info_dic = {'开始日期': this_monday.date(),
+                      '结束日期': this_sunday.date(),
+                      '当前全球确诊数量': data_wld_confirmed[data_wld_confirmed['日期'] == this_sunday]['全球累计确诊人数'].values[0],
+                      '当前全球死亡数量': data_wld_death[data_wld_death['日期'] == this_sunday]['全球累计病死人数'].values[0],
+                      '当前全球确诊率': data_wld_confirmed_rate[data_wld_confirmed_rate['日期'] == this_sunday]['全球确诊率'].values[
+                          0],
+                      '当前全球病死率': data_wld_death_rate[data_wld_death_rate['日期'] == this_sunday]['全球病死率'].values[0],
+                      '当前全球确诊最多国家': data_confirmed_result.iloc[0, 0],
+                      '当前全球确诊最多国家确诊数': data_confirmed_result.iloc[0, 1],
+                      '当前全球确诊第二多国家': data_confirmed_result.iloc[1, 0],
+                      '当前全球确诊第二多国家确诊数': data_confirmed_result.iloc[1, 1],
+                      '当前全球死亡最多国家': data_death_result.iloc[0, 0],
+                      '当前全球死亡最多国家死亡数': data_death_result.iloc[0, 1],
+                      '当前全球死亡第二多国家': data_death_result.iloc[1, 0],
+                      '当前全球死亡第二多国家死亡数': data_death_result.iloc[1, 1],
+                      '上周全球确诊病例': data_wld_new['新增确诊人数'].sum(),
+                      '上周全球确诊较前一周': confirmed_growth_rate.iloc[0, 2],
+                      '上周全球死亡病例': data_wld_new['新增病死人数'].sum(),
+                      '上周全球死亡较前一周': death_growth_rate.iloc[0, 2],
+                      '上周确诊最多国家': data_confirmed_new1_result.iloc[0, 0],
+                      '上周确诊最多国家确诊数': data_confirmed_new1_result.iloc[0, 1],
+                      '上周确诊第二多国家': data_confirmed_new1_result.iloc[1, 0],
+                      '上周确诊第二多国家确诊数': data_confirmed_new1_result.iloc[1, 1],
+                      '上周死亡最多国家': data_death_new1_result.iloc[0, 0],
+                      '上周死亡最多国家死亡数': data_death_new1_result.iloc[0, 1],
+                      '上周死亡第二多国家': data_death_new1_result.iloc[1, 0],
+                      '上周死亡第二多国家死亡数': data_death_new1_result.iloc[1, 1],
+                      '上周确诊增速最快国家': confirmed_growth_rate.iloc[1, 0],
+                      '上周确诊增速最快国家增速值': confirmed_growth_rate.iloc[1, 2],
+                      '上周确诊增速第二快国家': confirmed_growth_rate.iloc[2, 0],
+                      '上周确诊增速第二快国家增速值': confirmed_growth_rate.iloc[2, 2],
+                      '上周死亡增速最快国家': death_growth_rate.iloc[1, 0],
+                      '上周死亡增速最快国家增速值': death_growth_rate.iloc[1, 2],
+                      '上周死亡增速第二快国家': death_growth_rate.iloc[2, 0],
+                      '上周死亡增速第二快国家增速值': death_growth_rate.iloc[2, 2],
+                      '当前全球确诊第三多国家': data_confirmed_result.iloc[2, 0],
+                      '当前全球确诊第三多国家确诊数': data_confirmed_result.iloc[2, 1],
+                      '所有疫情数据截止小时': time_data[time_data.rfind('H') - 1: time_data.rfind('H')],
+                      '所有疫情数据截止分钟': time_data[time_data.rfind('H') + 1: time_data.rfind('.')]}
+    name = list(basic_info_dic.keys())
+    value = list(basic_info_dic.values())
+    basic_info = pd.DataFrame({'name': name,
+                               'value': value})
+    basic_info.to_csv(path + 'basic_info.csv', index=False, encoding='utf-8')
 
     print('finished!\n', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+    return [True, [country_list, countries_error]]
+
+
+if __name__ == '__main__':
+    process_data("全球及重点国家疫情主要指数数据-2020-8-9-6H30.xlsx")

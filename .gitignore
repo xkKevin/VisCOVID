@@ -7,5 +7,4 @@ __py
 __pycache__/
 tmp/
 main/static/data/owd.csv
-main/static/data/wang.xlsx
-main/static/data/regions.xlsx
+main/static/data/*.xlsx
