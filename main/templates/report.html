@@ -268,6 +268,7 @@
                 $("."+index).text(data);
             });
             $(".2_1_countries").text(cases_3.join("、"));
+            text = $(".text_to_save").text();
         }
     });
 
@@ -284,7 +285,6 @@
             console.log(error);
         }else{
             worldMap(csvdata, '累计病死人数', '2_2', $(".11").text().replace(/,/g,""));
-            text = $(".text_to_save").text();
         }
     });
 
@@ -441,7 +441,7 @@
         }
     });
 
-        d3.csv("{% static export_dir|add:'2-18.csv' %}", function (error, csvdata) {
+    d3.csv("{% static export_dir|add:'2-18.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
         }else{
@@ -453,7 +453,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "全球（215个国家地区合计）", '2_19',[350000, 350000, 70000]);
+            bi_yAxis_barchart(csvdata, "全球（215个国家地区合计）", '2_19',[350000, 420000, 70000]);
         }
     });
 
@@ -461,7 +461,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "“一带一路”国家（65个国家地区合计）", '2_20',[100000, 100000, 20000]);
+            bi_yAxis_barchart(csvdata, "“一带一路”国家（65个国家地区合计）", '2_20', [120000, 150000, 30000]);
         }
     });
 
@@ -469,7 +469,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "非洲国家（52个国家地区合计）", '2_21',[25000, 30000, 5000]);
+            bi_yAxis_barchart(csvdata, "非洲国家（52个国家地区合计）", '2_21', [25000, 35000, 5000]);
         }
     });
 
@@ -477,7 +477,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22',[75000, 75000, 15000]);
+            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22', [100000, 100000, 20000]);
         }
     });
 
@@ -485,7 +485,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "4月底处于上行阶段26个国家的合计数据", '2_23',[200000, 250000, 50000]);
+            bi_yAxis_barchart(csvdata, "4月底处于上行阶段26个国家的合计数据", '2_23', [200000, 300000, 50000]);
         }
     });
 
@@ -493,7 +493,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "4月底处于震荡阶段28个国家的合计数据", '2_24',[35000, 28000, 7000]);
+            bi_yAxis_barchart(csvdata, "4月底处于震荡阶段28个国家的合计数据", '2_24', [40000, 70000, 10000]);
         }
     });
 
@@ -501,7 +501,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "4月底处于下行阶段28个国家的合计数据", '2_25',[100000, 80000, 20000]);
+            bi_yAxis_barchart(csvdata, "4月底处于下行阶段28个国家的合计数据", '2_25', [100000, 80000, 20000]);
         }
     });
 
@@ -509,7 +509,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "4月底处于尾期阶段27个国家的合计数据", '2_26',[16000, 16000, 4000]);
+            bi_yAxis_barchart(csvdata, "4月底处于尾期阶段27个国家的合计数据", '2_26', [16000, 16000, 4000]);
         }
     });
 
