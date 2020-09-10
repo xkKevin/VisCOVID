@@ -21,7 +21,7 @@ var CSS_STYLE = {
     "symbolSize": 7,
     // 长宽：0.618 （黄金分割比）
     'bigChart':{
-        width: "800px",
+        width: "1800px",
         height: "495px",
         heightLong: "950px"
     },

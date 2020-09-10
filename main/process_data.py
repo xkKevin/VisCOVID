@@ -30,10 +30,11 @@ def process_data(time_data):
     # four_area_data_file = '四个大区域以及四个阶段疫情主要指数数据-2020-8-24-6H30.xlsx'
     # world_map_data = 'owid-covid-data.csv'
     # path = ''
-
+    print("fuck")
     tarfile = data_file[0: data_file.rfind('.')] + '_1' + '.xlsx'
     end_date = pd.to_datetime(time_data[time_data.find('-') + 1: time_data.rfind('-')])
     start_date = end_date - pd.Timedelta('13 days')
+    print("hello")
     date_range = pd.date_range(start_date, end_date)
     last_monday = date_range[0]
     last_sunday = date_range[6]
