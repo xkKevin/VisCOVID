@@ -19,7 +19,12 @@ var CSS_STYLE = {
     },
     'backgroundColor': "white",
     "symbolSize": 7,
-    // 长宽：0.618 （黄金分割比）
+    // 长宽：0.618 （黄金分割比）,
+    "map": {
+       width: "850px",
+        height: "495px",
+        heightLong: "950px" 
+    },
     'bigChart':{
         width: "1800px",
         height: "495px",
@@ -76,7 +81,7 @@ function worldMap(data, name, div_id, num_max) {
 
     var option = {
         backgroundColor: CSS_STYLE.backgroundColor,
-        width: CSS_STYLE.bigChart.width,
+        width: CSS_STYLE.map.width,
         // height: CSS_STYLE.bigChart.height,
         toolbox: {
             feature: {
@@ -141,7 +146,9 @@ function worldMap(data, name, div_id, num_max) {
             type: 'map',
             mapType: 'world',
             roam: true,
+            
             top: "15px",
+            
             itemStyle: {
                 emphasis: {
                     label: {
@@ -149,6 +156,7 @@ function worldMap(data, name, div_id, num_max) {
                     }
                 }
             },
+            
             data: data.map(function (x) {
                 return {"name": x["国家"], "value": x[name]}
             })
