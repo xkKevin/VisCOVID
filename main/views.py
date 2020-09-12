@@ -85,7 +85,6 @@ def csvFile(request, file_name):
         file_location = export_path + "/" + file_name
         with open(file_location, 'r', encoding='utf-8') as f:
             file_data = f.read()
-
         # sending response
         response = HttpResponse(file_data, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=' + '"' + file_name + '"'
@@ -101,11 +100,9 @@ def saveImage(request):
             baseimg = json.loads(request.POST.get("baseimg"))
             text = request.POST.get("text", "")
             num = int(request.POST.get("num", "50"))
-
             for key, value in baseimg.items():
                 with open("%s/%s.png" % (report_path, key), 'wb') as f:
                     f.write(base64.b64decode(value[21:]))
-
             if text:
                 path = "%s/text.txt" % (report_path)
                 if (os.path.exists(path)):
