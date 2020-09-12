@@ -30,11 +30,10 @@ def process_data(time_data):
     # four_area_data_file = '四个大区域以及四个阶段疫情主要指数数据-2020-8-24-6H30.xlsx'
     # world_map_data = 'owid-covid-data.csv'
     # path = ''
-    print("fuck")
+
     tarfile = data_file[0: data_file.rfind('.')] + '_1' + '.xlsx'
     end_date = pd.to_datetime(time_data[time_data.find('-') + 1: time_data.rfind('-')])
     start_date = end_date - pd.Timedelta('13 days')
-    print("hello")
     date_range = pd.date_range(start_date, end_date)
     last_monday = date_range[0]
     last_sunday = date_range[6]
@@ -240,7 +239,17 @@ def process_data(time_data):
     data_4(df_data, '全球确诊率').to_csv(path + '2-4-a.csv', index = False, encoding = 'utf-8')          # 2-4-a 全球确诊率
     data_4(df_data, '全球病死率').to_csv(path + '2-4-b.csv', index = False, encoding = 'utf-8')          # 2-4-b 全球病死率
 
-    # 2-5 累计确诊人数-周末数据，前15名
+    # 2-5-a 全球新增确诊人数
+    data_wld_confirmed_new = df_data[df_data['国家地区'] == '全球']
+    data_wld_confirmed_new = data_wld_confirmed_new.rename(columns = {'新增确诊': '新增确诊人数'})
+    data_wld_confirmed_new[['日期', '新增确诊人数']].to_csv(path + '2-5-a.csv', index = False, encoding = 'utf-8')
+
+    # 2-5-b 全球新增死亡人数
+    data_wld_death_new = df_data[df_data['国家地区'] == '全球']
+    data_wld_death_new = data_wld_death_new.rename(columns = {'新增死亡': '新增病死人数'})
+    data_wld_death_new[['日期', '新增病死人数']].to_csv(path + '2-5-b.csv', index = False, encoding = 'utf-8')
+    
+    # 2-6 累计确诊人数-周末数据，前15名
     wld_confirmed_data = df_data[df_data['国家地区'] == '全球']
     wld_confirmed_data = wld_confirmed_data[wld_confirmed_data['日期'] == this_sunday]
     # print(wld_confirmed_data)
@@ -258,9 +267,9 @@ def process_data(time_data):
     df = pd.DataFrame(data)
     # print(df)
     data_confirmed_result = data_confirmed.append(df).reset_index(drop = True)  # 合并到一张表中
-    data_confirmed_result.to_csv(path + '2-5.csv', index = False, encoding = 'utf-8')
+    data_confirmed_result.to_csv(path + '2-6.csv', index = False, encoding = 'utf-8')
 
-    # 2-6 累计病死人数-周末数据，前15名
+    # 2-7 累计病死人数-周末数据，前15名
     wld_death_data = df_data[df_data['国家地区'] == '全球']
     wld_death_data = wld_death_data[wld_death_data['日期'] == this_sunday]
     # print(wld_death_data)
@@ -277,7 +286,7 @@ def process_data(time_data):
     df = pd.DataFrame(data)
     # print(df)
     data_death_result = data_death.append(df).reset_index(drop = True)  # 合并到一张表中
-    data_death_result.to_csv(path + '2-6.csv', index = False, encoding = 'utf-8')
+    data_death_result.to_csv(path + '2-7.csv', index = False, encoding = 'utf-8')
 
     # 设置函数
     def rate5(df, column1, column2):
@@ -286,12 +295,15 @@ def process_data(time_data):
         df = df.rename(columns = {'国家地区': '国家'})
         if column1 == '百万人口确诊率' and column2 == '百万人口确诊率':
             df['确诊率'] = df[column1].astype(float) / 1000000
+            df = df[df['确诊率'] <= 1]
             return df
         elif column1 == '累计死亡' and column2 == '累计确诊':
             df['病死率'] = df[column1].astype(float) / df[column2].astype(float)
+            df = df[df['病死率'] <= 1]
             return df
         elif column1 == '累计确诊' and column2 == '累计治愈':
             df['治愈率'] = df[column2].astype(float) / df[column1].astype(float)
+            df = df[df['治愈率'] <= 1]
             return df
         elif column1 == '百万人口检测率' and column2 == '百万人口检测率':
             df = df[df['总检测数'].astype(float) > 0]
@@ -310,29 +322,29 @@ def process_data(time_data):
             print('excel标题有改动!')
             return False
 
-    # 2-7 确诊率---/1000000算
+    # 2-8 确诊率---/1000000算
     df_qzl = rate5(df_data, '百万人口确诊率', '百万人口确诊率')
     # print(df_qzl)
     df_qzl = df_qzl[df_qzl['国家'] == '全球'].append(df_qzl[df_qzl['国家'] != '全球'].sort_values(['确诊率'], ascending=False))[
         ['国家', '确诊率']].reset_index(drop = True)
     df_qzl.replace('全球', '各国平均', inplace = True)
-    df_qzl.to_csv(path + '2-7.csv', index = False, encoding = 'utf-8')
+    df_qzl.to_csv(path + '2-8.csv', index = False, encoding = 'utf-8')
 
-    # 2-8 病死率--累计死亡/累计确诊
+    # 2-9 病死率--累计死亡/累计确诊
     df_bsl = rate5(df_data, '累计死亡', '累计确诊')
     df_bsl = df_bsl[df_bsl['国家'] == '全球'].append(df_bsl[df_bsl['国家'] != '全球'].sort_values(['病死率'], ascending = False))[
         ['国家', '病死率']].reset_index(drop = True)
     df_bsl.replace('全球', '各国平均', inplace = True)
-    df_bsl.to_csv(path + '2-8.csv', index = False, encoding = 'utf-8')
+    df_bsl.to_csv(path + '2-9.csv', index = False, encoding = 'utf-8')
 
-    # 2-9 治愈率
+    # 2-10 治愈率
     df_zyl = rate5(df_data, '累计确诊', '累计治愈')
     df_zyl = df_zyl[df_zyl['国家'] == '全球'].append(df_zyl[df_zyl['国家'] != '全球'].sort_values(['治愈率'], ascending = False))[
         ['国家', '治愈率']].reset_index(drop = True)
     df_zyl.replace('全球', '各国平均', inplace = True)
-    df_zyl.to_csv(path + '2-9.csv', index = False, encoding = 'utf-8')
+    df_zyl.to_csv(path + '2-10.csv', index = False, encoding = 'utf-8')
 
-    # 2-10 检测率---/1000000算,各国平均根据所有国家求和计算
+    # 2-11 检测率---/1000000算,各国平均根据所有国家求和计算
     df_jcl = rate5(df_data, '百万人口检测率', '百万人口检测率')
     jcl_word = pd.DataFrame({'国家': '各国平均',
                              '检测率': (df_jcl['总检测数'].astype(float).sum() / df_jcl['2018人口'].astype(float).sum())},
@@ -340,9 +352,9 @@ def process_data(time_data):
     # print(jcl_word)
     df_jcl = jcl_word.append(
         df_jcl[df_jcl['国家'] != '全球'].sort_values(['检测率'], ascending = False)[['国家', '检测率']]).reset_index(drop = True)
-    df_jcl.to_csv(path + '2-10.csv', index = False, encoding = 'utf-8')
+    df_jcl.to_csv(path + '2-11.csv', index = False, encoding = 'utf-8')
 
-    # 2-11 阳性率---累计确诊/总检测数，各国平均根据所有国家求和计算
+    # 2-12 阳性率---累计确诊/总检测数，各国平均根据所有国家求和计算
     df_yxl = rate5(df_data, '累计确诊', '总检测数')
     yxl_word = pd.DataFrame({'国家': '各国平均',
                              '阳性率': (df_yxl['累计确诊'].astype(float).sum() / df_yxl['总检测数'].astype(float).sum())},
@@ -350,17 +362,17 @@ def process_data(time_data):
     # print(yxl_word)
     df_yxl = yxl_word.append(
         df_yxl[df_yxl['国家'] != '全球'].sort_values(['阳性率'], ascending = False)[['国家', '阳性率']]).reset_index(drop = True)
-    df_yxl.to_csv(path + '2-11.csv', index = False, encoding = 'utf-8')
+    df_yxl.to_csv(path + '2-12.csv', index = False, encoding = 'utf-8')
 
-    # 2-12 新增死亡人数-全球7日
+    # 2-13 新增死亡人数-全球7日
     data_wld_new = df_data[df_data['国家地区'] == '全球']
     data_wld_new = data_wld_new[(data_wld_new['日期'] >= this_monday) & (data_wld_new['日期'] <= this_sunday)]
     data_wld_new = data_wld_new.rename(columns={'新增确诊': '新增确诊人数', '新增死亡': '新增病死人数'})
     data_wld_new = data_wld_new[['日期', '新增确诊人数', '新增病死人数']].reset_index(drop = True)
-    data_wld_new[['日期', '新增确诊人数']].to_csv(path + '2-12-a.csv', index = False, encoding = 'utf-8')
-    data_wld_new[['日期', '新增病死人数']].to_csv(path + '2-12-b.csv', index = False, encoding = 'utf-8')
+    data_wld_new[['日期', '新增确诊人数']].to_csv(path + '2-13-a.csv', index = False, encoding = 'utf-8')
+    data_wld_new[['日期', '新增病死人数']].to_csv(path + '2-13-b.csv', index = False, encoding = 'utf-8')
 
-    # 2-13 本周新增确诊人数，前15名
+    # 2-14 本周新增确诊人数，前15名
     wld_confirmed_new = df_data[df_data['国家地区'] == '全球']
     wld_confirmed_new = wld_confirmed_new[
         (wld_confirmed_new['日期'] >= this_monday) & (wld_confirmed_new['日期'] <= this_sunday)]
@@ -382,9 +394,9 @@ def process_data(time_data):
     df = pd.DataFrame(data, index = [0])
     # print(df)
     data_confirmed_new1_result = data_confirmed_new1.append(df).reset_index(drop = True)  # 合并到一张表中
-    data_confirmed_new1_result.to_csv(path + '2-13.csv', index = False, encoding = 'utf-8')
+    data_confirmed_new1_result.to_csv(path + '2-14.csv', index = False, encoding = 'utf-8')
 
-    # 2-14 本周新增死亡人数，前15名
+    # 2-15 本周新增死亡人数，前15名
     wld_death_new = df_data[df_data['国家地区'] == '全球']
     wld_death_new = wld_death_new[(wld_death_new['日期'] >= this_monday) & (wld_death_new['日期'] <= this_sunday)]
     wld_death_new = wld_death_new[['国家地区', '新增死亡']]
@@ -405,7 +417,7 @@ def process_data(time_data):
     df = pd.DataFrame(data, index = [0])
     # print(df)
     data_death_new1_result = data_death_new1.append(df).reset_index(drop = True)  # 合并到一张表中
-    data_death_new1_result.to_csv(path + '2-14.csv', index = False, encoding = 'utf-8')
+    data_death_new1_result.to_csv(path + '2-15.csv', index = False, encoding = 'utf-8')
 
     # 定义增速函数
     def growth_rate(df, column):
@@ -425,7 +437,7 @@ def process_data(time_data):
         data['本周较上周' + column + '人数增速' + '_%'] = rate_lst
         return data.sort_values(['本周较上周' + column + '人数增速'], ascending = False)
 
-    # 2-15 本周较上周新增确诊人数增速，全部国家
+    # 2-16 本周较上周新增确诊人数增速，全部国家
     confirmed = df_data[-df_data.国家地区.isin(lst2)]  # 剔除累计确诊小于10000的国家
     confirmed = confirmed[-confirmed.国家地区.isin(lst5)]  # 剔除本周新增确诊少于500的国家
     confirmed_growth_rate = growth_rate(confirmed, '新增确诊')
@@ -437,9 +449,9 @@ def process_data(time_data):
         [['国家地区', '本周较上周新增确诊人数增速_%', '本周较上周新增确诊人数增速', '上周新增', '本周新增']]
     confirmed_growth_rate.replace('全球', '各国平均', inplace = True)
     confirmed_growth_rate = confirmed_growth_rate.rename(columns = {'国家地区': '国家'})
-    confirmed_growth_rate[['国家', '本周较上周新增确诊人数增速']].to_csv(path + '2-15.csv', index = False, encoding = 'utf-8')
+    confirmed_growth_rate[['国家', '本周较上周新增确诊人数增速']].to_csv(path + '2-16.csv', index = False, encoding = 'utf-8')
 
-    # 2-16 本周较上周新增病死人数增速，全部国家
+    # 2-17 本周较上周新增病死人数增速，全部国家
     death = df_data[-df_data.国家地区.isin(lst3)]  # 剔除累计死亡小于300的国家
     death = death[-death.国家地区.isin(lst6)]  # 剔除本周死亡小于100的国家
     death_growth_rate = growth_rate(death, '新增病死')
@@ -450,17 +462,9 @@ def process_data(time_data):
         [['国家地区', '本周较上周新增病死人数增速_%', '本周较上周新增病死人数增速', '上周新增', '本周新增']]
     death_growth_rate.replace('全球', '各国平均', inplace = True)
     death_growth_rate = death_growth_rate.rename(columns = {'国家地区': '国家'})
-    death_growth_rate[['国家', '本周较上周新增病死人数增速']].to_csv(path + '2-16.csv', index = False, encoding = 'utf-8')
+    death_growth_rate[['国家', '本周较上周新增病死人数增速']].to_csv(path + '2-17.csv', index = False, encoding = 'utf-8')
 
-    # 2-17-a 全球新增确诊人数
-    data_wld_confirmed_new = df_data[df_data['国家地区'] == '全球']
-    data_wld_confirmed_new = data_wld_confirmed_new.rename(columns = {'新增确诊': '新增确诊人数'})
-    data_wld_confirmed_new[['日期', '新增确诊人数']].to_csv(path + '2-17-a.csv', index = False, encoding = 'utf-8')
-
-    # 2-17-b 全球新增死亡人数
-    data_wld_death_new = df_data[df_data['国家地区'] == '全球']
-    data_wld_death_new = data_wld_death_new.rename(columns = {'新增死亡': '新增病死人数'})
-    data_wld_death_new[['日期', '新增病死人数']].to_csv(path + '2-17-b.csv', index = False, encoding = 'utf-8')
+    
 
     # part7: 附录
     # 2-18 累计检测数
