@@ -43,7 +43,7 @@ var CSS_STYLE = {
         fontSizeNum: 20
     }
 };
-var case_scale = [0, 1000, 5000, 10000, 50000, 100000, 200000, 500000, 1000000];
+var case_scale = [0, 1000, 10000, 50000, 100000, 500000, 1000000, 2000000, 5000000];
 
 function worldMap(data, name, div_id, num_max) {
     var myChart = echarts.init(document.getElementById(div_id));
@@ -100,8 +100,8 @@ function worldMap(data, name, div_id, num_max) {
                 fontFamily: "楷体",
                 fontWeight: "bold"
             },
-            left: '40px',
-            bottom: '40px'
+            left: '5px',
+            bottom: '36px'
         },
         /* tooltip: {
              trigger: 'item',
@@ -133,8 +133,8 @@ function worldMap(data, name, div_id, num_max) {
             //     { min: data_max, max: pieces_map(), color: '#AD2101', label: '1000000' }
             // ],
             orient: 'horizontal',
-            bottom: 15,
-            left: '40px',
+            bottom: 10,
+            left: '5px',
             itemGap: 10,
             textStyle: {
                 color: '#000',
@@ -855,10 +855,14 @@ function linechart_num(data, div_id) {
     });
 
     let handle_data_len = handle_data.value.length;
-    let precision_len = format_number(handle_data.value[handle_data_len-1]).length;
-    if (handle_data.value[handle_data_len-1] > 8000000){
+    let max_data_value = handle_data.value[handle_data_len-1];
+    let precision_len = format_number(max_data_value).length;
+    if (max_data_value > 8000000){
         precision_len = 10;
+    }else if (max_data_value > 800000){
+        precision_len = 9;
     }
+    console.log(div_id, precision_len, max_data_value);
 
     var myChart = echarts.init(document.getElementById(div_id));
 

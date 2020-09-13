@@ -1,5 +1,6 @@
 from docx import Document
 from docx.shared import Inches, Cm
+
 # from docxtpl import DocxTemplate
 # import win32com.client
 # import inspect, os
@@ -28,12 +29,13 @@ def renew_text(p, text):
     if "增速=" in text:
         print(p)
         print(text)
-        
+
     p.clear()
     p.add_run()
     p.runs[0].text = text
     p.runs[0].font.name = 'Times New Roman'
     '''
+
 
 def replace_pic(p, pic_list, width=None, height=None):
     p.clear()
@@ -59,7 +61,6 @@ def createReport(num=33, compress_threshold=33):
         for im in images:
             print(im)
         i += 1
-
 
     texts = []
     with open(report_data_path + 'text.txt', encoding='utf-8') as f:
