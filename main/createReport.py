@@ -7,6 +7,7 @@ from docx.shared import Inches, Cm
 
 report_data_path = "./main/static/report/"
 
+# report_data_path = ''
 
 # def update_toc(docx_file):
 #     pythoncom.CoInitialize()
@@ -58,16 +59,7 @@ def createReport(num=33, compress_threshold=33):
         for im in images:
             print(im)
         i += 1
-    # week_period = '（4月28日—5月4日）'
-    # report_date = '2020年5月4日'
-    # title_2_1 = '2.1 全球累计确诊'
-    # major_distribution = '主要分布在美国、西班牙、意大利。'
-    # pic_title_2_1 = '图2-1 全球累计确诊分布图'
-    # title_2_2 = '2.2 全球确诊率：0.046%，病死率：7.0%'
-    # title_2_3 = '2.3 全球本周新增确诊：570,433例，死亡：41,253例'
-    # title_2_4 = '2.4 本周新增确诊主要来源：美国、俄罗斯'
-    # title_2_5 = '2.5 本周新增确诊主要来源：美国、英国'
-    # title_2_6 = '2.6 本周新增确诊增长最快：阿富汗，新增死亡增长最快：厄瓜多尔'
+
 
     texts = []
     with open(report_data_path + 'text.txt', encoding='utf-8') as f:
@@ -77,50 +69,49 @@ def createReport(num=33, compress_threshold=33):
         paragraphs[4],
         paragraphs[6],
         paragraphs[20],
-        paragraphs[34],
-        paragraphs[35],
-        paragraphs[36],
         paragraphs[37],
-        paragraphs[56],
-        paragraphs[57],
+        paragraphs[38],
+        paragraphs[39],
+        paragraphs[40],
         paragraphs[58],
         paragraphs[59],
+        paragraphs[60],
         paragraphs[61],
         paragraphs[63],
-        paragraphs[66],
-        paragraphs[69],
-        paragraphs[70],
+        paragraphs[65],
+        paragraphs[68],
+        paragraphs[71],
         paragraphs[72],
-        paragraphs[74],
-        paragraphs[75],
-        paragraphs[77],
-        paragraphs[79],
-        paragraphs[81],
-        paragraphs[83],
-        paragraphs[85],
+        paragraphs[76],
+        paragraphs[78],
+        paragraphs[80],
         paragraphs[86],
-        paragraphs[89],
+        paragraphs[88],
         paragraphs[90],
-        paragraphs[92],
         paragraphs[93],
-        paragraphs[95],
         paragraphs[96],
-        paragraphs[98],
         paragraphs[99],
         paragraphs[101],
-        paragraphs[102],
-        paragraphs[103],
-        paragraphs[106],
+        paragraphs[104],
+        paragraphs[105],
         paragraphs[107],
-        paragraphs[109],
+        paragraphs[108],
+        paragraphs[110],
         paragraphs[111],
         paragraphs[113],
-        paragraphs[115],
+        paragraphs[114],
+        paragraphs[116],
         paragraphs[117],
-        paragraphs[119],
-        paragraphs[121],
         paragraphs[123],
-        paragraphs[125]
+        paragraphs[125],
+        paragraphs[127],
+        paragraphs[129],
+        paragraphs[131],
+        paragraphs[133],
+        paragraphs[135],
+        paragraphs[137],
+        paragraphs[139],
+        paragraphs[141]
     ]
     if len(to_replace_text_paragraphs) != len(texts):
         print('error: inconsistent texts')
@@ -170,32 +161,32 @@ def createReport(num=33, compress_threshold=33):
     pic_2_25 = ['2_25.png']
     pic_2_26 = ['2_26.png']
 
-    replace_pic(paragraphs[60], pic_2_1, height=Cm(8.6))
-    replace_pic(paragraphs[62], pic_2_2, height=Cm(8.6))
-    replace_pic(paragraphs[64], pic_2_3, width=Cm(7.3))
-    replace_pic(paragraphs[67], pic_2_4, width=Cm(7.3))
-    replace_pic(paragraphs[71], pic_2_5, height=Cm(7.8))
-    replace_pic(paragraphs[73], pic_2_6, height=Cm(7.8))
-    replace_pic(paragraphs[76], pic_2_7, height=Cm(10.6))
-    replace_pic(paragraphs[78], pic_2_8, height=Cm(10.6))
-    replace_pic(paragraphs[80], pic_2_9, height=Cm(10.6))
-    replace_pic(paragraphs[82], pic_2_10, height=Cm(10.6))
-    replace_pic(paragraphs[84], pic_2_11, height=Cm(10.6))
-    replace_pic(paragraphs[87], pic_2_12, height=Cm(4))
-    replace_pic(paragraphs[91], pic_2_13, height=Cm(5.7))
-    replace_pic(paragraphs[94], pic_2_14, height=Cm(5.7))
-    replace_pic(paragraphs[97], pic_2_15, width=Cm(10.9 if num <= compress_threshold else 14.5))
-    replace_pic(paragraphs[100], pic_2_16, width=Cm(10.9 if num <= compress_threshold else 14.5))
-    replace_pic(paragraphs[104], pic_2_17, width=Cm(7.3))
-    replace_pic(paragraphs[108], pic_2_18, width=Cm(12.6 if num <= compress_threshold else 14.5))
-    replace_pic(paragraphs[110], pic_2_19, height=Cm(10))
-    replace_pic(paragraphs[112], pic_2_20, height=Cm(10))
-    replace_pic(paragraphs[114], pic_2_21, height=Cm(10))
-    replace_pic(paragraphs[116], pic_2_22, height=Cm(10))
-    replace_pic(paragraphs[118], pic_2_23, height=Cm(10))
-    replace_pic(paragraphs[120], pic_2_24, height=Cm(10))
-    replace_pic(paragraphs[122], pic_2_25, height=Cm(10))
-    replace_pic(paragraphs[124], pic_2_26, height=Cm(10))
+    replace_pic(paragraphs[62], pic_2_1, height=Cm(8.6))
+    replace_pic(paragraphs[64], pic_2_2, height=Cm(8.6))
+    replace_pic(paragraphs[66], pic_2_3, width=Cm(7.3))
+    replace_pic(paragraphs[69], pic_2_4, width=Cm(7.3))
+    replace_pic(paragraphs[74], pic_2_5, width=Cm(7.3))
+    replace_pic(paragraphs[77], pic_2_6, height=Cm(8.28))
+    replace_pic(paragraphs[79], pic_2_7, height=Cm(8.28))
+    replace_pic(paragraphs[87], pic_2_8, height=Cm(21.51))
+    replace_pic(paragraphs[89], pic_2_9, height=Cm(21.51))
+    replace_pic(paragraphs[92], pic_2_10, height=Cm(21.51))
+    replace_pic(paragraphs[95], pic_2_11, height=Cm(21.51))
+    replace_pic(paragraphs[98], pic_2_12, height=Cm(21.51))
+    replace_pic(paragraphs[102], pic_2_13, width=Cm(6.96))
+    replace_pic(paragraphs[106], pic_2_14, height=Cm(5.7))
+    replace_pic(paragraphs[109], pic_2_15, height=Cm(5.7))
+    replace_pic(paragraphs[112], pic_2_16, width=Cm(10.9 if num <= compress_threshold else 14.5))
+    replace_pic(paragraphs[115], pic_2_17, width=Cm(10.9 if num <= compress_threshold else 14.5))
+    replace_pic(paragraphs[124], pic_2_18, height=Cm(21.27))
+    replace_pic(paragraphs[126], pic_2_19, height=Cm(10))
+    replace_pic(paragraphs[128], pic_2_20, height=Cm(10))
+    replace_pic(paragraphs[130], pic_2_21, height=Cm(10))
+    replace_pic(paragraphs[132], pic_2_22, height=Cm(10))
+    replace_pic(paragraphs[134], pic_2_23, height=Cm(10))
+    replace_pic(paragraphs[136], pic_2_24, height=Cm(10))
+    replace_pic(paragraphs[138], pic_2_25, height=Cm(10))
+    replace_pic(paragraphs[140], pic_2_26, height=Cm(10))
 
     file_name = report_data_path + 'report.docx'
 
