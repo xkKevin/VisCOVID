@@ -657,11 +657,10 @@ function linechart(data, div_id) {
     });
 }
 
-function bi_directional_barchart(data, name, div_id) {
+function bi_directional_barchart(data, name, div_id, filter_value=0.2) {
     let num = 0;
     let handle_data = [];
     let countries = [];
-    let filter_value = 0.2; // 0.2
     data.forEach(function(x, index){
         if (index === 0){
             num++;
@@ -701,6 +700,7 @@ function bi_directional_barchart(data, name, div_id) {
 
     $('#'+div_id).css("height",(30*num+95)+"px");
 
+    echarts.dispose(document.getElementById(div_id));
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
         backgroundColor: CSS_STYLE.backgroundColor,

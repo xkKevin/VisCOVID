@@ -41,15 +41,21 @@
     </style>
 </head>
 <body>
-<div class="container fixed-top" style="text-align: right; margin-top: 25px;">
-    <a id="download" href="{% static 'report/report.docx' %}"></a>
-    <button id="create_btn" class="btn btn-info ladda-button" data-style="zoom-out" onclick="createReport()">生成疫情周报</button>
-    <br>
-    <button class="btn btn-warning" style="margin-top: 10px;" onclick="showMissingCountries()">查看忽略国家</button>
-    <br>
-    <button class="btn btn-primary" style="margin-top: 10px;" onclick="deleteFiles()">清空后端文件</button>
-</div>
 <div class="container">
+    <div style="position: fixed; right: 60px; margin-top: 25px;">
+        <a id="download" href="{% static 'report/report.docx' %}"></a>
+        <button id="create_btn" class="btn btn-info ladda-button" data-style="zoom-out" onclick="createReport()">生成疫情周报</button>
+        <br>
+        <button class="btn btn-warning" style="margin-top: 10px;" onclick="showMissingCountries()">查看忽略国家</button>
+        <br>
+        <button class="btn btn-primary" style="margin-top: 10px;" onclick="deleteFiles()">清空后端文件</button>
+    </div>
+    <div>
+        <h3>全局设置</h3>
+        <div>2-16 新增确诊人数增速过滤百分比 <input type="text" value="0.2" id="filter_cases"></div>
+        <div>2-17 新增病死人数增速过滤百分比 <input type="text" value="0.1" id="filter_death"></div>
+        <button class="btn btn-primary" onclick="refresh_charts()">刷新</button> &nbsp;&nbsp; <span class="invisible" style="color: red" id="after_refresh">刷新成功！</span>
+    </div>
     <div>
 {#        注：<span class="red">红色背景表示新增</span>，<span class="green">绿色背景表示修改</span><br>#}
         <h3>一周疫情关键数据（<span class="start_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="start_date_day"><font>&nbsp;Null&nbsp;</font></span>日
@@ -415,7 +421,7 @@
         if(error){
             console.log(error);
         }else{
-            rate_countries_num += bi_directional_barchart(csvdata, "本周较上周新增确诊人数增速", "2_16");
+            rate_countries_num += bi_directional_barchart(csvdata, "本周较上周新增确诊人数增速", "2_16", 0.2);
         }
     });
 
@@ -423,7 +429,7 @@
         if(error){
             console.log(error);
         }else{
-            rate_countries_num += bi_directional_barchart(csvdata, "本周较上周新增病死人数增速", "2_17");
+            rate_countries_num += bi_directional_barchart(csvdata, "本周较上周新增病死人数增速", "2_17", 0.1);
         }
     });
 
@@ -555,6 +561,28 @@
                 location.href="/report";
             }
         })
+    }
+    
+    function refresh_charts() {
+        d3.csv("{% static export_dir|add:'2-16.csv' %}", function (error, csvdata) {
+            if(error){
+                console.log(error);
+            }else{
+                rate_countries_num += bi_directional_barchart(csvdata, "本周较上周新增确诊人数增速", "2_16", parseFloat($("#filter_cases").val()));
+            }
+        });
+
+        d3.csv("{% static export_dir|add:'2-17.csv' %}", function (error, csvdata) {
+            if(error){
+                console.log(error);
+            }else{
+                rate_countries_num += bi_directional_barchart(csvdata, "本周较上周新增病死人数增速", "2_17", parseFloat($("#filter_death").val()));
+                $("#after_refresh").removeClass("invisible");
+                setTimeout(()=>{
+                    $("#after_refresh").addClass("invisible");
+                }, 3000);
+            }
+        });
     }
 </script>
 </body>
