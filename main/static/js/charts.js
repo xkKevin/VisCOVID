@@ -287,8 +287,8 @@ function pieChart(data, name, div_id) {
 
 function barchart(data, name, div_id) {
     data = data.map((x)=> [x["国家"],x[name]]);
-    let format_min = format_percent(data[20][1]);
-    let format_fixed_num = format_min.length - format_min.indexOf('.') - 2;
+    let format_min = format_percent(data[0][1]);
+    let format_fixed_num = format_min.length - format_min.indexOf('.') - 2;  // 保留的小数位以“各国平均”为准
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
         backgroundColor: CSS_STYLE.backgroundColor,
