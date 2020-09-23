@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name="index"),
     path('report/', views.report, name="report"),
+    path('charts/', views.charts, name="charts"),
     path('saveImage/', views.saveImage, name="saveImage"),
     path('export/<file_name>/', views.csvFile, name='csvFile'),
     path('deleteFiles', views.deleteFiles, name='deleteFiles'),

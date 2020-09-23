@@ -369,6 +369,7 @@ function barchart(data, name, div_id) {
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.median,
             },
+            zlevel: 1,  // 这样就可以让 y 轴覆盖在柱状图之上
             inverse: true // inverse了之后就不需要对data做reverse了
         },
         xAxis: {
@@ -492,6 +493,7 @@ function barchart_num(data, name, div_id, span) {
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.median,
             },
+            zlevel: 1,
             inverse: true // inverse了之后就不需要对data做reverse了
         },
         xAxis: {
@@ -659,6 +661,7 @@ function bi_directional_barchart(data, name, div_id) {
     let num = 0;
     let handle_data = [];
     let countries = [];
+    let filter_value = 0.2; // 0.2
     data.forEach(function(x, index){
         if (index === 0){
             num++;
@@ -676,7 +679,7 @@ function bi_directional_barchart(data, name, div_id) {
                     'itemStyle': {'color': CSS_STYLE.color3[1]},
                  });
             }
-        }else if (x[name] >= 0.2){
+        }else if (x[name] >= filter_value){
              num++;
              handle_data.push({
                 'label': {'position': 'left'},
@@ -684,7 +687,7 @@ function bi_directional_barchart(data, name, div_id) {
                 'itemStyle': {'color': CSS_STYLE.color3[0]},
              });
              countries.push(x["国家"]);
-         }else if (x[name] <= -0.2){
+         }else if (x[name] <= -filter_value){
              num++;
              handle_data.push({
                 'label': {'position': 'right'},
@@ -717,10 +720,13 @@ function bi_directional_barchart(data, name, div_id) {
                         for (let i =0;i<data_len;i++){
                             table += "\n" + opt.yAxis[0].data[i] + "," + opt.series[0].data[i].value;
                         }
-                        table += "</textarea>";
+                        table += "</textarea><hr/>";
+                        table += `图题: <input type="text" style="width: 85%" value="${opt.title[0].text}" class="last"><br>`;
                         return table
                     },
                     contentToOption: function(html, opt) {
+                        opt.title[0].text = $(html).children("input").val();
+
                         let content = $(html).children("textarea").val().split("\n");
                         let handle_data = [];
                         let countries = [];
@@ -742,14 +748,14 @@ function bi_directional_barchart(data, name, div_id) {
                                         'itemStyle': {'color': CSS_STYLE.color3[1]},
                                      });
                                 }
-                            }else if (value >= 0.2){
+                            }else if (value >= filter_value){
                                  handle_data.push({
                                     'label': {'position': 'left'},
                                     value,
                                     'itemStyle': {'color': CSS_STYLE.color3[0]},
                                  });
                                  countries.push(country);
-                             }else if (value <= -0.2){
+                             }else if (value <= -filter_value){
                                  handle_data.push({
                                     'label': {'position': 'right'},
                                     value,
@@ -862,7 +868,6 @@ function linechart_num(data, div_id) {
     }else if (max_data_value > 800000){
         precision_len = 9;
     }
-    console.log(div_id, precision_len, max_data_value);
 
     var myChart = echarts.init(document.getElementById(div_id));
 

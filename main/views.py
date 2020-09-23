@@ -141,3 +141,7 @@ def deleteFiles(request):
     except Exception as e:
         return JsonResponse({"error": "Error!\n" + repr(e)})
     return JsonResponse({"error": ""})
+
+
+def charts(request):
+    return render(request, "charts.html")
