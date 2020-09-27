@@ -4,6 +4,7 @@ main/static/export/*.csv
 # main/static/export/*/*.csv
 main/static/report/*.png
 main/static/report/*.txt
+main/static/report/全球疫情发展大数据分析周报*.docx
 __py
 __pycache__/
 tmp/

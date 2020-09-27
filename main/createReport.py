@@ -48,7 +48,7 @@ def replace_pic(p, pic_list, width=None, height=None):
             p.runs[0].add_picture(pic, height=height)
 
 
-def createReport(num=33, compress_threshold=33):
+def createReport(report_name, num=33, compress_threshold=33):
     document = Document(report_data_path + '模板.docx')
     style = document.styles['Normal']
     style.font.name = 'Times New Roman'
@@ -189,7 +189,7 @@ def createReport(num=33, compress_threshold=33):
     replace_pic(paragraphs[138], pic_2_25, height=Cm(10))
     replace_pic(paragraphs[140], pic_2_26, height=Cm(10))
 
-    file_name = report_data_path + 'report.docx'
+    file_name = report_data_path + report_name
 
     # script_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     # file_path = os.path.join(script_dir, file_name)

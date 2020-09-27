@@ -30,6 +30,7 @@ report_path = "./main/static/report"
 missing_countries = []
 ineffective_countries = []
 error_info = ""
+report_doc_name = "report.docx"
 
 def index(request):
     return render(request, "index.html")
@@ -58,6 +59,8 @@ def report(request):
                     for i in regionsdata.chunks():
                         f3.write(i)
                 result = process_data(wxb_file.name)
+                global report_doc_name
+                report_doc_name = '全球疫情发展大数据分析周报（%s）-包含全球疫情对经济影响的研判.docx' % result[2]
 
                 if result[0]:
                     missing_countries = result[1][0]
@@ -71,12 +74,12 @@ def report(request):
         except Exception as e:
             return JsonResponse({"error": repr(e)})
 
-        return render(request, "report.html", {"export_dir": "export/", "error_info": error_info,
-                                               "missing_countries": missing_countries,
+        return render(request, "report.html", {"export_dir": "export/", "report_doc_name": report_doc_name,
+                                               "error_info": error_info, "missing_countries": missing_countries,
                                                "ineffective_countries": ineffective_countries})
     else:
-        return render(request, "report.html", {"export_dir": "export/", "error_info": error_info,
-                                               "missing_countries": missing_countries,
+        return render(request, "report.html", {"export_dir": "export/", "report_doc_name": report_doc_name,
+                                               "error_info": error_info, "missing_countries": missing_countries,
                                                "ineffective_countries": ineffective_countries})
 
 
@@ -112,7 +115,7 @@ def saveImage(request):
                     if len(line) > 3:
                         with open(path, 'a', encoding='utf-8') as f:
                             f.write(line + "\n")
-            createReport(num)
+            createReport(report_doc_name, num)
         except Exception as e:
             return JsonResponse({"error": "Error!\n" + repr(e)})
 
@@ -132,6 +135,9 @@ def deleteFiles(request):
         batch_delete(export_path, "*csv")
         batch_delete(report_path, "*png")
         batch_delete("./main/static/data", "*xlsx")
+
+        batch_delete(report_path, "全球疫情发展大数据分析周报*.docx")
+
         if os.path.exists("./main/static/data/owd.csv"):
             os.remove("./main/static/data/owd.csv")
         if os.path.exists(report_path + "/report.docx"):

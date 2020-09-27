@@ -356,7 +356,7 @@ function barchart(data, name, div_id) {
         },
         grid: {
             left: '3%', // 设置图形离上下左右的距离
-            right: '6%',
+            right: '9.5%',
             bottom: '3%',
             containLabel: true
         },

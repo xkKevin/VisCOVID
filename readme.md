@@ -32,3 +32,6 @@ https://stackoverflow.com/questions/58261464/how-to-host-python-3-7-flask-applic
 
 #### Test createReport.py
 `python main/createReport.py`
+
+#### Download ourworldindata
+`curl --user gitlab-15:2MpPc-Lq4Kn-cdomR-Zs3np-DpxHW https://cloud.zjvis.org/remote.php/webdav/Free/COVID/owid-covid-data.csv > data.csv`

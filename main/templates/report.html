@@ -43,7 +43,7 @@
 <body>
 <div class="container">
     <div style="position: fixed; right: 60px; margin-top: 25px;">
-        <a id="download" href="{% static 'report/report.docx' %}"></a>
+        <a id="download" href="/static/report/{{ report_doc_name }}"></a>
         <button id="create_btn" class="btn btn-info ladda-button" data-style="zoom-out" onclick="createReport()">生成疫情周报</button>
         <br>
         <button class="btn btn-warning" style="margin-top: 10px;" onclick="showMissingCountries()">查看忽略国家</button>
@@ -85,7 +85,7 @@
             全球累计确诊已达<span class="wan_2"><font>&nbsp;Null&nbsp;</font></span>万，病死<span class="wan_3"><font>&nbsp;Null&nbsp;</font></span>万。<br>
             全球本周确诊<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，新增确诊较上周<span class="15"><font>&nbsp;Null&nbsp;</font></span>。<br>
             全球本周病死<span class="16"><font>&nbsp;Null&nbsp;</font></span>例，新增病死较上周<span class="17"><font>&nbsp;Null&nbsp;</font></span>。<br>
-            注：本报告所有疫情数据截至<span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日<span class="36"><font>&nbsp;Null&nbsp;</font></span>时<span class="37"><font>&nbsp;Null&nbsp;</font></span>分，中国数据包含港澳台，法国数据不包括养老院数据，美国数据包括其军队、监狱、境外特殊输入病例等数据。
+            注：本报告所有疫情数据截至<span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日<span class="36"><font>&nbsp;Null&nbsp;</font></span>时<span class="37"><font>&nbsp;Null&nbsp;</font></span>分，中国数据包含港澳台，法国数据不包括养老院数据，美国数据包括其军队、监狱、境外特殊输入病例等数据。不包括西班牙数据。
         </div>
         <h3>2.&nbsp;全球疫情现况</h3>
         <h3>2.1&nbsp;全球累计确诊：<span class="2"><font>&nbsp;Null&nbsp;</font></span>例，病死：<span class="3"><font>&nbsp;Null&nbsp;</font></span>例</h3>
@@ -160,7 +160,7 @@
         <div>注：本周较上周新增确诊人数增速=（本周新增确诊人数-上周新增确诊人数）/上周新增确诊人数</div>
 
         <div id="2_17" style="width: 800px;"></div>
-        <div>图2-17&nbsp;本周较上周新增病死人数增速（仅显示累计病死人数超过300且本周新增病死人数超过100的国家中增速绝对值大于等于20%的国家）</div>
+        <div>图2-17&nbsp;本周较上周新增病死人数增速（仅显示累计病死人数超过300且本周新增病死人数超过100的国家中增速绝对值大于等于10%的国家）</div>
         <div>注：本周较上周新增病死人数增速=（本周新增病死人数-上周新增病死人数）/上周新增病死人数</div>
         
 
@@ -468,7 +468,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "“一带一路”国家（65个国家地区合计）", '2_20', [150000, 150000, 30000]);
+            bi_yAxis_barchart(csvdata, "“一带一路”国家（65个国家地区合计）", '2_20', [180000, 180000, 30000]);
         }
     });
 
@@ -484,7 +484,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22', [120000, 120000, 20000]);
+            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22', [120000, 150000, 30000]);
         }
     });
 
@@ -564,6 +564,8 @@
     }
     
     function refresh_charts() {
+        flag = true;
+
         d3.csv("{% static export_dir|add:'2-16.csv' %}", function (error, csvdata) {
             if(error){
                 console.log(error);

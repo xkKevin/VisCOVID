@@ -10,6 +10,8 @@ import pandas as pd, datetime
 import xlrd
 import xlsxwriter
 
+get_format_date = lambda date: "%d.%d" % (int(date.strftime("%m")),int(date.strftime("%d")))
+
 def process_data(time_data):
 
     data_file = "./main/static/data/wang.xlsx"
@@ -41,7 +43,7 @@ def process_data(time_data):
     this_sunday = date_range[13]
 
     del_sheet_name = ['中国大陆', '香港', '台湾', '澳门', '全球2', '法国CDC', '北马其顿', '马约特', '法属圭亚那', 'Sheet1', 'Sheet2', 'Sheet3',
-                      'Sheet4', '总表']
+                      'Sheet4', '总表', '西班牙']
 
     ## part2：处理人口数据
     # 获取国家名称
@@ -592,7 +594,7 @@ def process_data(time_data):
 
     print('finished!\n', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-    return [True, [country_list, countries_error]]
+    return [True, [country_list, countries_error], get_format_date(this_monday) + '-' + get_format_date(this_sunday)]
 
 
 if __name__ == '__main__':
