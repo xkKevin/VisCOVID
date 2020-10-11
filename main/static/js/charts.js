@@ -954,10 +954,12 @@ function linechart_num(data, div_id) {
 
 function linechart_num_week(data, div_id) {
     let handle_data = {value:[], date:[]};
+    let flag = true;
     data.forEach(function (x) {
         let date = new Date(x[data.columns[0]]);
         // handle_data.date.push(date);
-        handle_data.date.push(String(date.getMonth()+1)+'/'+String(date.getDate()));
+        handle_data.date.push(flag ? String(date.getMonth()+1)+'/'+String(date.getDate()): "");
+        flag = !flag;
         handle_data.value.push(x[data.columns[1]]);
     });
 
@@ -984,13 +986,14 @@ function linechart_num_week(data, div_id) {
             data: handle_data.date,
             axisTick: {
                 alignWithLabel: true
+                // show: true
             },
             name: "日期",
             axisLabel: {
                 fontSize: CSS_STYLE.fontSize.small-4,
                 showMaxLabel: true,
-                showMinLabel: false,
-                // splitNumber: 3
+                showMinLabel: true,
+                //splitNumber: 4
                 interval: Math.round((handle_data_len)/6)-1,
             },
             nameTextStyle: {
@@ -1273,9 +1276,7 @@ function bi_yAxis_barchart(data, name, div_id, span) {
                 showMaxLabel: true,
                 showMinLabel: true,
                 // align: "center",
-                interval: 15
-
-
+                interval: 17
             },
             data: x_data,
         },{
