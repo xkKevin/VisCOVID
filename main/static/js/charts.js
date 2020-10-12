@@ -1153,6 +1153,21 @@ function bi_yAxis_barchart(data, name, div_id, span) {
        let date = new Date(x[0]);
        return String(date.getMonth()+1)+'/'+String(date.getDate());
     });
+    let getInterval = function (len) {
+        let labelNum = [15,14,13,12];  // 总共有四种可能刻度
+        let precision = 1;
+        let interval = 0;
+        for (let i=0; i<labelNum.length; i++){
+            let interval_f = (len-labelNum[i])/(labelNum[i]-1);
+            let precision_t = Math.abs(Math.round(interval_f)-interval_f);
+            if (precision_t < precision){
+                precision = precision_t;
+                interval = Math.round(interval_f);
+                // console.log(labelNum[i],precision,interval);
+            }
+        }
+        return interval;
+    };
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
         title: {
@@ -1195,6 +1210,8 @@ function bi_yAxis_barchart(data, name, div_id, span) {
                          opt.series[0].data = handle_data.data[0];
                          opt.series[1].data = handle_data.data[1];
                          opt.xAxis[0].data = handle_data.xAxis;
+                         //console.log(getInterval(handle_data.xAxis.length));
+                         opt.xAxis[0].axisLabel.interval = getInterval(handle_data.xAxis.length);
                         let inputs = $(html).children("input");
                         opt.title[0].text = inputs.eq(0).val();
                         opt.yAxis[0].max = parseFloat(inputs.eq(1).val());
@@ -1275,8 +1292,9 @@ function bi_yAxis_barchart(data, name, div_id, span) {
                 fontSize: CSS_STYLE.fontSize.small-3,
                 showMaxLabel: true,
                 showMinLabel: true,
+                //splitNumber: 15
                 // align: "center",
-                interval: 17
+                interval: getInterval(x_data.length), // 总共有四种可能刻度
             },
             data: x_data,
         },{
