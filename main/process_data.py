@@ -43,7 +43,7 @@ def process_data(time_data):
     this_sunday = date_range[13]
 
     del_sheet_name = ['中国大陆', '香港', '台湾', '澳门', '全球2', '法国CDC', '北马其顿', '马约特', '法属圭亚那', 'Sheet1', 'Sheet2', 'Sheet3',
-                      'Sheet4', '总表', '西班牙']
+                      'Sheet4', '总表']
 
     ## part2：处理人口数据
     # 获取国家名称
