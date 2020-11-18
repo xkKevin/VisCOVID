@@ -1,3 +1,19 @@
+function get_jsonArrColumn_extreme(json_data, column="value", extreme="max") {
+    /**
+     * 获得json数组某一列的极值：最大值或最小值
+     * @type {Array}
+     */
+    let list = [];
+    json_data.forEach(x => {
+        let tmp = parseFloat(x[column]);
+        if (!isNaN(tmp)){  // 判断是否为NaN
+            list.push(tmp)
+        }
+    });
+    list.sort((n1,n2) => n1 - n2);  // 从小到大排序
+    return extreme === "max" ? list[list.length-1] : list[0]
+}
+
 function format_number(n, chinese=false) {
     if (chinese) {
         if (n >= 100000000) {

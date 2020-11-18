@@ -283,7 +283,7 @@
         if(error){
             console.log(error);
         }else{
-            worldMap(csvdata, '累计确诊人数', '2_1', $(".7").text().replace(/,/g,""));
+            worldMap(csvdata, '累计确诊人数', '2_1');
         }
     });
 
@@ -291,7 +291,7 @@
         if(error){
             console.log(error);
         }else{
-            worldMap(csvdata, '累计病死人数', '2_2', $(".11").text().replace(/,/g,""));
+            worldMap(csvdata, '累计病死人数', '2_2'); // , $(".11").text().replace(/,/g,"")
         }
     });
 
@@ -492,7 +492,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "4月底处于上行阶段26个国家的合计数据", '2_23',[200000, 300000, 50000]);
+            bi_yAxis_barchart(csvdata, "4月底处于上行阶段26个国家的合计数据", '2_23',[200000, 350000, 50000]);
         }
     });
 
@@ -516,7 +516,7 @@
         if(error){
             console.log(error);
         }else{
-            bi_yAxis_barchart(csvdata, "4月底处于尾期阶段27个国家的合计数据", '2_26',[40000, 32000, 8000]);
+            bi_yAxis_barchart(csvdata, "4月底处于尾期阶段27个国家的合计数据", '2_26',[40000, 48000, 8000]);
         }
     });
 

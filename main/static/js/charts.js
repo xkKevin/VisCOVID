@@ -45,18 +45,20 @@ var CSS_STYLE = {
 };
 var case_scale = [0, 1000, 10000, 50000, 100000, 500000, 1000000, 2000000, 5000000];
 
-function worldMap(data, name, div_id, num_max) {
+function worldMap(data, name, div_id) {
     var myChart = echarts.init(document.getElementById(div_id));
     // console.log(d3.max(data.map((x)=>parseInt(x[name]))));
-    let data_max = Math.pow(10, num_max.length - 1);
-    if (num_max[0] >= '5'){
-        data_max = 5*data_max;
-    }
 
     let pieces = [];
     let color = CSS_STYLE.color9_red;
 
     if (name === "累计病死人数"){
+        let num_max = get_jsonArrColumn_extreme(data, name).toString();
+        // console.log(num_max);
+        let data_max = Math.pow(10, num_max.length - 1);
+        if (num_max[0] >= '5'){
+            data_max = 5*data_max;
+        }
         color = CSS_STYLE.color9_blue;
         for (let i = 0; i > -9; i--) {
             let min = pieces_map(data_max, i);
