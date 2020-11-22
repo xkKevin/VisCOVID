@@ -41,19 +41,32 @@
     </style>
 </head>
 <body>
-<div class="container">
-    <div style="position: fixed; right: 60px; margin-top: 25px;">
+<div id="top" class="container">
+    <div style="position: fixed; right: 50px; margin-top: 20px;">
         <a id="download" href="/static/report/{{ report_doc_name }}"></a>
         <button id="create_btn" class="btn btn-info ladda-button" data-style="zoom-out" onclick="createReport()">生成疫情周报</button>
         <br>
         <button class="btn btn-warning" style="margin-top: 10px;" onclick="showMissingCountries()">查看忽略国家</button>
         <br>
         <button class="btn btn-primary" style="margin-top: 10px;" onclick="deleteFiles()">清空后端文件</button>
+        <br><br>
+        <a href="#top">页面首部</a><br>
+        <a href="#1.">全球疫情发展大数据分析周报</a><br>
+        <a href="#2.">2.&nbsp;全球疫情现况</a><br>
+        <a href="#2.1">2.1&nbsp;全球累计确诊</a><br>
+        <a href="#2.2">2.2&nbsp;全球确诊率</a><br>
+        <a href="#2.3">2.3&nbsp;全球本周新增确诊</a><br>
+        <a href="#2.4">2.4&nbsp;全球本周新增确诊主要来源</a><br>
+        <a href="#2.5">2.5&nbsp;全球本周新增病死主要来源</a><br>
+        <a href="#2.6">2.6&nbsp;本周新增确诊增长最快</a><br>
+        <a href="#2.7">2.7&nbsp;附录</a><br>
+        <a href="#bottom">页面尾部</a>
     </div>
     <div>
         <h3>全局设置</h3>
         <div>2-16 新增确诊人数增速过滤百分比 <input type="text" value="0.2" id="filter_cases"></div>
         <div>2-17 新增病死人数增速过滤百分比 <input type="text" value="0.1" id="filter_death"></div>
+        <div>附录最后八张图 x_interval <input type="text" id="appendix_x_interval"></div>
         <button class="btn btn-primary" onclick="refresh_charts()">刷新</button> &nbsp;&nbsp; <span class="invisible" style="color: red" id="after_refresh">刷新成功！</span>
     </div>
     <div>
@@ -75,7 +88,7 @@
         ——上周病死增速最快国家：<span class="30"><font>&nbsp;Null&nbsp;</font></span>（<span class="31"><font>&nbsp;Null&nbsp;</font></span>）、<span class="32"><font>&nbsp;Null&nbsp;</font></span>（<span class="33"><font>&nbsp;Null&nbsp;</font></span>） <br>
     </div>
     <div class="text_to_save">
-        <div>
+        <div id="1.">
             <h3>全球疫情发展大数据分析周报</h3>
             （<span class="start_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="start_date_day"><font>&nbsp;Null&nbsp;</font></span>日—<span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日）
             <br>
@@ -87,8 +100,8 @@
             全球本周病死<span class="16"><font>&nbsp;Null&nbsp;</font></span>例，新增病死较上周<span class="17"><font>&nbsp;Null&nbsp;</font></span>。<br>
             注：本报告所有疫情数据截至<span class="end_date_month"><font>&nbsp;Null&nbsp;</font></span>月<span class="end_date_day"><font>&nbsp;Null&nbsp;</font></span>日<span class="36"><font>&nbsp;Null&nbsp;</font></span>时<span class="37"><font>&nbsp;Null&nbsp;</font></span>分，中国数据包含港澳台，法国数据不包括养老院数据，美国数据包括其军队、监狱、境外特殊输入病例等数据。
         </div>
-        <h3>2.&nbsp;全球疫情现况</h3>
-        <h3>2.1&nbsp;全球累计确诊：<span class="2"><font>&nbsp;Null&nbsp;</font></span>例，病死：<span class="3"><font>&nbsp;Null&nbsp;</font></span>例</h3>
+        <h3 id="2.">2.&nbsp;全球疫情现况</h3>
+        <h3 id="2.1">2.1&nbsp;全球累计确诊：<span class="2"><font>&nbsp;Null&nbsp;</font></span>例，病死：<span class="3"><font>&nbsp;Null&nbsp;</font></span>例</h3>
         主要分布在<span class="2_1_countries"><font>&nbsp;Null&nbsp;</font></span>。
         <div id="2_1" style="width: 800px;height:470px;"></div>
         <div>图 2-1&nbsp;全球累计确诊分布图</div>
@@ -125,7 +138,7 @@
         <div>图 2-7&nbsp;全球累计病死人数来源构成（显示前15个国家）</div>
 
         <!--<h3>2.2 全球本周新增确诊<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，病死：<span class="16"><font>&nbsp;Null&nbsp;</font></span>例</h3>-->
-        <h3>2.2&nbsp;全球确诊率：<span class="4"><font>&nbsp;Null&nbsp;</font></span>，病死率：<span class="5"><font>&nbsp;Null&nbsp;</font></span></h3>
+        <h3 id="2.2">2.2&nbsp;全球确诊率：<span class="4"><font>&nbsp;Null&nbsp;</font></span>，病死率：<span class="5"><font>&nbsp;Null&nbsp;</font></span></h3>
         <div id="2_8" style="width: 800px;height:1900px;"></div>
         <div>图2-8&nbsp;各国确诊率（确诊率为累计确诊人数占总人口的百分比，仅显示累计确诊人数超过3000的国家中确诊率前50个国家）</div>
         <div id="2_9" style="width: 800px;height:1900px;"></div>
@@ -138,7 +151,7 @@
         <div id="2_12" style="width: 800px;height:1900px;"></div>
         <div>图2-12&nbsp;各国阳性率（阳性率为累计确诊人数占累计检测数的百分比，仅显示累计确诊人数超过3000的国家中阳性率前50个国家，部分国家数据更新不及时）</div>
 
-        <h3>2.3&nbsp;全球本周新增确诊：<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，病死：<span class="16"><font>&nbsp;Null&nbsp;</font></span>例</h3>
+        <h3 id="2.3">2.3&nbsp;全球本周新增确诊：<span class="14"><font>&nbsp;Null&nbsp;</font></span>例，病死：<span class="16"><font>&nbsp;Null&nbsp;</font></span>例</h3>
         <div class="row" style="width: 800px;">
             <div id="2_13_a" class="col-6" style="margin: 0; padding: 0; height: 230px;"></div>
             <div id="2_13_b" class="col-6" style="margin: 0; padding: 0; height: 230px;"></div>
@@ -146,15 +159,15 @@
             <div class="col-6" style="text-align: center;">(b)</div>
             <div>图2-13&nbsp;全球本周新增确诊人数增长曲线（a）、新增病死人数增长曲线（b）</div>
         </div>
-        <h3>2.4&nbsp;全球本周新增确诊主要来源：<span class="18"><font>&nbsp;Null&nbsp;</font></span>、<span class="20"><font>&nbsp;Null&nbsp;</font></span></h3>
+        <h3 id="2.4">2.4&nbsp;全球本周新增确诊主要来源：<span class="18"><font>&nbsp;Null&nbsp;</font></span>、<span class="20"><font>&nbsp;Null&nbsp;</font></span></h3>
         <div id="2_14" style="width: 850px;height:430px;"></div>
         <div>图2-14&nbsp;全球本周新增确诊人数来源构成（显示前15个国家）</div>
 
-        <h3>2.5&nbsp;全球本周新增病死主要来源：<span class="22"><font>&nbsp;Null&nbsp;</font></span>、<span class="24"><font>&nbsp;Null&nbsp;</font></span></h3>
+        <h3 id="2.5">2.5&nbsp;全球本周新增病死主要来源：<span class="22"><font>&nbsp;Null&nbsp;</font></span>、<span class="24"><font>&nbsp;Null&nbsp;</font></span></h3>
         <div id="2_15" style="width: 850px;height:430px;"></div>
         <div>图2-15&nbsp;全球本周新增病死人数来源构成（显示前15个国家）</div>
 
-        <h3>2.6&nbsp;本周新增确诊增长最快：<span class="26"><font>&nbsp;Null&nbsp;</font></span>，新增病死增长最快：<span class="30"><font>&nbsp;Null&nbsp;</font></span></h3>
+        <h3 id="2.6">2.6&nbsp;本周新增确诊增长最快：<span class="26"><font>&nbsp;Null&nbsp;</font></span>，新增病死增长最快：<span class="30"><font>&nbsp;Null&nbsp;</font></span></h3>
         <div id="2_16" style="width: 800px;"></div>
         <div>图2-16&nbsp;本周较上周新增确诊人数增速（仅显示累计确诊人数超过1万且本周新增确诊人数超过500的国家中增速绝对值大于等于20%的国家）</div>
         <div>注：本周较上周新增确诊人数增速=（本周新增确诊人数-上周新增确诊人数）/上周新增确诊人数</div>
@@ -164,7 +177,7 @@
         <div>注：本周较上周新增病死人数增速=（本周新增病死人数-上周新增病死人数）/上周新增病死人数</div>
         
 
-        <h3>2.7&nbsp;附录</h3>
+        <h3 id="2.7">2.7&nbsp;附录</h3>
         <div id="2_18" style="width: 800px;height:1900px;"></div>
         <div>图2-18&nbsp;各国累计检测数（仅显示累计确诊人数超过3000的国家中累计检测数前50个国家，部分国家检测数据更新不及时）</div>
 
@@ -184,7 +197,7 @@
         <div id="2_25" style="width: 800px;height:550px;"></div>
         <div>图2-25&nbsp;截至4月底处于下行阶段28个国家单日新增确诊和新增治愈走势</div>
         <div id="2_26" style="width: 800px;height:550px;"></div>
-        <div>图2-26&nbsp;截至4月底处于尾期阶段27个国家单日新增确诊和新增治愈走势</div>
+        <div id="bottom">图2-26&nbsp;截至4月底处于尾期阶段27个国家单日新增确诊和新增治愈走势</div>
         <!-- <div id="2_18" style="width: 800px;"></div>
         <div>
             图2-18&nbsp;本周较上周新增确诊人数增速（仅显示累计确诊人数超过1万的国家中增速绝对值大于等于20%的国家）<br>
@@ -258,10 +271,15 @@
                 }else if (data_format.percent_num.includes(index)){
                     data = format_percent(data)
                 }else if (data_format.percent_rate.includes(index)){
+                    let tmp = Math.abs(data * 100);
+                    let int_label = Math.round(tmp);
+                    if (int_label === 0){
+                        int_label = parseFloat(parseFloat(tmp.toPrecision(1)).toFixed(2));
+                    }
                     if (data > 0){
-                        data = "上升" + Math.round(data * 100) + "%"
+                        data = "上升" + int_label + "%";
                     }else if (data < 0){
-                        data = "下降" + Math.round(Math.abs(data) * 100) + "%"
+                        data = "下降" + int_label + "%";
                     }else{
                         data = "一致"
                     }
@@ -447,7 +465,7 @@
             linechart_num(csvdata, "2_5_b")
         }
     });
-
+    appendix8();
     d3.csv("{% static export_dir|add:'2-18.csv' %}", function (error, csvdata) {
         if(error){
             console.log(error);
@@ -455,70 +473,71 @@
             barchart_num(csvdata.slice(0,50), "累计检测数", '2_18', [200000000, 50000000]);
         }
     });
+    function appendix8(x_interval=0){
+        d3.csv("{% static export_dir|add:'2-19.csv' %}", function (error, csvdata) {
+            if(error){
+                console.log(error);
+            }else{
+                bi_yAxis_barchart(csvdata, "全球（215个国家地区合计）", '2_19',[700000, 600000, 100000], x_interval);
+            }
+        });
 
-    d3.csv("{% static export_dir|add:'2-19.csv' %}", function (error, csvdata) {
-        if(error){
-            console.log(error);
-        }else{
-            bi_yAxis_barchart(csvdata, "全球（215个国家地区合计）", '2_19',[700000, 600000, 100000]);
-        }
-    });
+        d3.csv("{% static export_dir|add:'2-20.csv' %}", function (error, csvdata) {
+            if(error){
+                console.log(error);
+            }else{
+                bi_yAxis_barchart(csvdata, "“一带一路”国家（65个国家地区合计）", '2_20',[240000, 280000, 40000], x_interval);
+            }
+        });
 
-    d3.csv("{% static export_dir|add:'2-20.csv' %}", function (error, csvdata) {
-        if(error){
-            console.log(error);
-        }else{
-            bi_yAxis_barchart(csvdata, "“一带一路”国家（65个国家地区合计）", '2_20',[240000, 200000, 40000]);
-        }
-    });
+        d3.csv("{% static export_dir|add:'2-21.csv' %}", function (error, csvdata) {
+            if(error){
+                console.log(error);
+            }else{
+                bi_yAxis_barchart(csvdata, "非洲国家（52个国家地区合计）", '2_21',[40000, 60000, 10000], x_interval);
+            }
+        });
 
-    d3.csv("{% static export_dir|add:'2-21.csv' %}", function (error, csvdata) {
-        if(error){
-            console.log(error);
-        }else{
-            bi_yAxis_barchart(csvdata, "非洲国家（52个国家地区合计）", '2_21',[40000, 60000, 10000]);
-        }
-    });
+        d3.csv("{% static export_dir|add:'2-22.csv' %}", function (error, csvdata) {
+            if(error){
+                console.log(error);
+            }else{
+                bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22',[120000, 150000, 30000], x_interval);
+            }
+        });
 
-    d3.csv("{% static export_dir|add:'2-22.csv' %}", function (error, csvdata) {
-        if(error){
-            console.log(error);
-        }else{
-            bi_yAxis_barchart(csvdata, '周边国家（20个国家地区合计）', '2_22',[120000, 150000, 30000]);
-        }
-    });
+        d3.csv("{% static export_dir|add:'2-23.csv' %}", function (error, csvdata) {
+            if(error){
+                console.log(error);
+            }else{
+                bi_yAxis_barchart(csvdata, "4月底处于上行阶段26个国家的合计数据", '2_23',[200000, 350000, 50000], x_interval);
+            }
+        });
 
-    d3.csv("{% static export_dir|add:'2-23.csv' %}", function (error, csvdata) {
-        if(error){
-            console.log(error);
-        }else{
-            bi_yAxis_barchart(csvdata, "4月底处于上行阶段26个国家的合计数据", '2_23',[200000, 350000, 50000]);
-        }
-    });
+        d3.csv("{% static export_dir|add:'2-24.csv' %}", function (error, csvdata) {
+            if(error){
+                console.log(error);
+            }else{
+                bi_yAxis_barchart(csvdata, "4月底处于震荡阶段28个国家的合计数据", '2_24',[100000, 100000, 20000], x_interval);
+            }
+        });
 
-    d3.csv("{% static export_dir|add:'2-24.csv' %}", function (error, csvdata) {
-        if(error){
-            console.log(error);
-        }else{
-            bi_yAxis_barchart(csvdata, "4月底处于震荡阶段28个国家的合计数据", '2_24',[90000, 75000, 15000]);
-        }
-    });
+        d3.csv("{% static export_dir|add:'2-25.csv' %}", function (error, csvdata) {
+            if(error){
+                console.log(error);
+            }else{
+                bi_yAxis_barchart(csvdata, "4月底处于下行阶段28个国家的合计数据", '2_25',[480000, 320000, 80000], x_interval);
+            }
+        });
 
-    d3.csv("{% static export_dir|add:'2-25.csv' %}", function (error, csvdata) {
-        if(error){
-            console.log(error);
-        }else{
-            bi_yAxis_barchart(csvdata, "4月底处于下行阶段28个国家的合计数据", '2_25',[480000, 240000, 80000]);
-        }
-    });
-
-    d3.csv("{% static export_dir|add:'2-26.csv' %}", function (error, csvdata) {
-        if(error){
-            console.log(error);
-        }else{
-            bi_yAxis_barchart(csvdata, "4月底处于尾期阶段27个国家的合计数据", '2_26',[40000, 48000, 8000]);
-        }
-    });
+        d3.csv("{% static export_dir|add:'2-26.csv' %}", function (error, csvdata) {
+            if(error){
+                console.log(error);
+            }else{
+                bi_yAxis_barchart(csvdata, "4月底处于尾期阶段27个国家的合计数据", '2_26',[40000, 48000, 8000], x_interval);
+            }
+        });
+    }
 
     var flag = true;
     var loading = Ladda.create($("#create_btn")[0]);
@@ -565,7 +584,6 @@
     
     function refresh_charts() {
         flag = true;
-
         d3.csv("{% static export_dir|add:'2-16.csv' %}", function (error, csvdata) {
             if(error){
                 console.log(error);
@@ -585,6 +603,7 @@
                 }, 3000);
             }
         });
+        appendix8(parseInt($("#appendix_x_interval").val()));
     }
 </script>
 </body>

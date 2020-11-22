@@ -835,7 +835,14 @@ function bi_directional_barchart(data, name, div_id, filter_value=0.2) {
             // color: '#6EA748',
             label: {
                 show: true,
-                formatter: (param) => (Math.round(param.value * 100) + "%").padStart(4, " "), //.toFixed(2),
+                formatter: (param) => {
+                    let int_label = Math.round(param.value * 100);
+                    if (param.dataIndex === 0 && int_label === 0){
+                        let tmp = param.value * 100;
+                        int_label = parseFloat(parseFloat(tmp.toPrecision(1)).toFixed(2))
+                    }
+                    return (int_label + "%").padStart(4, " ");
+                }, //.toFixed(2),
                 color: '#000',
                 fontSize: CSS_STYLE.fontSize.small - 1
                 // position: 'top'
@@ -1149,27 +1156,28 @@ function linechart_rate(data, div_id) {
     });
 }
 
-function bi_yAxis_barchart(data, name, div_id, span) {
+var getInterval = function (len) {
+    let labelNum = [13,12,11];  // 总共有四种可能刻度，原先是15——12
+    let precision = 1;
+    let interval = 0;
+    for (let i=0; i<labelNum.length; i++){
+        let interval_f = (len-labelNum[i])/(labelNum[i]-1);
+        let precision_t = Math.abs(Math.round(interval_f)-interval_f);
+        if (precision_t < precision){
+            precision = precision_t;
+            interval = Math.round(interval_f);
+            // console.log(labelNum[i],precision,interval);
+        }
+    }
+    return interval;
+};
+
+function bi_yAxis_barchart(data, name, div_id, span, x_interval) {
     data = data.map((x)=> [x["日期"],x["新增确诊（左）"],x["新增治愈（右）"]]);
     let x_data = data.map(function(x) {
        let date = new Date(x[0]);
        return String(date.getMonth()+1)+'/'+String(date.getDate());
     });
-    let getInterval = function (len) {
-        let labelNum = [15,14,13,12];  // 总共有四种可能刻度
-        let precision = 1;
-        let interval = 0;
-        for (let i=0; i<labelNum.length; i++){
-            let interval_f = (len-labelNum[i])/(labelNum[i]-1);
-            let precision_t = Math.abs(Math.round(interval_f)-interval_f);
-            if (precision_t < precision){
-                precision = precision_t;
-                interval = Math.round(interval_f);
-                // console.log(labelNum[i],precision,interval);
-            }
-        }
-        return interval;
-    };
     var myChart = echarts.init(document.getElementById(div_id));
     let option = {
         title: {
@@ -1197,7 +1205,8 @@ function bi_yAxis_barchart(data, name, div_id, span) {
                                 title: <input type="text" value="${opt.title[0].text}" style="width: 60%"><br>
                                 left max: <input type="text" value="${opt.yAxis[0].max}"><br>
                                 right max: <input type="text" value="${opt.yAxis[1].max}"><br>
-                                interval: <input type="text" value="${opt.yAxis[0].interval}" class="last">`;
+                                y_interval: <input type="text" value="${opt.yAxis[0].interval}"><br>
+                                x_interval: <input type="text" placeholder="${opt.xAxis[0].axisLabel.interval}" class="last"> (不填入此值则系统会自动生成合适的x_interval)`;
                         return table
                     },
                     contentToOption: function(html, opt) {
@@ -1212,9 +1221,15 @@ function bi_yAxis_barchart(data, name, div_id, span) {
                          opt.series[0].data = handle_data.data[0];
                          opt.series[1].data = handle_data.data[1];
                          opt.xAxis[0].data = handle_data.xAxis;
+
+                         let inputs = $(html).children("input");
                          //console.log(getInterval(handle_data.xAxis.length));
-                         opt.xAxis[0].axisLabel.interval = getInterval(handle_data.xAxis.length);
-                        let inputs = $(html).children("input");
+                        if (!inputs.eq(4).val()){
+                            opt.xAxis[0].axisLabel.interval = getInterval(handle_data.xAxis.length);
+                        }else{
+                            opt.xAxis[0].axisLabel.interval = parseInt(inputs.eq(4).val());
+                        }
+
                         opt.title[0].text = inputs.eq(0).val();
                         opt.yAxis[0].max = parseFloat(inputs.eq(1).val());
                         opt.yAxis[1].max = parseFloat(inputs.eq(2).val());
@@ -1296,7 +1311,7 @@ function bi_yAxis_barchart(data, name, div_id, span) {
                 showMinLabel: true,
                 //splitNumber: 15
                 // align: "center",
-                interval: getInterval(x_data.length), // 总共有四种可能刻度
+                interval: x_interval ? x_interval : getInterval(x_data.length), // 总共有四种可能刻度
             },
             data: x_data,
         },{
